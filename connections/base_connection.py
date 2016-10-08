@@ -1,0 +1,2 @@
+class BaseConnection:
+    pass

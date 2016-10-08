@@ -1,24 +1,21 @@
 
 from checks.base_check import BaseCheck
 from connections.impala_connection import ImpalaConnection
-from impala.util import as_pandas
+
 
 class UniquenessCheck(BaseCheck):
-    def __init__(self, opts = {}):
-        self.table = opts["table"]
-        self.column = opts["column"]
-        self.config = opts["config"]
 
-    def run():
-        with ImpalaConnection(self.config["host"], self.config["port"]) as db:
-            cur = db.cursor()
+    def inner_run(self, db):
+        cur = db.cursor()
 
-            cur.execute("""
-                select count(%(col)s) as count, count(distinct %(col)s) as dist_count from %(table)s
-            """ % { 'table': self.table, 'col': self.col })
+        cur.execute("""
+            select count(`%(col)s`) as count, count(distinct `%(col)s`) as dist_count from `%(schema)s`.`%(table)s`
+        """ % self.query_settings)
 
-            result = as_pandas(cur)
+        row = cur.fetchone()
 
-            self.failed_rows = result[result.count != result.dist_count]
+        self.failed = row[0] != row[1]
 
-            self.failed = len(self.failed_rows > 0)
+        self.failed_rows_query = """
+                select `%(col)s` from (select `%(col)s`, count(*) as count from `%(schema)s`.`%(table)s` group by `%(col)s`) t where count > 1
+            """ % self.query_settings

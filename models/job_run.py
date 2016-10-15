@@ -1,9 +1,9 @@
 
-from sqlalchemy import Column, String, Integer, ForeignKey, DateTime, Enum, Text
+from sqlalchemy import Column, String, Integer, ForeignKey, DateTime, Text, Enum, Table, DateTime
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy.ext.declarative import declarative_base
+import models.helpers.base
 from models.helpers.timestamps_triggers import timestamps_triggers
-Base = declarative_base()
+Base = models.helpers.base.Base
 
 import enum
 class JobRunStatus(enum.Enum):
@@ -11,9 +11,11 @@ class JobRunStatus(enum.Enum):
     running = "running"
     failed = "failed"
     finished = "finished"
+    rejected = "rejected"
+    cancelled = "cancelled"
 
 class JobRun(Base):
-    __tablename__ = 'job_runs'
+    __tablename__ = 'job_run'
     id = Column(Integer, primary_key=True)
     created_at = Column(DateTime, nullable=False)
     updated_at = Column(DateTime, nullable=False)
@@ -25,8 +27,11 @@ class JobRun(Base):
     log = Column(Text, nullable=True)
     job_run_check_logs = relationship('JobRunCheckLog', back_populates="job_run")
 
-class JobRunCheckLog(Base):
-    __tablename__ = "job_run_check_logs"
+class JobRunRuleLog(Base):
+    """
+        One log for each Rule fired.
+    """
+    __tablename__ = "job_run_rule_log"
     id = Column(Integer, primary_key=True)
     created_at = Column(DateTime, nullable=False)
     updated_at = Column(DateTime, nullable=False)
@@ -36,6 +41,27 @@ class JobRunCheckLog(Base):
     rule_id = Column(Integer, ForeignKey('rule.id'))
     job_run = relationship('JobRun', back_populates="job_run_check_logs")
     rule = relationship('Rule')
+    job_run_rule_check_logs = relationship('JobRunRuleCheckLog', back_populates="job_run_rule_log")
+
+
+class JobRunRuleCheckLog(Base):
+    """
+        There should be one log for each check on each rule. These can all be concatenated together.
+    """
+    __tablename__ = "job_run_rule_check_log"
+    id = Column(Integer, primary_key=True)
+    created_at = Column(DateTime, nullable=False)
+    updated_at = Column(DateTime, nullable=False)
+    log = Column(Text, nullable=True)
+    results_csv = Column(String, nullable=True)
+    job_run_id = Column(Integer, ForeignKey('job_run.id'))
+    check_id = Column(Integer, ForeignKey('check.id'))
+    rule_id = Column(Integer, ForeignKey('rule.id'))
+    job_run_rule_log_id = Column(Integer, ForeignKey('job_run_rule_log.id'))
+    job_run_rule_log = relationship('JobRunRuleLog', back_populates="job_run_rule_check_logs")
+    check = relationship('Check')
+    rule = relationship('Rule')
 
 timestamps_triggers(JobRun)
-timestamps_triggers(JobRunCheckLog)
+timestamps_triggers(JobRunRuleLog)
+timestamps_triggers(JobRunRuleCheckLog)

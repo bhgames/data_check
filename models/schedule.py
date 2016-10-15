@@ -1,18 +1,16 @@
 
-from sqlalchemy import Column, String, Integer, ForeignKey, Boolean
+from sqlalchemy import Column, String, Integer, ForeignKey, Boolean, Table, Enum, DateTime
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy.ext.declarative import declarative_base
+import models.helpers.base
 from models.helpers.timestamps_triggers import timestamps_triggers
 
-Base = declarative_base()
+Base = models.helpers.base.Base
 
-job_templates_schedules = Table('job_templates_schedules', Base.metadata,
-    Column('schedule_id', Integer, ForeignKey('schedule.id')),
-    Column('job_template_id', Integer, ForeignKey('job_template.id')))
+from models.job_template import job_templates_schedules
 
 class Schedule(Base):
-    __tablename__ = 'schedules'
+    __tablename__ = 'schedule'
     id = Column(Integer, primary_key=True)
     created_at = Column(DateTime, nullable=False)
     updated_at = Column(DateTime, nullable=False)

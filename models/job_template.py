@@ -1,10 +1,10 @@
 
-from sqlalchemy import Column, String, Integer, ForeignKey, DateTime
+from sqlalchemy import Column, String, Integer, ForeignKey, DateTime, Table, DateTime, Enum
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy.ext.declarative import declarative_base
+import models.helpers.base
 from models.helpers.timestamps_triggers import timestamps_triggers
 
-Base = declarative_base()
+Base = models.helpers.base.Base
 
 job_templates_rules = Table('job_templates_rules', Base.metadata,
     Column('rule_id', Integer, ForeignKey('rule.id')),
@@ -15,14 +15,21 @@ job_templates_schedules = Table('job_templates_schedules', Base.metadata,
     Column('job_template_id', Integer, ForeignKey('job_template.id')))
 
 data_sources_job_templates = Table('data_sources_job_templates', Base.metadata,
-    Column('data_source_id', Integer, ForeignKey('data_source_id.id')),
+    Column('data_source_id', Integer, ForeignKey('data_source.id')),
     Column('job_template_id', Integer, ForeignKey('job_template.id')))
 
+import enum
+class LogLevel(enum.Enum):
+    complete = "complete"
+    primary_key_only = "primary_key_only"
+    status_only = "status_only"
+
 class JobTemplate(Base):
-    __tablename__ = 'job_templates'
+    __tablename__ = 'job_template'
     id = Column(Integer, primary_key=True)
     created_at = Column(DateTime, nullable=False)
     updated_at = Column(DateTime, nullable=False)
+    log_level = Column(Enum(LogLevel), nullable=False)
     name = Column(String, nullable=False)
     parallelization = Column(Integer, default=1, nullable=False)
     job_runs = relationship('JobRun', back_populates="job_template")

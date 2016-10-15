@@ -1,7 +1,7 @@
 
-from sqlalchemy import Column, String, Integer, ForeignKey, Enum
-from sqlalchemy.orm import relationship, backref
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, String, Integer, ForeignKey, Enum, Table, DateTime
+from sqlalchemy.orm import relationship, backref, validates
+import models.helpers.base
 from models.helpers.timestamps_triggers import timestamps_triggers
 import enum
 import re
@@ -10,17 +10,15 @@ ValidIpAddressRegex = r"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}
 
 ValidHostnameRegex = r"^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$"
 
-Base = declarative_base()
+Base = models.helpers.base.Base
 
-data_sources_job_templates = Table('data_sources_job_templates', Base.metadata,
-    Column('data_source_id', Integer, ForeignKey('data_source_id.id')),
-    Column('job_template_id', Integer, ForeignKey('job_template.id')))
+from models.job_template import data_sources_job_templates
 
 class DataSourceType(enum.Enum):
     impala = "impala"
 
 class DataSource(Base):
-    __tablename__ = 'data_sources'
+    __tablename__ = 'data_source'
     id = Column(Integer, primary_key=True)
     created_at = Column(DateTime, nullable=False)
     updated_at = Column(DateTime, nullable=False)

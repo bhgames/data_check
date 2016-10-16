@@ -9,13 +9,31 @@ class BaseCheck:
         self.schema = opts["schema"]
         self.column = opts["column"]
         self.config = opts["config"]
+        self.log = opts["log"] if "log" in opts else None
         self.query_settings = { 'table': self.table, 'col': self.column, 'schema': self.schema }
+
+
+    def add_log(self, event, message):
+        if self.log:
+            log.add_log(event, message)
+
+
+    def add_results_csv_to_s3(self):
+        """
+            Big TODO here
+        """
+        pass
 
 
     def run(self):
         with ImpalaConnection(self.config["host"], self.config["port"]) as db:
             self.inner_run(db)
+            if self.failed:
+                self.add_log("result", "Check fails")
+            else:
+                self.add_log("result", "Check succeeds")
             self.run_failed_rows_query(db)
+            self.add_results_csv_to_s3()
 
 
     def inner_run(db):
@@ -26,8 +44,12 @@ class BaseCheck:
         cur = db.cursor()
 
         if self.failed:
+            self.add_log("collection", "Collect failed rows with query %s" % self.failed_rows_query)
+
             cur.execute(self.failed_rows_query)
 
             self.failed_rows = as_pandas(cur)
+
+            self.add_log("result", "Failed Row Result Count: %s" % (len(self.failed_rows)))
         else:
             self.failed_rows = pd.DataFrame()

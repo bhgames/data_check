@@ -3,13 +3,12 @@ import unittest
 from sqlalchemy import create_engine
 from sqlalchemy import MetaData
 import models.helpers.base
+engine = create_engine('postgresql://localhost:5432/data_check_test')
 
-models.helpers.base.init() # Initialize base declarative class.
+models.helpers.base.init(engine) # Initialize base declarative class.
 
 from models import *
 
-engine = create_engine('postgresql://localhost:5432/data_check_test')
-metadata = MetaData()
 
 class BaseTest(unittest.TestCase):
 

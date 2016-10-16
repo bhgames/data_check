@@ -8,11 +8,16 @@ class UniquenessCheck(BaseCheck):
     def inner_run(self, db):
         cur = db.cursor()
 
-        cur.execute("""
+        query = """
             select count(`%(col)s`) as count, count(distinct `%(col)s`) as dist_count from `%(schema)s`.`%(table)s`
-        """ % self.query_settings)
+        """ % self.query_settings
+        self.add_log("collection", "Run query %s" % (query))
+
+        cur.execute(query)
 
         row = cur.fetchone()
+
+        self.add_log("result", "Query came back with count %s and distinct count of %s" %(row[0], row[1]))
 
         self.failed = row[0] != row[1]
 

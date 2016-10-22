@@ -21,9 +21,9 @@ class HasLogs(object):
 
     """
 
-    def get_log(self):
+    def get_log(self, job_run=None):
         if not self.logs:
-            job_run = self if type(self).__name__ == "JobRun" else self.job_run
+            job_run = job_run
             log = Log(job_run=job_run)
             self.logs.append(log)
             session = Session.object_session(self)
@@ -40,7 +40,7 @@ class Log(Base):
     updated_at = Column(DateTime, nullable=True)
     log = Column(JSONB, nullable=True)
     results_csv = Column(String, nullable=True)
-    job_run_id = Column(Integer, ForeignKey('job_run.id'))
+    job_run_id = Column(Integer, ForeignKey('job_run.id'), nullable=False)
     job_run = relationship('JobRun')
     loggable_type = Column(String, nullable=False)
     loggable_id = Column(Integer, nullable=False)

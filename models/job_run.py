@@ -69,7 +69,7 @@ class JobRun(Base, HasLogs):
     def run(self):
         session = Session.object_session(self)
         session.add(self)
-        log = self.get_log()
+        log = self.get_log(job_run=self)
 
         try:
             self.status = JobRunStatus.running

@@ -11,11 +11,8 @@ class TestCheck(BaseTest):
     def assert_event(self, job_run_status, event_type, event_index, table='test.test_uniqueness_success'):
         c = Check(check_type=CheckType.uniqueness, check_metadata={'column': 'id'})
         j = JobRun(status=job_run_status, scheduled_at=now())
-
-        config = self.config()
-        config["schemas"] = ["test"]
-        config["data_source_type"] = DataSourceType.impala
-        d = DataSource(**config)
+        d = self.dummy_datasource()
+        
         self.s.add_all([c, j, d])
         self.s.commit()
 

@@ -6,6 +6,7 @@ class ImpalaConnection(BaseConnection):
         self.port = int(port)
         self.user = user
         self.password = password
+        self.__enter__()
 
     def __enter__(self):
         self.db = connect(host=self.host, port=self.port, user=self.user, password=self.password)

@@ -8,6 +8,7 @@ engine = create_engine('postgresql://localhost:5432/data_check_test')
 models.helpers.base.init(engine) # Initialize base declarative class.
 
 from models import *
+from models.data_source import DataSource, DataSourceType
 
 Session = models.helpers.base.Session
 
@@ -22,6 +23,13 @@ class BaseTest(unittest.TestCase):
         self.s.close()
         models.helpers.base.Base.metadata.drop_all(engine)
 
+
+    def dummy_datasource(self):
+        config = self.config()
+        config["schemas"] = ["test"]
+        config["data_source_type"] = DataSourceType.impala
+        d = DataSource(**config)
+        return d
 
     def config(self):
         return {

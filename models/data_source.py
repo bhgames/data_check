@@ -50,15 +50,14 @@ class DataSource(Base):
             "password": self.password
         }
 
-    def open_connection():
-         self.db = ImpalaConnection(self.host, self.port, self.user, self.password)
+    def open_connection(self):
+        self.db = ImpalaConnection(self.host, self.port, self.user, self.password)
 
-    def close_connection():
+    def close_connection(self):
         self.db.close()
 
     def tables(self):
         tables = []
-
         cur = self.db.cursor()
 
         for sch in self.schemas:

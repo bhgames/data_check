@@ -36,10 +36,8 @@ class Check(Base, HasLogs):
 
     def run(self, job_run, source, table):
         session = Session.object_session(self)
-        log = Log(job_run=job_run)
+        log = self.get_log(job_run=job_run)
         log.add_log("creation", "Begin %s Check of Source %s Table %s with Metadata %s" % (self.check_type.value, source.id, table, self.check_metadata))
-        self.logs.append(log)
-        session.add(log)
         session.add(job_run)
 
         try:

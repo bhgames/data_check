@@ -9,6 +9,8 @@ from copy import deepcopy
 from models.data_source import DataSource
 import datetime
 now = datetime.datetime.now
+import re
+import sys
 
 Base = models.helpers.base.Base
 Session = models.helpers.base.Session
@@ -44,72 +46,73 @@ class Rule(Base, HasLogs):
                             primaryjoin= id == rules_tree.c.child_rule_id,
                             secondaryjoin= id == rules_tree.c.parent_rule_id)
 
-    def if_col_present(conditional, source, tables, log):
+    def if_col_present(self, conditional, source, tables):
         column = conditional["column"]
         valid = [source, []]
         for table in tables:
             present = source.col_present(table, column)
-            log.new_event("check", "Checking %s for column %s: %s" % (table, column, present))
+            self.get_log().add_log("check", "Checking %s for column %s: %s" % (table, column, present))
             if present:
                 valid[1].append(table)
 
         return valid
 
-    def if_col_not_present(conditional, source, tables, log):
-        return [source, tables - self.if_col_present(conditional, source, tables, log)[1]]
 
-    def if_table_name_matches(conditional, source, tables, log):
+    def if_col_not_present(self, conditional, source, tables):
+        return [source, list(set(tables) - set(self.if_col_present(conditional, source, tables)[1]))]
+
+
+    def if_table_name_matches(self, conditional, source, tables):
         pattern = re.compile(conditional["pattern"])
         valid = [source, []]
         for table in tables:
-            match = True if re.match(pattern, table) else False
-            log.new_event("check", "Checking %s against match %s: %s" % (table, pattern, match))
+            match = True if re.search(pattern, table) else False
+
+            self.get_log().add_log("check", "Checking %s against match %s: %s" % (table, conditional["pattern"], match))
             if match:
                 valid[1].append(table)
 
         return valid
 
 
-    def if_table_name_does_not_match(conditional, source, tables, log):
-        return [source, self.if_table_name_matches(conditional, source, tables, log)[1]]
+    def if_table_name_does_not_match(self, conditional, source, tables):
+        return [source, list(set(tables) - set(self.if_table_name_matches(conditional, source, tables)[1]))]
 
 
-    def if_record_count_above(conditional, source, tables, log):
+    def if_record_count_above(self, conditional, source, tables):
         count = conditional["count"]
         valid = [source, []]
         for table in tables:
             table_count = source.count(table)
             is_above = table_count > count
-            log.new_event("check", "Checking %s count of %s against minimum requirement of %s: %s" % (table, table_count, count, is_above))
+            self.get_log().add_log("check", "Checking %s count of %s against minimum requirement of %s: %s" % (table, table_count, count, is_above))
             if is_above:
                 valid[1].append(table)
 
         return valid
 
 
-    def all_tables_with_source(self):
+    def all_tables_with_source(self, job_run):
         """
             Returns a list of lists, first entry is the data source, second is it's tables. This gets whittled down
             through filtering and passed along.
         """
         tables_and_sources = []
-        [tables.append([source, source.tables()]) for source in self.job_template.data_sources]
+        [tables_and_sources.append([source, source.tables()]) for source in job_run.job_template.data_sources]
         return tables_and_sources
 
 
     def run(self, job_run, checks_to_run, tables_and_sources = None):
         session = Session.object_session(self)
-        tables_and_sources = self.all_tables_with_source() if tables_and_sources == None else tables_and_sources
-        log = Log(job_run=job_run)
+        tables_and_sources = self.all_tables_with_source(job_run) if tables_and_sources == None else tables_and_sources
+        log = self.get_log(job_run=job_run)
         log.add_log("creation", "Begin Rule Check")
-        self.logs.append(log)
-        session.add(log)
 
         try:
-            log.new_event("check", "Checking %s condition for conditional %s" % (self.condition, self.conditional))
+            log.add_log("check", "Checking %s condition for conditional %s" % (self.condition.value, self.conditional))
 
             # Whittle down the [source, [table1, table2...]] to same structure but only with tables matching condition.
-            tables_and_sources_matching = [getattr(self, self.condition)(self.conditional, source_and_tables[0], source_and_tables[1], log) for source_and_tables in tables_and_sources]
+            tables_and_sources_matching = [getattr(self, self.condition.value)(self.conditional, source_and_tables[0], source_and_tables[1]) for source_and_tables in tables_and_sources]
 
             # Add tuples like (source, table, checkObj) to checks_to_run array by iterating over every source,
             # every table in that source, every check for that table. Triple generator magic.
@@ -117,11 +120,11 @@ class Rule(Base, HasLogs):
 
             # Now allow any children rules to apply to tables that have been matched by this rule:
             [child.run(job_run, checks_to_run, tables_and_sources_matching) for child in self.children]
-            log.new_event("finished", "Rule Check Ended")
-        except Exception as e:
+            log.add_log("finished", "Rule Check Ended")
+        except Exception:
             print str(sys.exc_info())
             log.new_error_event()
-            raise e
+            raise
 
 
 timestamps_triggers(Rule)

@@ -22,19 +22,19 @@ class DataSourceType(enum.Enum):
 class DataSource(Base):
     __tablename__ = 'data_source'
     id = Column(Integer, primary_key=True)
-    created_at = Column(DateTime, nullable=False)
-    updated_at = Column(DateTime, nullable=False)
+    created_at = Column(DateTime, nullable=True)
+    updated_at = Column(DateTime, nullable=True)
     data_source_type = Column(Enum(DataSourceType), nullable=False)
     host = Column(String, nullable=False)
     port = Column(String, nullable=False)
-    username = Column(String, nullable=True)
+    user = Column(String, nullable=True)
     password = Column(String, nullable=True)
-    schemas = Column(ARRAY, nullable=True)
+    schemas = Column(ARRAY(String), nullable=True)
     job_templates = relationship('JobTemplate', back_populates="data_sources", secondary=data_sources_job_templates)
 
     @validates('port')
     def validate_port(self, key, port):
-        assert re.match(r"^\d+$", port) != None
+        assert re.match(r"^\d+$", str(port)) != None
         return port
 
     @validates('host')
@@ -46,12 +46,12 @@ class DataSource(Base):
         return {
             "host": self.host,
             "port": self.port,
-            "username": self.username,
+            "user": self.user,
             "password": self.password
         }
 
     def open_connection():
-         self.db = ImpalaConnection(self.host, self.port, self.username, self.password)
+         self.db = ImpalaConnection(self.host, self.port, self.user, self.password)
 
     def close_connection():
         self.db.close()
@@ -76,7 +76,8 @@ class DataSource(Base):
         cur.execute("SHOW COLUMN STATS " + table)
 
         for row in cur:
-            return True if row[0] == column
+            if row[0] == column:
+                return True 
 
         return False
 

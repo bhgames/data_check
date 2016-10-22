@@ -15,7 +15,7 @@ class BaseCheck:
 
     def add_log(self, event, message):
         if self.log:
-            log.add_log(event, message)
+            self.log.add_log(event, message)
 
 
     def add_results_csv_to_s3(self):
@@ -26,12 +26,12 @@ class BaseCheck:
 
 
     def run(self):
-        with ImpalaConnection(self.config["host"], self.config["port"]) as db:
+        with ImpalaConnection(self.config["host"], self.config["port"], self.config["user"], self.config["password"]) as db:
             self.inner_run(db)
             if self.failed:
-                self.add_log("result", "Check fails")
+                self.add_log("check_failed", "Check fails")
             else:
-                self.add_log("result", "Check succeeds")
+                self.add_log("check_succeeded", "Check succeeds")
             self.run_failed_rows_query(db)
             self.add_results_csv_to_s3()
 

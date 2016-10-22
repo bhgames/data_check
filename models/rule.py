@@ -5,11 +5,10 @@ import models.helpers.base
 from models.helpers.timestamps_triggers import timestamps_triggers
 from models.log import Log, HasLogs
 from sqlalchemy.dialects.postgresql import JSONB
-from models.checks import *
 from copy import deepcopy
 from models.data_source import DataSource
-from models.job_run import JobRun, JobRunStatus
-from datetime.datetime import now
+import datetime
+now = datetime.datetime.now
 
 Base = models.helpers.base.Base
 Session = models.helpers.base.Session
@@ -28,22 +27,22 @@ class RuleCondition(enum.Enum):
     if_table_name_does_not_match = "if_table_name_does_not_match"
     if_record_count_above = "if_record_count_above"
 
-class CheckType(enum.Enum):
-    uniqueness = "Uniqeness"
-    null = "Null"
-    date_gap = "DateGap"
 
 class Rule(Base, HasLogs):
     __tablename__ = 'rule'
     id = Column(Integer, primary_key=True)
-    created_at = Column(DateTime, nullable=False)
-    updated_at = Column(DateTime, nullable=False)
+    created_at = Column(DateTime, nullable=True)
+    updated_at = Column(DateTime, nullable=True)
     condition = Column(Enum(RuleCondition), nullable=False)
     conditional = Column(JSONB, default={}, nullable=False)
     checks = relationship('Check', back_populates="rule")
     job_templates = relationship('JobTemplate', back_populates="rules", secondary=job_templates_rules)
-    children = relationship('Rule', back_populates="parent", secondary=rules_tree)
-    parent = relationship('Rule', back_populates="children", secondary=rules_tree)
+    children = relationship('Rule', back_populates="parent", secondary=rules_tree, 
+                            primaryjoin= id == rules_tree.c.parent_rule_id,
+                            secondaryjoin= id == rules_tree.c.child_rule_id)
+    parent = relationship('Rule', back_populates="children", secondary=rules_tree, 
+                            primaryjoin= id == rules_tree.c.child_rule_id,
+                            secondaryjoin= id == rules_tree.c.parent_rule_id)
 
     def if_col_present(conditional, source, tables, log):
         column = conditional["column"]
@@ -63,7 +62,7 @@ class Rule(Base, HasLogs):
         pattern = re.compile(conditional["pattern"])
         valid = [source, []]
         for table in tables:
-            match = !!re.match(pattern, table)
+            match = True if re.match(pattern, table) else False
             log.new_event("check", "Checking %s against match %s: %s" % (table, pattern, match))
             if match:
                 valid[1].append(table)
@@ -98,7 +97,9 @@ class Rule(Base, HasLogs):
         return tables_and_sources
 
 
-    def run(self, job_run, checks_to_run, session, tables_and_sources = self.all_tables_with_source()):
+    def run(self, job_run, checks_to_run, tables_and_sources = None):
+        session = Session.object_session(self)
+        tables_and_sources = self.all_tables_with_source() if tables_and_sources == None else tables_and_sources
         log = Log(job_run=job_run)
         log.add_log("creation", "Begin Rule Check")
         self.logs.append(log)
@@ -115,7 +116,7 @@ class Rule(Base, HasLogs):
             [[[checks_to_run.append((source_and_tables[0], table, check)) for check in self.checks] for table in source_and_tables[1]] for source_and_tables in tables_and_sources_matching]
 
             # Now allow any children rules to apply to tables that have been matched by this rule:
-            [child.run(job_run, checks_to_run, session, tables_and_sources_matching) for child in self.children]
+            [child.run(job_run, checks_to_run, tables_and_sources_matching) for child in self.children]
             log.new_event("finished", "Rule Check Ended")
         except Exception as e:
             print str(sys.exc_info())
@@ -123,45 +124,4 @@ class Rule(Base, HasLogs):
             raise e
 
 
-class Check(Base, HasLogs):
-    __tablename__ = 'check'
-    id = Column(Integer, primary_key=True)
-    created_at = Column(DateTime, nullable=False)
-    updated_at = Column(DateTime, nullable=False)
-    check_type = Column(Enum(CheckType), nullable=False)
-    check_metadata = Column(JSONB, nullable=False)
-    rule_id = Column(Integer, ForeignKey('rule.id'))
-    rule = relationship("Rule", back_populates="checks")
-
-    def run(job_run, source, table):
-        session = Session()
-        log = Log(job_run=job_run)
-        log.add_log("creation", "Begin %s Check of Source %s Table %s for With Metadata %s" % (check_type, source.id, table, check_metadata))
-        self.logs.append(log)
-        session.add(log)
-        session.add(job_run)
-
-        try:
-            if (job_run.status in [JobRunStatus.failed, JobRunStatus.cancelled, JobRunStatus.rejected]):
-                log.add_log("cancelled", "Check cancelled due to Job Run Status of %s caused by some other worker." % (job_run.status))
-            else:
-                chk_class = eval(check_type + "Check")
-
-                metadata = deepcopy(self.check_metadata)
-                metadata["table"] = table.split(".")[1]
-                metadata["schema"] = table.split(".")[0]
-                metadata["config"] = source.config()
-                metadata["log"] = log
-
-                check = chk_class(metadata)
-                check.run()
-                log.new_event("finished", "Check Ended")
-        except Exception as e:
-            print str(sys.exc_info())
-            log.new_error_event()
-            job_run.set_failed()
-            
-        session.commit()
-
 timestamps_triggers(Rule)
-timestamps_triggers(Check)

@@ -3,7 +3,7 @@ from impala.dbapi import connect
 class ImpalaConnection(BaseConnection):
     def __init__(self, host, port, user, password):
         self.host = host
-        self.port = port
+        self.port = int(port)
         self.user = user
         self.password = password
 

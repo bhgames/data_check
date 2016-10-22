@@ -6,7 +6,8 @@ from sqlalchemy.dialects.postgresql import JSONB
 from models.helpers.timestamps_triggers import timestamps_triggers
 Base = models.helpers.base.Base
 Session = models.helpers.base.Session
-from datetime.datetime import now
+import datetime
+now = datetime.datetime.now
 from celery_jobs.job_runs import run_job
 from celery_jobs.job_runs import run_check
 from celery_jobs.job_runs import register_finished
@@ -28,8 +29,8 @@ class JobRunStatus(enum.Enum):
 class JobRun(Base, HasLogs):
     __tablename__ = 'job_run'
     id = Column(Integer, primary_key=True)
-    created_at = Column(DateTime, nullable=False)
-    updated_at = Column(DateTime, nullable=False)
+    created_at = Column(DateTime, nullable=True)
+    updated_at = Column(DateTime, nullable=True)
     scheduled_at = Column(DateTime, nullable=False)
     rejected_at = Column(DateTime)
     failed_at = Column(DateTime)
@@ -39,7 +40,6 @@ class JobRun(Base, HasLogs):
     status = Column(Enum(JobRunStatus), nullable=False)
     job_template_id = Column(Integer, ForeignKey('job_template.id'))
     job_template = relationship('JobTemplate')
-    job_run_check_logs = relationship('JobRunCheckLog', back_populates="job_run")
 
     @classmethod
     def create_job_run(cls, job_template, scheduled_run_time):
@@ -58,33 +58,32 @@ class JobRun(Base, HasLogs):
         print str(sys.exc_info())
         self.status = JobRunStatus.failed
         self.failed_at = now()
-        self.logs[0].new_error_event()
+        self.get_log().new_error_event()
 
 
     def set_finished(self):
         self.status = JobRunStatus.finished
         self.finished_at = now()
-        self.logs[0].add_log("finished", "Job Finished at %s" % (self.finished_at))
-
+        self.get_log().add_log("finished", "Job Finished at %s" % (self.finished_at))
 
     def run(self):
-        session = Session()
+        session = Session.object_session(self)
         session.add(self)
+        log = self.get_log()
 
         try:
             self.status = JobRunStatus.running
             self.run_at = now()
-            log = Log(job_run=self)
+            
             log.add_log("started", "Job Started at %s" % (self.run_at))
-            self.logs.append(log)
-            session.add(log)
+            
 
             checks_to_run = []
 
             # Let the rules populate the checks they wish to run.
             # Don't forget to first open connections on all sources so they can be queried.
             [source.open_connection() for source in self.job_template.data_sources]
-            map(lambda r: r.run(self, checks_to_run, session), self.job_template.rules)
+            map(lambda r: r.run(self, checks_to_run), self.job_template.rules)
             [source.close_connection() for source in self.job_template.data_sources]
 
             # Dedupe checks_to_run even against checks. Expect of tuples of format (DataSource, table_name_string, Check)

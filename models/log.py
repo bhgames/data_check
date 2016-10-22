@@ -5,12 +5,15 @@ from sqlalchemy.dialects.postgresql import JSONB
 from models.helpers.timestamps_triggers import timestamps_triggers
 Base = models.helpers.base.Base
 Session = models.helpers.base.Session
-from datetime.datetime import now
+import datetime
+now = datetime.datetime.now
 from celery import chord
 import sys
 import enum
 import numpy as np
-from sqlalchemy import event
+from sqlalchemy import event, and_
+from sqlalchemy.orm import foreign, remote
+import traceback
 
 class HasLogs(object):
     """HasLogs mixin, creates a relationship to
@@ -18,12 +21,23 @@ class HasLogs(object):
 
     """
 
+    def get_log(self):
+        if not self.logs:
+            job_run = self if type(self).__name__ == "JobRun" else self.job_run
+            log = Log(job_run=job_run)
+            self.logs.append(log)
+            session = Session.object_session(self)
+            session.add(log)
+        else:
+            log = self.logs[0]
+        return log
+
 
 class Log(Base):
     __tablename__ = "log"
     id = Column(Integer, primary_key=True)
-    created_at = Column(DateTime, nullable=False)
-    updated_at = Column(DateTime, nullable=False)
+    created_at = Column(DateTime, nullable=True)
+    updated_at = Column(DateTime, nullable=True)
     log = Column(JSONB, nullable=True)
     results_csv = Column(String, nullable=True)
     job_run_id = Column(Integer, ForeignKey('job_run.id'))
@@ -33,14 +47,14 @@ class Log(Base):
     
     @classmethod
     def new_event(cls, event, message, metadata = {}):
-        return { "event": event, "message": message, "metadata": metadata }
+        return { "event": event, "message": message, "metadata": metadata, "time": str(now()) }
 
     
     def new_error_event(self):
         return self.add_log(
                 "failed", 
                 "Job Failed at %s" % str(now()), 
-                { "type":  sys.exc_info()[0], "value":  sys.exc_info()[1], "traceback":  sys.exc_info()[2] }
+                { "traceback": traceback.format_exc() }
             )
 
 
@@ -64,7 +78,7 @@ def setup_listener(mapper, class_):
                                 primaryjoin=remote(class_.id) == foreign(Log.loggable_id)
                                 ))
 
-    @event.listens_for(class_.log, "append")
+    @event.listens_for(class_.logs, "append")
     def append_address(target, value, initiator):
         value.loggable_type = loggable_type
 

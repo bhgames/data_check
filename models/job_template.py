@@ -27,8 +27,8 @@ class LogLevel(enum.Enum):
 class JobTemplate(Base):
     __tablename__ = 'job_template'
     id = Column(Integer, primary_key=True)
-    created_at = Column(DateTime, nullable=False)
-    updated_at = Column(DateTime, nullable=False)
+    created_at = Column(DateTime, nullable=True)
+    updated_at = Column(DateTime, nullable=True)
     log_level = Column(Enum(LogLevel), nullable=False)
     name = Column(String, nullable=False)
     parallelization = Column(Integer, default=1, nullable=False)

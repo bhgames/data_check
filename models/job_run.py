@@ -42,8 +42,7 @@ class JobRun(Base, HasLogs):
     job_template = relationship('JobTemplate')
 
     @classmethod
-    def create_job_run(cls, job_template, scheduled_run_time):
-        session = Session()
+    def create_job_run(cls, session, job_template, scheduled_run_time):
         jr = JobRun(
             scheduled_at = scheduled_run_time, 
             status=JobRunStatus.scheduled, 
@@ -51,7 +50,7 @@ class JobRun(Base, HasLogs):
         )
         session.add(jr)
         session.commit()
-        run_job.apply_async(jr.id, eta=scheduled_run_time)
+        return run_job.apply_async([jr.id], eta=scheduled_run_time)
 
 
     def set_failed(self):

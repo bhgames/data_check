@@ -31,52 +31,52 @@ class TestRule(BaseTest):
 
     @dummy_rule
     def test_if_col_present_is_present(self, r, d):
-        self.assertEqual([d, ['test.test_uniqueness_success']], r.if_col_present({'column': 'id'}, d, ['test.test_uniqueness_success']))
+        self.assertEqual([d, ['test.test_uniqueness_success']], r.if_col_present({'column': 'id'}, d, ['test.test_uniqueness_success'], JobRun()))
 
 
     @dummy_rule
     def test_if_col_present_is_not_present(self, r, d):
-        self.assertEqual([d, []], r.if_col_present({'column': 'idx'}, d, ['test.test_uniqueness_success']))
+        self.assertEqual([d, []], r.if_col_present({'column': 'idx'}, d, ['test.test_uniqueness_success'], JobRun()))
 
 
     @dummy_rule
     def test_if_col_not_present_is_not_present(self, r, d):
-        self.assertEqual([d, ['test.test_uniqueness_success']], r.if_col_not_present({'column': 'idx'}, d, ['test.test_uniqueness_success']))
+        self.assertEqual([d, ['test.test_uniqueness_success']], r.if_col_not_present({'column': 'idx'}, d, ['test.test_uniqueness_success'], JobRun()))
 
 
     @dummy_rule
     def test_if_col_not_present_is_present(self, r, d):
-        self.assertEqual([d, []], r.if_col_not_present({'column': 'id'}, d, ['test.test_uniqueness_success']))
+        self.assertEqual([d, []], r.if_col_not_present({'column': 'id'}, d, ['test.test_uniqueness_success'], JobRun()))
 
 
     @dummy_rule
     def test_if_table_name_matches_actually_matches(self, r, d):
-        self.assertEqual([d, ['test.test_uniqueness_success']], r.if_table_name_matches({'pattern': 'test.*'}, d, ['test.test_uniqueness_success']))
+        self.assertEqual([d, ['test.test_uniqueness_success']], r.if_table_name_matches({'pattern': 'test.*'}, d, ['test.test_uniqueness_success'], JobRun()))
 
 
     @dummy_rule
     def test_if_table_name_matches_doesnt_actually_match(self, r, d):
-        self.assertEqual([d, []], r.if_table_name_matches({'pattern': 'testx_.*'}, d, ['test.test_uniqueness_success']))
+        self.assertEqual([d, []], r.if_table_name_matches({'pattern': 'testx_.*'}, d, ['test.test_uniqueness_success'], JobRun()))
 
 
     @dummy_rule
     def test_if_table_name_does_not_match_actually_matches(self, r, d):
-        self.assertEqual([d, []], r.if_table_name_does_not_match({'pattern': 'test.*'}, d, ['test.test_uniqueness_success']))
+        self.assertEqual([d, []], r.if_table_name_does_not_match({'pattern': 'test.*'}, d, ['test.test_uniqueness_success'], JobRun()))
 
 
     @dummy_rule
     def test_if_table_name_does_not_match_doesnt_actually_match(self, r, d):
-        self.assertEqual([d, ['test.test_uniqueness_success']], r.if_table_name_does_not_match({'pattern': 'testx_.*'}, d, ['test.test_uniqueness_success']))
+        self.assertEqual([d, ['test.test_uniqueness_success']], r.if_table_name_does_not_match({'pattern': 'testx_.*'}, d, ['test.test_uniqueness_success'], JobRun()))
 
 
     @dummy_rule
     def test_if_record_count_above_is_above(self, r, d):
-        self.assertEqual([d, ['test.test_uniqueness_success']], r.if_record_count_above({'count': 1}, d, ['test.test_uniqueness_success']))
+        self.assertEqual([d, ['test.test_uniqueness_success']], r.if_record_count_above({'count': 1}, d, ['test.test_uniqueness_success'], JobRun()))
 
 
     @dummy_rule
     def test_if_record_count_above_is_not_above(self, r, d):
-        self.assertEqual([d, []], r.if_record_count_above({'count': 100}, d, ['test.test_uniqueness_success']))
+        self.assertEqual([d, []], r.if_record_count_above({'count': 100}, d, ['test.test_uniqueness_success'], JobRun()))
 
 
     @dummy_rule
@@ -97,19 +97,19 @@ class TestRule(BaseTest):
     @dummy_rule
     def test_rule_runs_logs_creation(self, r, d):
         r.run(JobRun(job_template=JobTemplate(data_sources=[d])), [])
-        self.assertEqual('creation', r.get_log().log[0]['event'])
+        self.assertEqual('creation', r.get_log(job_run=JobRun()).log[0]['event'])
 
 
     @dummy_rule
     def test_rule_runs_logs_finished(self, r, d):
         r.run(JobRun(job_template=JobTemplate(data_sources=[d])), [])
-        self.assertEqual('finished', r.get_log().log[-1]['event'])
+        self.assertEqual('finished', r.get_log(job_run=JobRun()).log[-1]['event'])
 
 
     @dummy_rule
     def test_rule_runs_logs_check(self, r, d):
         r.run(JobRun(job_template=JobTemplate(data_sources=[d])), [])
-        self.assertEqual('check', r.get_log().log[1]['event'])
+        self.assertEqual('check', r.get_log(job_run=JobRun()).log[1]['event'])
 
 
     def run_rule(self, r, d):

@@ -1,12 +1,13 @@
 from celery import Celery
 import models.helpers.base
 from models.data_source import DataSource
+from models.job_run import JobRun, JobRunStatus
 
 Session = models.helpers.base.Session
 app = Celery('job_runs', broker='amqp://guest@localhost//')
 
 @app.task
-def run_job(id):
+def run_job(job_run_id):
     session = Session()
     jr = session.query(JobRun).get(job_run_id)
     jr.run()
@@ -14,7 +15,7 @@ def run_job(id):
 
 
 @app.task
-def run_check(job_run_id, source_id, table_name_string, check_id):
+def run_check(source_id, table_name_string, check_id, job_run_id):
     session = Session()
     check = session.query(Check).get(check_id)
     job_run = session.query(JobRun).get(job_run_id)

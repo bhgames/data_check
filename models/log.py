@@ -13,15 +13,21 @@ import enum
 import numpy as np
 from sqlalchemy import event, and_
 from sqlalchemy.orm import foreign, remote
+from sqlalchemy.orm.attributes import flag_modified    
+
 import traceback
 
 class HasLogs(object):
-    """HasLogs mixin, creates a relationship to
-    the log_association table for each loggable.
-
+    """
+        HasLogs mixin, creates a relationship to
+        the log_association table for each loggable.
     """
 
     def get_log(self, job_run=None):
+
+        if job_run == None:
+            raise ValueError("ERROR: Passing job_run of None will cause disconnected log.")
+
         if not self.logs:
             job_run = job_run
             log = Log(job_run=job_run)
@@ -62,6 +68,11 @@ class Log(Base):
         if not self.log:
             self.log = []
         self.log.append(self.__class__.new_event(event, message, metadata))
+        
+        # http://stackoverflow.com/questions/30088089/sqlalchemy-json-typedecorator-not-saving-correctly-issues-with-session-commit
+        session = Session.object_session(self)
+        flag_modified(self, "log")
+
 
 
 @event.listens_for(HasLogs, "mapper_configured", propagate=True)

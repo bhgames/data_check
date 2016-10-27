@@ -2,10 +2,15 @@ import unittest
 
 from sqlalchemy import create_engine
 from sqlalchemy import MetaData
+
 import models.helpers.base
 engine = create_engine('postgresql://localhost:5432/data_check_test')
 
 models.helpers.base.init(engine) # Initialize base declarative class.
+
+
+from celery_jobs.job_runs import app as celery_app
+celery_app.conf.update(CELERY_ALWAYS_EAGER=True)
 
 from models import *
 from models.data_source import DataSource, DataSourceType

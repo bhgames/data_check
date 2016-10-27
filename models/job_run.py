@@ -8,14 +8,14 @@ Base = models.helpers.base.Base
 Session = models.helpers.base.Session
 import datetime
 now = datetime.datetime.now
-from celery_jobs.job_runs import run_job
-from celery_jobs.job_runs import run_check
-from celery_jobs.job_runs import register_finished
-from celery import chord
+import celery_jobs.job_runs
+from celery import chord, chain, group
 from models.log import Log, HasLogs
 import sys
 import enum
 import numpy as np
+import traceback
+
 
 class JobRunStatus(enum.Enum):
     scheduled = "scheduled"
@@ -50,32 +50,35 @@ class JobRun(Base, HasLogs):
         )
         session.add(jr)
         session.commit()
-        return run_job.apply_async([jr.id], eta=scheduled_run_time)
+        celery_jobs.job_runs.run_job.apply_async([jr.id], eta=scheduled_run_time)
+        return jr
 
 
     def set_failed(self):
-        print str(sys.exc_info())
+        traceback.print_exc()
         self.status = JobRunStatus.failed
         self.failed_at = now()
-        self.get_log().new_error_event()
+        self.get_log(job_run=self).new_error_event()
 
 
     def set_finished(self):
         self.status = JobRunStatus.finished
         self.finished_at = now()
-        self.get_log().add_log("finished", "Job Finished at %s" % (self.finished_at))
+        print self.get_log(job_run=self)
+        self.get_log(job_run=self).add_log("finished", "Job Finished at %s" % (self.finished_at))
+
 
     def run(self):
         session = Session.object_session(self)
         session.add(self)
         log = self.get_log(job_run=self)
+        print log
 
         try:
             self.status = JobRunStatus.running
             self.run_at = now()
             
             log.add_log("started", "Job Started at %s" % (self.run_at))
-            
 
             checks_to_run = []
 
@@ -90,14 +93,26 @@ class JobRun(Base, HasLogs):
             seen_add = seen.add
             checks_to_run = [c for c in checks_to_run if not ([c[0].id, c[1], c[2].id] in seen or seen_add([c[0].id, c[1], c[2].id]))]
 
-            # Bucketize checks based on parallelization chosen. Each bucket runs sequentially.
-            checks_by_parallelization = np.split(checks_to_run, self.parallelization)
+            if len(checks_to_run) > 0:
+                # Bucketize checks based on parallelization chosen. Each bucket runs sequentially.
+                checks_by_parallelization = np.split(np.array(checks_to_run), self.job_template.parallelization)
 
-            # Run each bucket of checks in a separate celery worker.
-            chord([run_check.s(map(lambda c: [c[0].id, c[1], c[2].id], chks)) for chks in checks_by_parallelization])(register_finished.s(self.id))
+                # Run each bucket of checks in a separate celery worker, by turning each subarray into an array of celery run check
+                # job signatures, and then splatting each array of run check signatures into a chain(requiring them to be done one 
+                # at a time in each chain), then you group all chains together so they run in parallel. Each chain is a worker.
+                # Then finally you call register finished when all done.
+                separate_queues = [map(lambda c: celery_jobs.job_runs.run_check.s(c[0].id, c[1], c[2].id, self.id), chks) for chks in checks_by_parallelization]
+                sep_chains = [chain(*queue) for queue in separate_queues]
+                group_of_chains = (group(*sep_chains) | celery_jobs.job_runs.register_finished.s(self.id)).apply_async()
+            else:
+                self.set_finished()
+
         except Exception:
             self.set_failed()
-        
+        print "Commiting with " 
+        print log.id
+        print log.log
+        session.add(log)
         session.commit()
 
 

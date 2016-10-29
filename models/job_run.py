@@ -16,7 +16,6 @@ import enum
 import numpy as np
 import traceback
 
-
 class JobRunStatus(enum.Enum):
     scheduled = "scheduled"
     running = "running"
@@ -64,7 +63,6 @@ class JobRun(Base, HasLogs):
     def set_finished(self):
         self.status = JobRunStatus.finished
         self.finished_at = now()
-        print self.get_log(job_run=self)
         self.get_log(job_run=self).add_log("finished", "Job Finished at %s" % (self.finished_at))
 
 
@@ -72,11 +70,11 @@ class JobRun(Base, HasLogs):
         session = Session.object_session(self)
         session.add(self)
         log = self.get_log(job_run=self)
-        print log
 
         try:
             self.status = JobRunStatus.running
             self.run_at = now()
+            print self.run_at
             
             log.add_log("started", "Job Started at %s" % (self.run_at))
 
@@ -91,7 +89,7 @@ class JobRun(Base, HasLogs):
             # Dedupe checks_to_run even against checks. Expect of tuples of format (DataSource, table_name_string, Check)
             seen = set()
             seen_add = seen.add
-            checks_to_run = [c for c in checks_to_run if not ([c[0].id, c[1], c[2].id] in seen or seen_add([c[0].id, c[1], c[2].id]))]
+            checks_to_run = [c for c in checks_to_run if not ((c[0].id, c[1], c[2].id) in seen or seen_add((c[0].id, c[1], c[2].id)))]
 
             if len(checks_to_run) > 0:
                 # Bucketize checks based on parallelization chosen. Each bucket runs sequentially.
@@ -101,7 +99,7 @@ class JobRun(Base, HasLogs):
                 # job signatures, and then splatting each array of run check signatures into a chain(requiring them to be done one 
                 # at a time in each chain), then you group all chains together so they run in parallel. Each chain is a worker.
                 # Then finally you call register finished when all done.
-                separate_queues = [map(lambda c: celery_jobs.job_runs.run_check.s(c[0].id, c[1], c[2].id, self.id), chks) for chks in checks_by_parallelization]
+                separate_queues = [map(lambda c: celery_jobs.job_runs.run_check.si(c[0].id, c[1], c[2].id, self.id), chks) for chks in checks_by_parallelization]
                 sep_chains = [chain(*queue) for queue in separate_queues]
                 group_of_chains = (group(*sep_chains) | celery_jobs.job_runs.register_finished.s(self.id)).apply_async()
             else:
@@ -109,9 +107,7 @@ class JobRun(Base, HasLogs):
 
         except Exception:
             self.set_failed()
-        print "Commiting with " 
-        print log.id
-        print log.log
+
         session.add(log)
         session.commit()
 

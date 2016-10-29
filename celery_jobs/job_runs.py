@@ -1,6 +1,7 @@
 from celery import Celery
 import models.helpers.base
 from models.data_source import DataSource
+from models.check import Check
 from models.job_run import JobRun, JobRunStatus
 
 Session = models.helpers.base.Session

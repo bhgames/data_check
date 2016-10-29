@@ -24,18 +24,24 @@ class HasLogs(object):
     """
 
     def get_log(self, job_run=None):
-
         if job_run == None:
             raise ValueError("ERROR: Passing job_run of None will cause disconnected log.")
 
-        if not self.logs:
-            job_run = job_run
+        if hasattr(self, 'cached_current_log'):
+            return self.cached_current_log
+
+        session = Session.object_session(self)
+
+        log = session.query(Log).filter_by(job_run=job_run, loggable_type=self.__class__.__name__.lower(), loggable_id=self.id).first()
+
+        if not log:
             log = Log(job_run=job_run)
             self.logs.append(log)
-            session = Session.object_session(self)
-            session.add(log)
-        else:
-            log = self.logs[0]
+
+        session.add(log)
+
+        self.cached_current_log = log
+
         return log
 
 
@@ -68,7 +74,7 @@ class Log(Base):
         if not self.log:
             self.log = []
         self.log.append(self.__class__.new_event(event, message, metadata))
-        
+
         # http://stackoverflow.com/questions/30088089/sqlalchemy-json-typedecorator-not-saving-correctly-issues-with-session-commit
         session = Session.object_session(self)
         flag_modified(self, "log")

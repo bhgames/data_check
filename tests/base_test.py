@@ -8,7 +8,6 @@ engine = create_engine('postgresql://localhost:5432/data_check_test')
 
 models.helpers.base.init(engine) # Initialize base declarative class.
 
-
 from celery_jobs.job_runs import app as celery_app
 celery_app.conf.update(CELERY_ALWAYS_EAGER=True)
 

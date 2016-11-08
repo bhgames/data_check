@@ -1,0 +1,2 @@
+psql template1 -c "create database data_check"
+python -m models.helpers.base

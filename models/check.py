@@ -12,7 +12,6 @@ now = datetime.datetime.now
 from checks.date_gap_check import DateGapCheck
 from checks.null_check import NullCheck
 from checks.uniqueness_check import UniquenessCheck
-
 import sys
 
 Base = models.helpers.base.Base
@@ -20,9 +19,9 @@ Session = models.helpers.base.Session
 
 import enum
 class CheckType(enum.Enum):
-    uniqueness = "Uniqueness"
-    null = "Null"
-    date_gap = "DateGap"
+    uniqueness = "uniqueness"
+    null = "null"
+    date_gap = "date_gap"
 
 class Check(Base, HasLogs):
     __tablename__ = 'check'
@@ -44,7 +43,7 @@ class Check(Base, HasLogs):
             if (job_run.status in [JobRunStatus.failed, JobRunStatus.cancelled, JobRunStatus.rejected]):
                 log.add_log("cancelled", "Check cancelled due to Job Run Status of %s caused by some other worker." % (job_run.status))
             else:
-                chk_class = eval(str(self.check_type.value) + "Check")
+                chk_class = eval(str(self.check_type.value).title() + "Check")
 
                 metadata = deepcopy(self.check_metadata)
                 metadata["table"] = table.split(".")[1]

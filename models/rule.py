@@ -13,7 +13,7 @@ import re
 import sys
 
 Base = models.helpers.base.Base
-Session = models.helpers.base.Session
+db_session = models.helpers.base.db_session
 
 from models.job_template import job_templates_rules
 
@@ -103,7 +103,6 @@ class Rule(Base, HasLogs):
 
 
     def run(self, job_run, checks_to_run, tables_and_sources = None):
-        session = Session.object_session(self)
         tables_and_sources = self.all_tables_with_source(job_run) if tables_and_sources == None else tables_and_sources
         log = self.get_log(job_run=job_run)
         log.add_log("creation", "Begin Rule Check")

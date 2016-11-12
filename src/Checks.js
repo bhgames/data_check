@@ -3,6 +3,7 @@ import logo from './logo.svg';
 import './App.css';
 import { Button, Table, ControlLabel, FormControl, FormGroup, HelpBlock } from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
+import { withRouter } from 'react-router';
 
 export function Checks(props) {
   return (
@@ -12,11 +13,45 @@ export function Checks(props) {
   )
 }
 
-export function ChecksList() {
+export class ChecksListWithData extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = { checks: [] };
+    let headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+
+    let params = { method: 'GET',
+                   headers: headers,
+                   mode: 'cors'
+                 };
+
+    let get = new Request('http://localhost:5000/checks');
+    let that = this;
+
+    fetch(get, params).then(function(response) {
+      return response.json();
+    }).then(function(json) {
+      that.setState({ checks: json })
+    })
+
+  }
+
+  render() {
+    return (
+      <div>
+        <ChecksList checks={this.state.checks}/>
+      </div>
+    )
+  }
+
+}
+
+export function ChecksList({ checks }) {
   return (
     <div>
 
-      <LinkContainer to={'/checks/new'}>
+      <LinkContainer to={'/checks/new/edit'}>
         <Button bsStyle="primary">New</Button>
       </LinkContainer>
 
@@ -26,42 +61,83 @@ export function ChecksList() {
             <th>Check ID</th>
             <th>Check Type</th>
             <th>Check Metadata</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>1</td>
-            <td>Uniqueness</td>
-            <td> column: "id" </td>
-          </tr>
+          {checks.map(check => 
+            <tr key={check.id}>
+              <td>{check.id}</td>
+              <td>{check.check_type}</td>
+              <td>{check.check_metadata.column}</td>
+              <td>
+                <LinkContainer to={'/checks/' + check.id + '/edit'}>
+                  <Button>Edit</Button>
+                </LinkContainer>
+                <Button>Delete</Button>
+              </td>
+            </tr>
+          )}
         </tbody>
       </Table> 
     </div>
   );
 }
 
-export class NewCheckForm extends Component {
+ChecksList.propTypes = {
+  checks: React.PropTypes.arrayOf(React.PropTypes.shape({
+     id: React.PropTypes.number.isRequired,
+     check_type: React.PropTypes.string.isRequired,
+     check_metadata: React.PropTypes.object.isRequired
+   })).isRequired
+}
+
+
+class UnwrappedCheckForm extends Component {
 
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
-      column: '',
-      checkType: 'Uniqueness'
+      check_metadata: {
+        column: ''
+      },
+      check_type: 'CheckType.uniqueness'
+    };
+
+    if(props.params.id != "new") {
+      let headers = new Headers();
+      headers.append('Content-Type', 'application/json');
+
+      let params = { method: 'GET',
+                     headers: headers,
+                     mode: 'cors'
+                   };
+
+      let get = new Request('http://localhost:5000/checks/' + props.params.id);
+      let that = this;
+
+      fetch(get, params).then(function(response) {
+        return response.json();
+      }).then(function(json) {
+        that.setState(json);
+      })
     }
+
   }
 
+
   getValidationState() {
-    const length = this.state.column.length;
+    const length = this.state.check_metadata.column.length;
     if (length >= 1) return 'success';
     else if (length > 0) return 'error';
   }
 
   handleChange(e) {
-    this.setState({ column: e.target.value });
+    this.setState({ check_metadata: { column: e.target.value } });
   }
 
   handleTypeChange(e) {
-    this.setState({ checkType: e.target.value });
+    this.setState({ check_type: e.target.value });
   }
 
   submit(e) {
@@ -72,19 +148,22 @@ export class NewCheckForm extends Component {
     let params = { method: 'POST',
                    headers: headers,
                    mode: 'cors',
-                   body: {
-                    check_type: this.state.checkType,
-                    check_metadata: {
-                      column: this.state.column
-                    }
-                   } 
+                   body: JSON.stringify(this.state)
                  };
 
-    let post = new Request('http://localhost:5000/checks');
+    let add = "";
+
+    if(this.props.params.id != "new") {
+      add = "/" + this.props.params.id;
+      params.method = 'PUT';
+    }
+
+    let post = new Request('http://localhost:5000/checks' + add);
+    let that = this;
 
     fetch(post,params).then(function(response) {
       if(response.ok) {
-        console.log("yay");
+        that.props.router.push('/checks');
       } else {
         console.log(response);
       }
@@ -98,10 +177,10 @@ export class NewCheckForm extends Component {
       <form onSubmit={this.submit.bind(this)}>
         <FormGroup controlId="checkType">
           <ControlLabel>Check Type</ControlLabel>
-          <FormControl componentClass="select" value={this.state.checkType} onChange={this.handleTypeChange.bind(this)}>
-            <option value="Uniqueness">Uniqueness</option>
-            <option value="Null">Null</option>
-            <option value="DateGap">DateGap</option>
+          <FormControl componentClass="select" value={this.state.check_type} onChange={this.handleTypeChange.bind(this)}>
+            <option value="CheckType.uniqueness">Uniqueness</option>
+            <option value="CheckType.null">Null</option>
+            <option value="CheckType.date_gap">DateGap</option>
           </FormControl>
         </FormGroup>
 
@@ -112,7 +191,7 @@ export class NewCheckForm extends Component {
           <ControlLabel>Column to Check</ControlLabel>
           <FormControl
             type="text"
-            value={this.state.column}
+            value={this.state.check_metadata.column}
             placeholder="Enter text"
             onChange={this.handleChange.bind(this)}
           />
@@ -126,5 +205,14 @@ export class NewCheckForm extends Component {
     )
   }
 }
+
+UnwrappedCheckForm.propTypes = {
+  params: React.PropTypes.shape({
+     id: React.PropTypes.string.isRequired
+   }).isRequired
+}
+
+let CheckForm = withRouter(UnwrappedCheckForm);
+export { CheckForm };
 
 

@@ -4,7 +4,7 @@ import models.helpers.base
 from sqlalchemy.dialects.postgresql import JSONB
 from models.helpers.timestamps_triggers import timestamps_triggers
 Base = models.helpers.base.Base
-Session = models.helpers.base.Session
+db_session = models.helpers.base.db_session
 import datetime
 now = datetime.datetime.now
 from celery import chord
@@ -30,15 +30,13 @@ class HasLogs(object):
         if hasattr(self, 'cached_current_log'):
             return self.cached_current_log
 
-        session = Session.object_session(self)
-
-        log = session.query(Log).filter_by(job_run=job_run, loggable_type=self.__class__.__name__.lower(), loggable_id=self.id).first()
+        log = db_session.query(Log).filter_by(job_run=job_run, loggable_type=self.__class__.__name__.lower(), loggable_id=self.id).first()
 
         if not log:
             log = Log(job_run=job_run)
             self.logs.append(log)
 
-        session.add(log)
+        db_session.add(log)
 
         self.cached_current_log = log
 
@@ -76,7 +74,6 @@ class Log(Base):
         self.log.append(self.__class__.new_event(event, message, metadata))
 
         # http://stackoverflow.com/questions/30088089/sqlalchemy-json-typedecorator-not-saving-correctly-issues-with-session-commit
-        session = Session.object_session(self)
         flag_modified(self, "log")
 
 

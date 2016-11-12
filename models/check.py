@@ -1,5 +1,6 @@
 from sqlalchemy import Column, String, Integer, ForeignKey, Enum, Table, DateTime
 from sqlalchemy.orm import relationship, backref
+
 import models.helpers.base
 from models.helpers.timestamps_triggers import timestamps_triggers
 from models.log import Log, HasLogs
@@ -15,13 +16,27 @@ from checks.uniqueness_check import UniquenessCheck
 import sys
 
 Base = models.helpers.base.Base
-Session = models.helpers.base.Session
+db_session = models.helpers.base.db_session
+
+
+from marshmallow import Schema, fields, pprint
+
+class CheckMetadataSchema(Schema):
+    column = fields.Str()
+
+
+class CheckSchema(Schema):
+    id = fields.Integer()
+    check_type = fields.Str()
+    check_metadata = fields.Nested(CheckMetadataSchema())
+
 
 import enum
 class CheckType(enum.Enum):
     uniqueness = "uniqueness"
     null = "null"
     date_gap = "date_gap"
+
 
 class Check(Base, HasLogs):
     __tablename__ = 'check'
@@ -32,12 +47,24 @@ class Check(Base, HasLogs):
     check_metadata = Column(JSONB, nullable=False)
     rule_id = Column(Integer, ForeignKey('rule.id'))
     rule = relationship("Rule", back_populates="checks")
+    
+    def as_dict(self):
+        return {c.name: self.getattr_clean(c.name) for c in self.__table__.columns}
+
+    def getattr_clean(self, column):
+        attr = getattr(self, column)
+        print issubclass(attr.__class__, enum.Enum)
+        print attr
+        print str(attr)
+        if issubclass(attr.__class__, enum.Enum):
+            return attr
+        else:
+            return attr
 
     def run(self, job_run, source, table):
-        session = Session.object_session(self)
         log = self.get_log(job_run=job_run)
         log.add_log("creation", "Begin %s Check of Source %s Table %s with Metadata %s" % (self.check_type.value, source.id, table, self.check_metadata))
-        session.add(job_run)
+        db_session.add(job_run)
 
         try:
             if (job_run.status in [JobRunStatus.failed, JobRunStatus.cancelled, JobRunStatus.rejected]):
@@ -59,7 +86,7 @@ class Check(Base, HasLogs):
             log.new_error_event()
             job_run.set_failed()
 
-        session.commit()
+        db_session.commit()
 
 
 timestamps_triggers(Check)

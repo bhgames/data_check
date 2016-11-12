@@ -8,7 +8,7 @@ from functools import wraps
 now = datetime.datetime.now
 import models.helpers.base
 
-Session = models.helpers.base.Session
+db_session = models.helpers.base.db_session
 
 class TestJobRun(BaseTest):
 
@@ -19,13 +19,12 @@ class TestJobRun(BaseTest):
         def _decorator(self, *args, **kwargs):
             jt = JobTemplate(log_level = LogLevel.complete, name="Gob")
             self.s.add(jt)
+
             # Actually runs the job
-            jr = JobRun.create_job_run(self.s, jt, now())
-            jt_id = jt.id
-            self.s.close()
-            self.s = Session()
+            jr = JobRun.create_job_run(jt, now())
+
             jr = self.s.query(JobRun).get(jr.id)
-            jt = self.s.query(JobTemplate).get(jt_id)
+            jt = self.s.query(JobTemplate).get(jt.id)
             func(self, jt, jr)
 
         return _decorator
@@ -45,12 +44,10 @@ class TestJobRun(BaseTest):
             jt.rules.append(r)
             self.s.add_all([jt, r])
             # Actually runs the job
-            jr = JobRun.create_job_run(self.s, jt, now())
-            jt_id = jt.id
-            self.s.close()
-            self.s = Session()
+            jr = JobRun.create_job_run(jt, now())
+            # Refresh Obj from DB
             jr = self.s.query(JobRun).get(jr.id)
-            jt = self.s.query(JobTemplate).get(jt_id)
+            jt = self.s.query(JobTemplate).get(jt.id)
             func(self, jt, jr)
 
         return _decorator

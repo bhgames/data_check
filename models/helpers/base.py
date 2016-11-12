@@ -1,11 +1,11 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 
 def init(engine):
     global Base
-    global Session
+    global db_session
     Base = declarative_base()
-    Session = sessionmaker(bind=engine)
+    db_session = scoped_session(sessionmaker(bind=engine))
 
 
 if __name__ == '__main__':

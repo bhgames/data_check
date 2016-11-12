@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import Recent from './Recent';
-import { Checks, ChecksList, NewCheckForm } from './Checks';
+import { Checks, ChecksListWithData, CheckForm } from './Checks';
 
 import './index.css';
 import { Router, Route, IndexRoute, Link, hashHistory } from 'react-router';
@@ -12,8 +12,8 @@ ReactDOM.render((
     <Route path="/" component={App}>
       <IndexRoute component={Recent} />
       <Route path="checks" component={Checks}>
-        <IndexRoute component={ChecksList} />
-        <Route path="new" component={NewCheckForm} />
+        <IndexRoute component={ChecksListWithData} />
+        <Route path=":id/edit" component={CheckForm} />
       </Route>
     </Route>
   </Router>

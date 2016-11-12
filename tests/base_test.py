@@ -14,17 +14,17 @@ celery_app.conf.update(CELERY_ALWAYS_EAGER=True)
 from models import *
 from models.data_source import DataSource, DataSourceType
 
-Session = models.helpers.base.Session
+db_session = models.helpers.base.db_session
 
 class BaseTest(unittest.TestCase):
 
     def setUp(self):
         models.helpers.base.Base.metadata.create_all(engine)
-        self.s = Session()
+        self.s = db_session
 
 
     def tearDown(self):
-        self.s.close()
+        self.s.remove()
         models.helpers.base.Base.metadata.drop_all(engine)
 
 

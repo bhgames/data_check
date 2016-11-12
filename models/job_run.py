@@ -5,7 +5,7 @@ import models.helpers.base
 from sqlalchemy.dialects.postgresql import JSONB
 from models.helpers.timestamps_triggers import timestamps_triggers
 Base = models.helpers.base.Base
-Session = models.helpers.base.Session
+db_session = models.helpers.base.db_session
 import datetime
 now = datetime.datetime.now
 import celery_jobs.job_runs
@@ -41,14 +41,14 @@ class JobRun(Base, HasLogs):
     job_template = relationship('JobTemplate')
 
     @classmethod
-    def create_job_run(cls, session, job_template, scheduled_run_time):
+    def create_job_run(cls, job_template, scheduled_run_time):
         jr = JobRun(
             scheduled_at = scheduled_run_time, 
             status=JobRunStatus.scheduled, 
             job_template=job_template
         )
-        session.add(jr)
-        session.commit()
+        db_session.add(jr)
+        db_session.commit()
         celery_jobs.job_runs.run_job.apply_async([jr.id], eta=scheduled_run_time)
         return jr
 
@@ -67,8 +67,7 @@ class JobRun(Base, HasLogs):
 
 
     def run(self):
-        session = Session.object_session(self)
-        session.add(self)
+        db_session.add(self)
         log = self.get_log(job_run=self)
 
         try:
@@ -108,8 +107,8 @@ class JobRun(Base, HasLogs):
         except Exception:
             self.set_failed()
 
-        session.add(log)
-        session.commit()
+        db_session.add(log)
+        db_session.commit()
 
 
 timestamps_triggers(JobRun)

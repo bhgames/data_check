@@ -2,9 +2,10 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import { Button, Table, ControlLabel, FormControl, FormGroup, HelpBlock } from 'react-bootstrap';
-import { LinkContainer } from 'react-router-bootstrap';
 import { withRouter } from 'react-router';
+import { WithData, List } from './General';
 
+// General container for all Checks routes. Dont put anything here.
 export function Checks(props) {
   return (
     <div>
@@ -13,84 +14,34 @@ export function Checks(props) {
   )
 }
 
-export class ChecksListWithData extends Component {
-
-  constructor(props) {
-    super(props);
-    this.state = { checks: [] };
-    let headers = new Headers();
-    headers.append('Content-Type', 'application/json');
-
-    let params = { method: 'GET',
-                   headers: headers,
-                   mode: 'cors'
-                 };
-
-    let get = new Request('http://localhost:5000/checks');
-    let that = this;
-
-    fetch(get, params).then(function(response) {
-      return response.json();
-    }).then(function(json) {
-      that.setState({ checks: json })
-    })
-
-  }
-
-  render() {
-    return (
-      <div>
-        <ChecksList checks={this.state.checks}/>
-      </div>
-    )
-  }
-
+export function ChecksListWithData() {
+  return (
+    <WithData resource="checks">
+      <ChecksList />
+    </WithData>
+  )
 }
 
-export function ChecksList({ checks }) {
+export function ChecksList({ data }) {
+  let columns = ["id", "check_type", "check_metadata"];
+  let columnNames = ["ID", "Check Type", "Check Metadata"];
+
   return (
-    <div>
-
-      <LinkContainer to={'/checks/new/edit'}>
-        <Button bsStyle="primary">New</Button>
-      </LinkContainer>
-
-      <Table responsive striped bordered condensed hover>
-        <thead>
-          <tr>
-            <th>Check ID</th>
-            <th>Check Type</th>
-            <th>Check Metadata</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {checks.map(check => 
-            <tr key={check.id}>
-              <td>{check.id}</td>
-              <td>{check.check_type}</td>
-              <td>{check.check_metadata.column}</td>
-              <td>
-                <LinkContainer to={'/checks/' + check.id + '/edit'}>
-                  <Button>Edit</Button>
-                </LinkContainer>
-                <Button>Delete</Button>
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </Table> 
-    </div>
+    <List data={data} columnNames={columnNames} columns={columns} baseResource="checks"/>
   );
 }
 
 ChecksList.propTypes = {
-  checks: React.PropTypes.arrayOf(React.PropTypes.shape({
+  data: React.PropTypes.arrayOf(React.PropTypes.shape({
      id: React.PropTypes.number.isRequired,
      check_type: React.PropTypes.string.isRequired,
      check_metadata: React.PropTypes.object.isRequired
    })).isRequired
 }
+
+ChecksList.defaultProps = {
+  data: []
+};
 
 
 class UnwrappedCheckForm extends Component {

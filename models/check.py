@@ -47,19 +47,6 @@ class Check(Base, HasLogs):
     check_metadata = Column(JSONB, nullable=False)
     rule_id = Column(Integer, ForeignKey('rule.id'))
     rule = relationship("Rule", back_populates="checks")
-    
-    def as_dict(self):
-        return {c.name: self.getattr_clean(c.name) for c in self.__table__.columns}
-
-    def getattr_clean(self, column):
-        attr = getattr(self, column)
-        print issubclass(attr.__class__, enum.Enum)
-        print attr
-        print str(attr)
-        if issubclass(attr.__class__, enum.Enum):
-            return attr
-        else:
-            return attr
 
     def run(self, job_run, source, table):
         log = self.get_log(job_run=job_run)

@@ -28,7 +28,7 @@ def get_check_type_from_params():
     return check_type_value
 
 @app.route('/checks', methods=['POST'])
-def new_check():
+def new_check_save():
     c = Check(check_type=get_check_type_from_params(), check_metadata=request.json['check_metadata'])
     db_session.add(c)
     db_session.commit()
@@ -42,6 +42,19 @@ def get_checks():
     qr = qr.all()
     sch = CheckSchema(many=True)
     return sch.dumps(qr)
+
+
+@app.route('/checks/new', methods=['GET'])
+def new_check():
+    return jsonify(
+        {
+            "id": 'new',
+            "check_metadata": {
+                "column": ''
+            },
+            "check_type": 'CheckType.uniqueness'
+        }
+    )
 
 
 @app.route('/checks/<id>', methods=['GET'])

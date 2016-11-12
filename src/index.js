@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import Recent from './Recent';
-import { Checks, ChecksListWithData, CheckForm } from './Checks';
+import { Checks, ChecksListWithData, CheckFormWithData } from './Checks';
 
 import './index.css';
 import { Router, Route, IndexRoute, Link, hashHistory } from 'react-router';
@@ -13,7 +13,7 @@ ReactDOM.render((
       <IndexRoute component={Recent} />
       <Route path="checks" component={Checks}>
         <IndexRoute component={ChecksListWithData} />
-        <Route path=":id/edit" component={CheckForm} />
+        <Route path=":id/edit" component={CheckFormWithData} />
       </Route>
     </Route>
   </Router>

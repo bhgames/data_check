@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import { Button, Table, ControlLabel, FormControl, FormGroup, HelpBlock } from 'react-bootstrap';
-import { withRouter } from 'react-router';
-import { WithData, List } from './General';
+import { WithData, List, ResourceForm } from './General';
 
 // General container for all Checks routes. Dont put anything here.
 export function Checks(props) {
@@ -16,18 +15,18 @@ export function Checks(props) {
 
 export function ChecksListWithData() {
   return (
-    <WithData resource="checks">
+    <WithData baseResource="checks">
       <ChecksList />
     </WithData>
   )
 }
 
-export function ChecksList({ data }) {
+export function ChecksList(props) {
   let columns = ["id", "check_type", "check_metadata"];
   let columnNames = ["ID", "Check Type", "Check Metadata"];
 
   return (
-    <List data={data} columnNames={columnNames} columns={columns} baseResource="checks"/>
+    <List columnNames={columnNames} columns={columns} {...props}/>
   );
 }
 
@@ -44,38 +43,16 @@ ChecksList.defaultProps = {
 };
 
 
-class UnwrappedCheckForm extends Component {
+class CheckForm extends Component {
 
   constructor(props) {
-    super(props)
-    this.state = {
-      check_metadata: {
-        column: ''
-      },
-      check_type: 'CheckType.uniqueness'
-    };
-
-    if(props.params.id != "new") {
-      let headers = new Headers();
-      headers.append('Content-Type', 'application/json');
-
-      let params = { method: 'GET',
-                     headers: headers,
-                     mode: 'cors'
-                   };
-
-      let get = new Request('http://localhost:5000/checks/' + props.params.id);
-      let that = this;
-
-      fetch(get, params).then(function(response) {
-        return response.json();
-      }).then(function(json) {
-        that.setState(json);
-      })
-    }
-
+    super(props);
+    this.state = props.data;
   }
 
+  componentWillReceiveProps(nextProps) {
+    this.setState(nextProps.data);
+  }
 
   getValidationState() {
     const length = this.state.check_metadata.column.length;
@@ -91,41 +68,10 @@ class UnwrappedCheckForm extends Component {
     this.setState({ check_type: e.target.value });
   }
 
-  submit(e) {
-    e.preventDefault();
-    let headers = new Headers();
-    headers.append('Content-Type', 'application/json');
-
-    let params = { method: 'POST',
-                   headers: headers,
-                   mode: 'cors',
-                   body: JSON.stringify(this.state)
-                 };
-
-    let add = "";
-
-    if(this.props.params.id != "new") {
-      add = "/" + this.props.params.id;
-      params.method = 'PUT';
-    }
-
-    let post = new Request('http://localhost:5000/checks' + add);
-    let that = this;
-
-    fetch(post,params).then(function(response) {
-      if(response.ok) {
-        that.props.router.push('/checks');
-      } else {
-        console.log(response);
-      }
-    })
-
-  }
-
   render() {
 
     return (
-      <form onSubmit={this.submit.bind(this)}>
+      <ResourceForm data={this.state} baseResource={this.props.baseResource}>
         <FormGroup controlId="checkType">
           <ControlLabel>Check Type</ControlLabel>
           <FormControl componentClass="select" value={this.state.check_type} onChange={this.handleTypeChange.bind(this)}>
@@ -148,22 +94,27 @@ class UnwrappedCheckForm extends Component {
           />
           <FormControl.Feedback />
         </FormGroup>
-
-        <Button type="submit">
-          Submit
-        </Button>
-      </form>
+      </ResourceForm>
     )
   }
 }
 
-UnwrappedCheckForm.propTypes = {
-  params: React.PropTypes.shape({
-     id: React.PropTypes.string.isRequired
-   }).isRequired
+CheckForm.propTypes = {
+  data: React.PropTypes.shape({
+     id: React.PropTypes.oneOfType([React.PropTypes.number, React.PropTypes.string]).isRequired,
+     check_type: React.PropTypes.string.isRequired,
+     check_metadata: React.PropTypes.object.isRequired
+   })
 }
 
-let CheckForm = withRouter(UnwrappedCheckForm);
-export { CheckForm };
+function CheckFormWithData({params}) {
+  return (
+    <WithData baseResource={"checks/" + params.id}>
+      <CheckForm />
+    </WithData>
+
+  )
+}
+export { CheckFormWithData };
 
 

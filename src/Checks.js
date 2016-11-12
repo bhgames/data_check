@@ -13,15 +13,7 @@ export function Checks(props) {
   )
 }
 
-export function ChecksListWithData() {
-  return (
-    <WithData baseResource="checks">
-      <ChecksList />
-    </WithData>
-  )
-}
-
-export function ChecksList(props) {
+function ChecksList(props) {
   let columns = ["id", "check_type", "check_metadata"];
   let columnNames = ["ID", "Check Type", "Check Metadata"];
 
@@ -41,6 +33,15 @@ ChecksList.propTypes = {
 ChecksList.defaultProps = {
   data: []
 };
+
+
+export function ChecksListWithData() {
+  return (
+    <WithData baseResource="checks">
+      <ChecksList />
+    </WithData>
+  )
+}
 
 
 class CheckForm extends Component {

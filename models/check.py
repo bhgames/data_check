@@ -30,6 +30,24 @@ class CheckSchema(Schema):
     check_type = fields.Str()
     check_metadata = fields.Nested(CheckMetadataSchema())
 
+    @classmethod
+    def default_json(cls):
+        """
+            Used by the NEW action in Flask, to generate a dummy object that can
+            be sent down with id=new for the form on the React-side to use.
+
+            This makes it easy to work with new or existing objects in the form,
+            it only needs to look at ID to know to POST or PUT, but functionality
+            is otherwise identical.
+        """
+        return {
+            "id": 'new',
+            "check_metadata": {
+                "column": ''
+            },
+            "check_type": 'CheckType.uniqueness'
+        }
+
 
 import enum
 class CheckType(enum.Enum):
@@ -47,6 +65,19 @@ class Check(Base, HasLogs):
     check_metadata = Column(JSONB, nullable=False)
     rule_id = Column(Integer, ForeignKey('rule.id'))
     rule = relationship("Rule", back_populates="checks")
+
+
+    @classmethod
+    def enum_from_value(cls, val):
+        klazz = eval(val.split(".")[0])
+        value = getattr(klazz, val.split(".")[1])
+        return value
+
+
+    def update_attributes(self, json):
+        self.check_type = self.__class__.enum_from_value(json['check_type'])
+        self.check_metadata = json['check_metadata']
+
 
     def run(self, job_run, source, table):
         log = self.get_log(job_run=job_run)

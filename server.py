@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
+from inflection import camelize, singularize
 
 import models.helpers.base
 import traceback
@@ -22,62 +23,66 @@ db_session = models.helpers.base.db_session
 def shutdown_session(exception=None):
     db_session.remove()
 
-def get_check_type_from_params():
-    check_type_class = eval(request.json['check_type'].split(".")[0])
-    check_type_value = getattr(check_type_class, request.json['check_type'].split(".")[1])
-    return check_type_value
 
-@app.route('/checks', methods=['POST'])
-def new_check_save():
-    c = Check(check_type=get_check_type_from_params(), check_metadata=request.json['check_metadata'])
-    db_session.add(c)
+def get_class_from_type(type):
+    return eval(singularize(camelize(type)))
+
+
+def get_class_schema_from_type(type):
+    return eval(singularize(camelize(type)) + "Schema")
+
+
+@app.route('/<type>', methods=['POST'])
+def new_item_save(type):
+    klazz = get_class_from_type(type)
+    new_inst = klazz()
+    new_inst.update_attributes(request.json)
+    db_session.add(new_inst)
     db_session.commit()
-    id = c.id
+    id = new_inst.id
     return jsonify({ "id": id })
 
 
-@app.route('/checks', methods=['GET'])
-def get_checks():
-    qr = db_session.query(Check).add_columns("id", "check_type", "check_metadata")
+@app.route('/<type>', methods=['GET'])
+def get_items(type):
+    klazz = get_class_from_type(type)
+    sch_klazz = get_class_schema_from_type(type)
+    qr = db_session.query(klazz)
     qr = qr.all()
-    sch = CheckSchema(many=True)
+    sch = sch_klazz(many=True)
     return sch.dumps(qr)
 
 
-@app.route('/checks/new', methods=['GET'])
-def new_check():
-    return jsonify(
-        {
-            "id": 'new',
-            "check_metadata": {
-                "column": ''
-            },
-            "check_type": 'CheckType.uniqueness'
-        }
-    )
+@app.route('/<type>/new', methods=['GET'])
+def new_item(type):
+    sch_klazz = get_class_schema_from_type(type)
+    return jsonify(sch_klazz.default_json())
 
 
-@app.route('/checks/<id>', methods=['GET'])
-def get_check(id):
-    qr = db_session.query(Check).get(id)
-    sch = CheckSchema()
+@app.route('/<type>/<id>', methods=['GET'])
+def get_item(type, id):
+    klazz = get_class_from_type(type)
+    sch_klazz = get_class_schema_from_type(type)
+    qr = db_session.query(klazz).get(id)
+    sch = sch_klazz()
     return sch.dumps(qr)
 
 
-@app.route('/checks/<id>', methods=['PUT'])
-def update_check(id):
-    qr = db_session.query(Check).get(id)
-    qr.check_type = get_check_type_from_params()
-    qr.check_metadata = request.json['check_metadata']
+@app.route('/<type>/<id>', methods=['PUT'])
+def update_item(type, id):
+    klazz = get_class_from_type(type)
+    qr = db_session.query(klazz).get(id)
+    qr.update_attributes(request.json)
     db_session.add(qr)
     db_session.commit()
     return jsonify({})
 
 
 
-@app.route('/checks/<id>', methods=['DELETE'])
-def delete_check(id):
-    qr = db_session.query(Check).get(id)
+@app.route('/<type>/<id>', methods=['DELETE'])
+def delete_item(type, id):
+    klazz = get_class_from_type(type)
+    qr = db_session.query(klazz).get(id)
     db_session.delete(qr)
     db_session.commit()
     return jsonify({})

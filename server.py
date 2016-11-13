@@ -32,11 +32,38 @@ def get_class_schema_from_type(type):
     return eval(singularize(camelize(type)) + "Schema")
 
 
+def enum_from_value(val):
+    klazz = eval(val.split(".")[0])
+    value = getattr(klazz, val.split(".")[1])
+    return value
+
+
+def update_attribute(obj, key, value):
+    """
+        TODO Figure out a way to detect if a key is an ENUM, instead of using a Global on the object's Class.
+    """
+
+    if key == "id":
+        return False
+
+    if(hasattr(obj, "ENUMS") == False):
+        raise ValueError("ENUMS is not defined for this model!")
+
+    if(key in obj.ENUMS):
+        setattr(obj, key, enum_from_value(value))
+    else:
+        setattr(obj, key, value)
+
+
+def update_attributes(obj, json):
+    [update_attribute(obj, key, json[key]) for key in json.keys()]
+
+
 @app.route('/<type>', methods=['POST'])
 def new_item_save(type):
     klazz = get_class_from_type(type)
     new_inst = klazz()
-    new_inst.update_attributes(request.json)
+    update_attributes(new_inst, request.json)
     db_session.add(new_inst)
     db_session.commit()
     id = new_inst.id
@@ -72,7 +99,7 @@ def get_item(type, id):
 def update_item(type, id):
     klazz = get_class_from_type(type)
     qr = db_session.query(klazz).get(id)
-    qr.update_attributes(request.json)
+    update_attributes(qr, request.json)
     db_session.add(qr)
     db_session.commit()
     return jsonify({})

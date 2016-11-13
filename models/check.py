@@ -13,6 +13,7 @@ now = datetime.datetime.now
 from checks.date_gap_check import DateGapCheck
 from checks.null_check import NullCheck
 from checks.uniqueness_check import UniquenessCheck
+from models.helpers.crud_mixin import CrudMixin
 import sys
 
 Base = models.helpers.base.Base
@@ -56,7 +57,7 @@ class CheckType(enum.Enum):
     date_gap = "date_gap"
 
 
-class Check(Base, HasLogs):
+class Check(Base, HasLogs, CrudMixin):
     __tablename__ = 'check'
     id = Column(Integer, primary_key=True)
     created_at = Column(DateTime)
@@ -66,18 +67,7 @@ class Check(Base, HasLogs):
     rule_id = Column(Integer, ForeignKey('rule.id'))
     rule = relationship("Rule", back_populates="checks")
 
-
-    @classmethod
-    def enum_from_value(cls, val):
-        klazz = eval(val.split(".")[0])
-        value = getattr(klazz, val.split(".")[1])
-        return value
-
-
-    def update_attributes(self, json):
-        self.check_type = self.__class__.enum_from_value(json['check_type'])
-        self.check_metadata = json['check_metadata']
-
+    ENUMS = ["check_type"]
 
     def run(self, job_run, source, table):
         log = self.get_log(job_run=job_run)

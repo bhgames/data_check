@@ -10,7 +10,7 @@ engine = create_engine('postgresql://localhost:5432/data_check')
 models.helpers.base.init(engine) # Initialize base declarative class.
 
 from models.check import Check, CheckSchema, CheckType
-from models.rule import Rule
+from models.rule import Rule, RuleSchema, RuleCondition
 from models.job_template import JobTemplate
 from models.schedule import Schedule
 

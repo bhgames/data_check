@@ -56,17 +56,19 @@ class RuleForm extends Component {
   }
 
   getValidationStateForColumn() {
-    const length = this.state.check_metadata.column.length;
+    const length = this.state.conditional.column.length;
     if (length >= 1) return 'success';
     else if (length > 0) return 'error';
   }
 
-  handleChange(e) {
-    this.setState({ check_metadata: { column: e.target.value } });
+  handleConditionalChange(type, e) {
+    let newCond = { conditional: {} };
+    newCond.conditional[type] = e.target.value;
+    this.setState(newCond);
   }
 
   handleTypeChange(e) {
-    this.setState({ rule_type: e.target.value });
+    this.setState({ condition: e.target.value });
   }
 
   render() {
@@ -85,7 +87,7 @@ class RuleForm extends Component {
           <FormControl.Feedback />
         </FormGroup>);
 
-    if(this.state.ruleType.match("table_name")) {
+    if(this.state.condition.match("table_name")) {
       conditionalResource = (
           <FormGroup controlId="pattern">
           <ControlLabel>Pattern</ControlLabel>
@@ -98,7 +100,7 @@ class RuleForm extends Component {
           />
           <FormControl.Feedback />
         </FormGroup>)
-    } else if(this.state.ruleType == "RuleCondition.if_record_count_above") {
+    } else if(this.state.condition == "RuleCondition.if_record_count_above") {
       conditionalResource = (
           <FormGroup controlId="pattern">
           <ControlLabel>Count</ControlLabel>
@@ -115,9 +117,9 @@ class RuleForm extends Component {
 
     return (
       <ResourceForm data={this.state} baseResource={this.props.baseResource}>
-        <FormGroup controlId="ruleType">
-          <ControlLabel>Rule Type</ControlLabel>
-          <FormControl componentClass="select" value={this.state.rule_type} onChange={this.handleTypeChange.bind(this)}>
+        <FormGroup controlId="condition">
+          <ControlLabel>Condition</ControlLabel>
+          <FormControl componentClass="select" value={this.state.condition} onChange={this.handleTypeChange.bind(this)}>
             <option value="RuleCondition.if_col_present">If Column Present</option>
             <option value="RuleCondition.if_col_not_present">If Column Not Present</option>
             <option value="RuleCondition.if_table_name_matches">If Table Name Matches</option>
@@ -134,9 +136,19 @@ class RuleForm extends Component {
 
 RuleForm.propTypes = {
   data: React.PropTypes.shape({
-     id: React.PropTypes.oneOfType([React.PropTypes.number, React.PropTypes.string]).isRequired,
-     condition: React.PropTypes.string.isRequired,
-     conditional: React.PropTypes.object.isRequired
+    id: React.PropTypes.oneOfType([React.PropTypes.number, React.PropTypes.string]).isRequired,
+    condition: React.PropTypes.string.isRequired,
+    conditional: React.PropTypes.object.isRequired,
+    checks: React.PropTypes.arrayOf(React.PropTypes.shape({
+      id: React.PropTypes.oneOfType([React.PropTypes.number, React.PropTypes.string]),
+      check_type: React.PropTypes.string.isRequired,
+      check_metadata: React.PropTypes.object.isRequired
+    })).isRequired,
+    children: React.PropTypes.arrayOf(React.PropTypes.shape({
+      id: React.PropTypes.oneOfType([React.PropTypes.number, React.PropTypes.string]),
+      condition: React.PropTypes.string.isRequired,
+      conditional: React.PropTypes.object.isRequired,
+    })).isRequired
    })
 }
 

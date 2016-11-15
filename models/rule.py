@@ -21,6 +21,43 @@ rules_tree = Table('rules_tree', Base.metadata,
     Column('parent_rule_id', Integer, ForeignKey('rule.id')),
     Column('child_rule_id', Integer, ForeignKey('rule.id')))
 
+
+from marshmallow import Schema, fields, pprint
+
+class RuleConditionalSchema(Schema):
+    column = fields.Str()
+
+
+class RuleSchema(Schema):
+    id = fields.Integer()
+    condition = fields.Str()
+    conditional = fields.Nested(RuleConditionalSchema())
+
+    class Meta:
+        additional = ("checks", "children", "job_templates")
+
+    @classmethod
+    def default_json(cls):
+        """
+            Used by the NEW action in Flask, to generate a dummy object that can
+            be sent down with id=new for the form on the React-side to use.
+
+            This makes it easy to work with new or existing objects in the form,
+            it only needs to look at ID to know to POST or PUT, but functionality
+            is otherwise identical.
+        """
+        return {
+            "id": 'new',
+            "conditional": {
+                "column": ''
+            },
+            "condition": 'RuleCondition.if_col_present',
+            "checks": [],
+            "children": [],
+            "job_templates": []
+        }
+
+
 import enum
 class RuleCondition(enum.Enum):
     if_col_present = "if_col_present"
@@ -45,6 +82,8 @@ class Rule(Base, HasLogs):
     parent = relationship('Rule', back_populates="children", secondary=rules_tree, 
                             primaryjoin= id == rules_tree.c.child_rule_id,
                             secondaryjoin= id == rules_tree.c.parent_rule_id)
+
+    ENUMS=["condition"]
 
     def if_col_present(self, conditional, source, tables, job_run):
         column = conditional["column"]

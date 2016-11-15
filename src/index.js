@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import Recent from './Recent';
 import { Checks, ChecksListWithData, CheckFormWithData } from './Checks';
+import { Rules, RulesListWithData, RuleFormWithData } from './Rules';
 
 import './index.css';
 import { Router, Route, IndexRoute, Link, hashHistory } from 'react-router';
@@ -14,6 +15,10 @@ ReactDOM.render((
       <Route path="checks" component={Checks}>
         <IndexRoute component={ChecksListWithData} />
         <Route path=":id/edit" component={CheckFormWithData} />
+      </Route>
+      <Route path="rules" component={Rules}>
+        <IndexRoute component={RulesListWithData} />
+        <Route path=":id/edit" component={RuleFormWithData} />
       </Route>
     </Route>
   </Router>

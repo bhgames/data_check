@@ -25,6 +25,9 @@ class App extends Component {
             <LinkContainer to={`/checks`}>
               <NavItem eventKey={2}>Checks</NavItem>
             </LinkContainer>
+            <LinkContainer to={`/rules`}>
+              <NavItem eventKey={3}>Rules</NavItem>
+            </LinkContainer>
           </Nav>
         </Navbar.Collapse>
       </Navbar>

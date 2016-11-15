@@ -155,7 +155,8 @@ function UnwrappedResourceForm({router, data, baseResource, children}) {
 
     fetch(post,params).then(function(response) {
       if(response.ok) {
-        router.push('/' + baseResource.split("/")[0]);
+        router.goBack();
+        //router.push('/' + baseResource.split("/")[0]);
       } else {
         console.log(response);
       }

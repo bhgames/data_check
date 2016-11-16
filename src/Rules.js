@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
-import { Button, Table, ControlLabel, FormControl, FormGroup, HelpBlock } from 'react-bootstrap';
+import { ControlLabel, FormControl, FormGroup } from 'react-bootstrap';
+import { ChecksList } from './Checks';
 import { WithData, List, ResourceForm } from './General';
 
 // General container for all Rules routes. Dont put anything here.
@@ -71,6 +71,18 @@ class RuleForm extends Component {
     this.setState({ condition: e.target.value });
   }
 
+  handleCheckChange(check) {
+    let currentChecks = this.state.checks;
+
+    if(currentChecks.includes(check)) {
+      currentChecks.splice(currentChecks.indexOf(check), 1);
+    } else {
+      currentChecks.push(check);
+    }
+
+    this.setState({ checks: currentChecks});
+  }
+
   render() {
 
     let conditionalResource = (<FormGroup
@@ -100,7 +112,7 @@ class RuleForm extends Component {
           />
           <FormControl.Feedback />
         </FormGroup>)
-    } else if(this.state.condition == "RuleCondition.if_record_count_above") {
+    } else if(this.state.condition === "RuleCondition.if_record_count_above") {
       conditionalResource = (
           <FormGroup controlId="pattern">
           <ControlLabel>Count</ControlLabel>
@@ -129,6 +141,13 @@ class RuleForm extends Component {
         </FormGroup>
 
         {conditionalResource}
+
+        <FormGroup controlId="checks">
+          <ControlLabel>Checks To Run</ControlLabel>
+          <WithData baseResource="checks">
+            <ChecksList onSelectHandler={this.handleCheckChange.bind(this)}/>
+          </WithData>
+        </FormGroup>
       </ResourceForm>
     )
   }

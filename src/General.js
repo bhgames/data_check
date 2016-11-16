@@ -58,7 +58,7 @@ WithData.propTypes = {
   baseResource: React.PropTypes.string.isRequired
 }
 
-export function List({ columnNames, columns, baseResource, data, onServerDataChanged }) {
+export function List({ columnNames, columns, baseResource, data, onServerDataChanged, onSelectHandler }) {
 
   // Stringify JSON objects(like check_metadata or other metadata objects in a row)
   for(let row of data) {
@@ -83,6 +83,16 @@ export function List({ columnNames, columns, baseResource, data, onServerDataCha
     fetch(del, params).then(function(response) {
       onServerDataChanged();
     })
+  }
+
+
+  let selectEl = null;
+  if(onSelectHandler) {    
+    selectEl = (row) => {
+      return <SelectToggle row={row} onSelectHandler={onSelectHandler} />
+    };
+  } else {
+    selectEl = (row) => {};
   }
 
   return (
@@ -112,6 +122,7 @@ export function List({ columnNames, columns, baseResource, data, onServerDataCha
                   <Button>Edit</Button>
                 </LinkContainer>
                 <Button onClick={deleteRow.bind(null, row.id)}>Delete</Button>
+                {selectEl(row)}
               </td>
             </tr>
           )}
@@ -126,9 +137,33 @@ List.propTypes = {
   columnNames: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
   columns: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
   baseResource: React.PropTypes.string.isRequired,
-  onServerDataChanged: React.PropTypes.func.isRequired
+  onServerDataChanged: React.PropTypes.func.isRequired,
+  onSelectHandler: React.PropTypes.func // If you want checkbox to display in list for selection, need a callback.
 };
 
+class SelectToggle extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { selected: false };
+  }
+
+
+  internalSelectHandler() {
+    this.setState({selected: !this.state.selected});
+    this.props.onSelectHandler(this.props.row);
+  }
+
+  render() {
+    let text = this.state.selected ? "De-Select" : "Select"
+    return <Button onClick={this.internalSelectHandler.bind(this)}>{text}</Button> 
+  }
+
+}
+
+SelectToggle.propTypes = {
+  row: React.PropTypes.object.isRequired,
+  onSelectHandler: React.PropTypes.func.isRequired
+}
 
 
 function UnwrappedResourceForm({router, data, baseResource, children}) {

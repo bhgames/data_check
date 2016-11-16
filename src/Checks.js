@@ -13,7 +13,7 @@ export function Checks(props) {
   )
 }
 
-function ChecksList(props) {
+export function ChecksList(props) {
   let columns = ["id", "check_type", "check_metadata"];
   let columnNames = ["ID", "Check Type", "Check Metadata"];
 

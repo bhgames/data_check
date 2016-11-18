@@ -4,6 +4,7 @@ from sqlalchemy.orm import relationship, backref
 import models.helpers.base
 from models.helpers.timestamps_triggers import timestamps_triggers
 from models.log import Log, HasLogs
+from models.check import CheckSchema
 from sqlalchemy.dialects.postgresql import JSONB
 from copy import deepcopy
 from models.data_source import DataSource
@@ -32,9 +33,11 @@ class RuleSchema(Schema):
     id = fields.Integer()
     condition = fields.Str()
     conditional = fields.Nested(RuleConditionalSchema())
+    checks = fields.Nested(CheckSchema(), many=True)
+    children = fields.Nested('self', many=True)
 
     class Meta:
-        additional = ("checks", "children", "job_templates")
+        additional = ()
 
     @classmethod
     def default_json(cls):
@@ -53,8 +56,7 @@ class RuleSchema(Schema):
             },
             "condition": 'RuleCondition.if_col_present',
             "checks": [],
-            "children": [],
-            "job_templates": []
+            "children": []
         }
 
 

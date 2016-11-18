@@ -18,7 +18,6 @@ app = Flask(__name__)
 CORS(app)
 db_session = models.helpers.base.db_session
 
-
 @app.teardown_appcontext
 def shutdown_session(exception=None):
     db_session.remove()
@@ -51,8 +50,29 @@ def update_attribute(obj, key, value):
 
     if(key in obj.ENUMS):
         setattr(obj, key, enum_from_value(value))
+    elif(hasattr(getattr(obj.__class__, key).property, 'mapper')):
+        #Means this is an association of some kind.
+        klazz = getattr(obj.__class__, key).property.mapper.class_
+
+        if(isinstance(value, list)):            
+            mapped = [existing_or_new_instance_from_dict(klazz, v) for v in value]
+        else:
+            mapped = existing_or_new_instance_from_dict(klazz, value)
+
+        setattr(obj, key, mapped)
     else:
         setattr(obj, key, value)
+
+
+def existing_or_new_instance_from_dict(klazz, v):
+    """
+        Given a dict of values representing an instance of an association,
+        we need to either reify this from the DB or create one anew.
+    """
+    if(v["id"]):
+        return db_session.query(klazz).get(v["id"])
+    else:
+        return klazz(**v)
 
 
 def update_attributes(obj, json):
@@ -99,6 +119,7 @@ def get_item(type, id):
 def update_item(type, id):
     klazz = get_class_from_type(type)
     qr = db_session.query(klazz).get(id)
+    print request.json
     update_attributes(qr, request.json)
     db_session.add(qr)
     db_session.commit()

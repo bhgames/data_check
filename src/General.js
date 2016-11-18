@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { LinkContainer } from 'react-router-bootstrap';
 import { Button, Table, ControlLabel, FormControl, FormGroup, HelpBlock } from 'react-bootstrap';
 import { withRouter } from 'react-router';
+import './App.css';
 
 /*
 
@@ -37,13 +38,30 @@ export class WithData extends Component {
     })
   }
 
+  deleteDataItem(id) {
+    let headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+
+    let params = { method: 'DELETE',
+                   headers: headers,
+                   mode: 'cors'
+                 };
+
+    let del = new Request('http://localhost:5000/' + this.props.baseResource + '/' + id);
+
+    let that = this;
+    fetch(del, params).then(function(response) {
+      that.onServerDataChanged();
+    })
+  }
+
   render() {
     if (this.state) {
       const childrenWithProps = React.Children.map(this.props.children,
         (child) => React.cloneElement(child, {
           data: this.state.data,
           baseResource: this.props.baseResource,
-          onServerDataChanged: this.onServerDataChanged.bind(this)
+          deleteDataItem: this.deleteDataItem.bind(this)
         })
       );
 
@@ -58,72 +76,62 @@ WithData.propTypes = {
   baseResource: React.PropTypes.string.isRequired
 }
 
-export function List({ columnNames, columns, baseResource, data, onServerDataChanged, onSelectHandler }) {
+export function List({ columnNames, columns, baseResource, data, deleteDataItem, onSelectHandler, selectedRows, excludedRowIds, chromeless }) {
+  let deleteHandler = (row) => { deleteDataItem(row.id) };
 
-  // Stringify JSON objects(like check_metadata or other metadata objects in a row)
-  for(let row of data) {
-    for (let col of columns) {
-      if(typeof row[col] === 'object') {
-        row[col] = JSON.stringify(row[col]);
-      }
-    }
-  }
-
-  let deleteRow = (id) => {
-    let headers = new Headers();
-    headers.append('Content-Type', 'application/json');
-
-    let params = { method: 'DELETE',
-                   headers: headers,
-                   mode: 'cors'
-                 };
-
-    let del = new Request('http://localhost:5000/' + baseResource + '/' + id);
-
-    fetch(del, params).then(function(response) {
-      onServerDataChanged();
-    })
-  }
-
-
-  let selectEl = null;
+  let handler = null;
   if(onSelectHandler) {    
-    selectEl = (row) => {
-      return <SelectToggle row={row} onSelectHandler={onSelectHandler} />
+    handler = (row) => {
+      onSelectHandler(row);
     };
   } else {
-    selectEl = (row) => {};
+    handler = (row) => { }
   }
+
+  let selectedStyleHandler = (row) => {
+    if(selectedRows && selectedRows.find((r) => { return r.id == row.id })) {
+      return "selected";
+    }
+  };
+
+  let rowIds = data.map((r) => { return r.id });
+  let displayedRows = data.filter((r) => { return !excludedRowIds || !excludedRowIds.includes(rowIds[data.indexOf(r)])});
+
+  let buttons = (row) => { 
+                  return chromeless ? null : <td>
+                    <LinkContainer to={'/' + baseResource + '/' + row.id + '/edit'}>
+                      <Button>Edit</Button>
+                    </LinkContainer>
+                    <Button onClick={deleteHandler.bind(null, row)}>Delete</Button>
+                  </td> 
+                };
+                
+  let buttonHeader = chromeless ? null : <th>Actions</th>;
+
+  let newButton = chromeless ? null : <LinkContainer to={ baseResource + '/new/edit'}>
+        <Button bsStyle="primary">New</Button>
+      </LinkContainer>;
+  
 
   return (
     <div>
-
-      <LinkContainer to={ baseResource + '/new/edit'}>
-        <Button bsStyle="primary">New</Button>
-      </LinkContainer>
-
+      {newButton}
       <Table responsive striped bordered condensed hover>
         <thead>
           <tr>
             {columnNames.map(name =>
               <th key={name}>{name}</th>
             )}
-            <th>Actions</th>
+            {buttonHeader}
           </tr>
         </thead>
         <tbody>
-          {data.map(row => 
-            <tr key={row.id}>
+          {displayedRows.map(row => 
+            <tr key={row.id} onClick={handler.bind(this, row)} className={selectedStyleHandler(row)}>
               {columns.map(col =>
-                <td key={col}>{row[col]}</td>
+                <td key={col}>{typeof row[col] === 'object' ? JSON.stringify(row[col]) : row[col]}</td>
               )}
-              <td>
-                <LinkContainer to={'/' + baseResource + '/' + row.id + '/edit'}>
-                  <Button>Edit</Button>
-                </LinkContainer>
-                <Button onClick={deleteRow.bind(null, row.id)}>Delete</Button>
-                {selectEl(row)}
-              </td>
+              {buttons(row)}
             </tr>
           )}
         </tbody>
@@ -137,33 +145,12 @@ List.propTypes = {
   columnNames: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
   columns: React.PropTypes.arrayOf(React.PropTypes.string).isRequired,
   baseResource: React.PropTypes.string.isRequired,
-  onServerDataChanged: React.PropTypes.func.isRequired,
-  onSelectHandler: React.PropTypes.func // If you want checkbox to display in list for selection, need a callback.
+  deleteDataItem: React.PropTypes.func.isRequired,
+  onSelectHandler: React.PropTypes.func,
+  selectedRows: React.PropTypes.array,
+  excludedRowIds: React.PropTypes.array, // Used to prevent cyclical Rule depedencies, or similar.
+  chromeless: React.PropTypes.bool // Used to hide edit/delete buttons
 };
-
-class SelectToggle extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { selected: false };
-  }
-
-
-  internalSelectHandler() {
-    this.setState({selected: !this.state.selected});
-    this.props.onSelectHandler(this.props.row);
-  }
-
-  render() {
-    let text = this.state.selected ? "De-Select" : "Select"
-    return <Button onClick={this.internalSelectHandler.bind(this)}>{text}</Button> 
-  }
-
-}
-
-SelectToggle.propTypes = {
-  row: React.PropTypes.object.isRequired,
-  onSelectHandler: React.PropTypes.func.isRequired
-}
 
 
 function UnwrappedResourceForm({router, data, baseResource, children}) {

@@ -71,17 +71,21 @@ class RuleForm extends Component {
     this.setState({ condition: e.target.value });
   }
 
-  handleCheckChange(check) {
-    let currentChecks = this.state.checks;
+  handleArrChange(stateKey, obj) {
+    let current = this.state[stateKey];
+    let found = current.find((c) => { return c.id == obj.id });
 
-    if(currentChecks.includes(check)) {
-      currentChecks.splice(currentChecks.indexOf(check), 1);
+    if(found) {
+      current.splice(current.indexOf(found), 1);
     } else {
-      currentChecks.push(check);
+      current.push(obj);
     }
 
-    this.setState({ checks: currentChecks});
+    let newState = {};
+    newState[stateKey] = current;
+    this.setState(newState);
   }
+
 
   render() {
 
@@ -108,7 +112,6 @@ class RuleForm extends Component {
             value={this.state.conditional.pattern}
             placeholder="Enter a regular expression"
             onChange={this.handleConditionalChange.bind(this, "pattern")}
-            help="Any regular expression will do, such as .* or ^customers_\d+$. Exact matches can be done via: ^exact_match_name$."
           />
           <FormControl.Feedback />
         </FormGroup>)
@@ -121,7 +124,6 @@ class RuleForm extends Component {
             value={this.state.conditional.count}
             placeholder="Enter a record count"
             onChange={this.handleConditionalChange.bind(this, "pattern")}
-            help="Above this count, the rule will be satisfied and will run it's checks."
           />
           <FormControl.Feedback />
         </FormGroup>)
@@ -143,9 +145,16 @@ class RuleForm extends Component {
         {conditionalResource}
 
         <FormGroup controlId="checks">
-          <ControlLabel>Checks To Run</ControlLabel>
+          <ControlLabel>Checks To Run If This Rule Is True</ControlLabel>
           <WithData baseResource="checks">
-            <ChecksList onSelectHandler={this.handleCheckChange.bind(this)}/>
+            <ChecksList onSelectHandler={this.handleArrChange.bind(this, "checks")} selectedRows={this.state.checks} chromeless={true}/>
+          </WithData>
+        </FormGroup>
+
+        <FormGroup controlId="children">
+          <ControlLabel>Further Rules To Run If This Rule Is True</ControlLabel>
+          <WithData baseResource="rules">
+            <RulesList onSelectHandler={this.handleArrChange.bind(this, "children")} selectedRows={this.state.children} excludedRowIds={[this.state.id]} chromeless={true}/>
           </WithData>
         </FormGroup>
       </ResourceForm>

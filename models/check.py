@@ -19,37 +19,6 @@ import sys
 Base = models.helpers.base.Base
 db_session = models.helpers.base.db_session
 
-
-from marshmallow import Schema, fields, pprint
-
-class CheckMetadataSchema(Schema):
-    column = fields.Str()
-
-
-class CheckSchema(Schema):
-    id = fields.Integer()
-    check_type = fields.Str()
-    check_metadata = fields.Nested(CheckMetadataSchema())
-
-    @classmethod
-    def default_json(cls):
-        """
-            Used by the NEW action in Flask, to generate a dummy object that can
-            be sent down with id=new for the form on the React-side to use.
-
-            This makes it easy to work with new or existing objects in the form,
-            it only needs to look at ID to know to POST or PUT, but functionality
-            is otherwise identical.
-        """
-        return {
-            "id": 'new',
-            "check_metadata": {
-                "column": ''
-            },
-            "check_type": 'CheckType.uniqueness'
-        }
-
-
 import enum
 class CheckType(enum.Enum):
     uniqueness = "uniqueness"

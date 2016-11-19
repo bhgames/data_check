@@ -18,6 +18,7 @@ data_sources_job_templates = Table('data_sources_job_templates', Base.metadata,
     Column('data_source_id', Integer, ForeignKey('data_source.id')),
     Column('job_template_id', Integer, ForeignKey('job_template.id')))
 
+
 import enum
 class LogLevel(enum.Enum):
     complete = "complete"
@@ -36,5 +37,6 @@ class JobTemplate(Base):
     data_sources = relationship('DataSource', back_populates="job_templates", secondary=data_sources_job_templates)
     rules = relationship('Rule', back_populates="job_templates", secondary=job_templates_rules)
     schedules = relationship('Schedule', back_populates='job_templates', secondary=job_templates_schedules)
+    ENUMS = ["log_level"]
 
 timestamps_triggers(JobTemplate)

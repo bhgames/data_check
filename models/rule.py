@@ -4,7 +4,6 @@ from sqlalchemy.orm import relationship, backref
 import models.helpers.base
 from models.helpers.timestamps_triggers import timestamps_triggers
 from models.log import Log, HasLogs
-from models.check import CheckSchema
 from sqlalchemy.dialects.postgresql import JSONB
 from copy import deepcopy
 from models.data_source import DataSource
@@ -21,43 +20,6 @@ from models.job_template import job_templates_rules
 rules_tree = Table('rules_tree', Base.metadata,
     Column('parent_rule_id', Integer, ForeignKey('rule.id')),
     Column('child_rule_id', Integer, ForeignKey('rule.id')))
-
-
-from marshmallow import Schema, fields, pprint
-
-class RuleConditionalSchema(Schema):
-    column = fields.Str()
-
-
-class RuleSchema(Schema):
-    id = fields.Integer()
-    condition = fields.Str()
-    conditional = fields.Nested(RuleConditionalSchema())
-    checks = fields.Nested(CheckSchema(), many=True)
-    children = fields.Nested('self', many=True)
-
-    class Meta:
-        additional = ()
-
-    @classmethod
-    def default_json(cls):
-        """
-            Used by the NEW action in Flask, to generate a dummy object that can
-            be sent down with id=new for the form on the React-side to use.
-
-            This makes it easy to work with new or existing objects in the form,
-            it only needs to look at ID to know to POST or PUT, but functionality
-            is otherwise identical.
-        """
-        return {
-            "id": 'new',
-            "conditional": {
-                "column": ''
-            },
-            "condition": 'RuleCondition.if_col_present',
-            "checks": [],
-            "children": []
-        }
 
 
 import enum

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import { ControlLabel, FormControl, FormGroup } from 'react-bootstrap';
 import { ChecksList } from './Checks';
-import { WithData, List, ResourceForm } from './General';
+import { WithData, List, ResourceForm, HasManyAssociationFormElement, SingleFieldElement } from './General';
 
 // General container for all Rules routes. Dont put anything here.
 export function Rules(props) {
@@ -13,7 +13,7 @@ export function Rules(props) {
   )
 }
 
-function RulesList(props) {
+export function RulesList(props) {
   let columns = ["id", "condition", "conditional"];
   let columnNames = ["ID", "Rule Condition", "Rule Conditional"];
 
@@ -55,12 +55,6 @@ class RuleForm extends Component {
     this.setState(nextProps.data);
   }
 
-  getValidationStateForColumn() {
-    const length = this.state.conditional.column.length;
-    if (length >= 1) return 'success';
-    else if (length > 0) return 'error';
-  }
-
   handleConditionalChange(type, e) {
     let newCond = { conditional: {} };
     newCond.conditional[type] = e.target.value;
@@ -71,62 +65,31 @@ class RuleForm extends Component {
     this.setState({ condition: e.target.value });
   }
 
-  handleArrChange(stateKey, obj) {
-    let current = this.state[stateKey];
-    let found = current.find((c) => { return c.id == obj.id });
-
-    if(found) {
-      current.splice(current.indexOf(found), 1);
-    } else {
-      current.push(obj);
-    }
-
+  handleAssocChange(stateKey, newList) {
     let newState = {};
-    newState[stateKey] = current;
+    newState[stateKey] = newList;
     this.setState(newState);
   }
 
 
   render() {
 
-    let conditionalResource = (<FormGroup
-          controlId="columnType"
-          validationState={this.getValidationStateForColumn()}
-        >
-          <ControlLabel>Column</ControlLabel>
-          <FormControl
-            type="text"
-            value={this.state.conditional.column}
-            placeholder="Enter text"
-            onChange={this.handleConditionalChange.bind(this, "column")}
-          />
-          <FormControl.Feedback />
-        </FormGroup>);
+    let controlId = "conditionalType";
+    let onChange = this.handleConditionalChange.bind(this, "column");
+    let placeholder = "Enter text";
+    let label = "Column";
+    let value = this.state.conditional.column;
 
     if(this.state.condition.match("table_name")) {
-      conditionalResource = (
-          <FormGroup controlId="pattern">
-          <ControlLabel>Pattern</ControlLabel>
-          <FormControl
-            type="text"
-            value={this.state.conditional.pattern}
-            placeholder="Enter a regular expression"
-            onChange={this.handleConditionalChange.bind(this, "pattern")}
-          />
-          <FormControl.Feedback />
-        </FormGroup>)
+      label = "Pattern";
+      value = this.state.conditional.pattern;
+      onChange = this.handleConditionalChange.bind(this, "pattern");
+      placeholder = "Please enter a regular expression as you would in Python."
     } else if(this.state.condition === "RuleCondition.if_record_count_above") {
-      conditionalResource = (
-          <FormGroup controlId="pattern">
-          <ControlLabel>Count</ControlLabel>
-          <FormControl
-            type="text"
-            value={this.state.conditional.count}
-            placeholder="Enter a record count"
-            onChange={this.handleConditionalChange.bind(this, "pattern")}
-          />
-          <FormControl.Feedback />
-        </FormGroup>)
+      label = "Count";
+      value = this.state.conditional.count;
+      onChange = this.handleConditionalChange.bind(this, "count");
+      placeholder = "Please enter a number."
     }
 
     return (
@@ -142,21 +105,28 @@ class RuleForm extends Component {
           </FormControl>
         </FormGroup>
 
-        {conditionalResource}
+        <SingleFieldElement 
+          label={label}
+          value={value}
+          controlId={controlId}
+          onChange={onChange}
+          placeholder={placeholder}
+          />
 
-        <FormGroup controlId="checks">
-          <ControlLabel>Checks To Run If This Rule Is True</ControlLabel>
-          <WithData baseResource="checks">
-            <ChecksList onSelectHandler={this.handleArrChange.bind(this, "checks")} selectedRows={this.state.checks} chromeless={true}/>
-          </WithData>
-        </FormGroup>
+        <HasManyAssociationFormElement 
+          baseResource="checks" 
+          label="Checks To Run If This Rule Is True"
+          onNewList={this.handleAssocChange.bind(this, "checks")}
+          currentList={this.state.checks}
+          ListElement={ChecksList} />
 
-        <FormGroup controlId="children">
-          <ControlLabel>Further Rules To Run If This Rule Is True</ControlLabel>
-          <WithData baseResource="rules">
-            <RulesList onSelectHandler={this.handleArrChange.bind(this, "children")} selectedRows={this.state.children} excludedRowIds={[this.state.id]} chromeless={true}/>
-          </WithData>
-        </FormGroup>
+        <HasManyAssociationFormElement 
+          baseResource="rules" 
+          label="Further Rules To Run If This Rule Is True"
+          onNewList={this.handleAssocChange.bind(this, "children")}
+          currentList={this.state.children}
+          ListElement={RulesList}
+          excludedRowIds={[this.state.id]} />
       </ResourceForm>
     )
   }

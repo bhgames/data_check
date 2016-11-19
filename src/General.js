@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { LinkContainer } from 'react-router-bootstrap';
-import { Button, Table, ControlLabel, FormControl, FormGroup, HelpBlock } from 'react-bootstrap';
+import { Button, Table, ControlLabel, FormGroup, FormControl } from 'react-bootstrap';
 import { withRouter } from 'react-router';
 import './App.css';
 
@@ -11,6 +11,8 @@ import './App.css';
   what they desire for that element.
 
 */
+
+/* DATA AND CONTROL ELEMENTS */
 
 export class WithData extends Component {
 
@@ -76,6 +78,10 @@ WithData.propTypes = {
   baseResource: React.PropTypes.string.isRequired
 }
 
+
+/* LIST AND DISPLAY ELEMENTS */
+
+
 export function List({ columnNames, columns, baseResource, data, deleteDataItem, onSelectHandler, selectedRows, excludedRowIds, chromeless }) {
   let deleteHandler = (row) => { deleteDataItem(row.id) };
 
@@ -89,7 +95,7 @@ export function List({ columnNames, columns, baseResource, data, deleteDataItem,
   }
 
   let selectedStyleHandler = (row) => {
-    if(selectedRows && selectedRows.find((r) => { return r.id == row.id })) {
+    if(selectedRows && selectedRows.find((r) => { return r.id === row.id })) {
       return "selected";
     }
   };
@@ -153,6 +159,73 @@ List.propTypes = {
 };
 
 
+/* FORM ELEMENTS */
+
+
+export function HasManyAssociationFormElement({ label, baseResource, onNewList, currentList, ListElement, excludedRowIds }) { 
+  let handleArrChange = (obj) => {
+    let found = currentList.find((c) => { return c.id === obj.id });
+
+    if(found) {
+      currentList.splice(currentList.indexOf(found), 1);
+    } else {
+      currentList.push(obj);
+    }
+
+    onNewList(currentList);
+  }
+
+  return (
+      <FormGroup controlId={baseResource}>
+        <ControlLabel>{label}</ControlLabel>
+        <WithData baseResource={baseResource}>
+          <ListElement onSelectHandler={handleArrChange.bind(this)} selectedRows={currentList} chromeless={true} excludedRowIds={excludedRowIds}/>
+        </WithData>
+      </FormGroup>
+    );
+}
+
+HasManyAssociationFormElement.propTypes = {
+  label: React.PropTypes.string.isRequired,
+  baseResource: React.PropTypes.string.isRequired,
+  onNewList: React.PropTypes.func.isRequired,
+  currentList: React.PropTypes.array.isRequired,
+  ListElement: React.PropTypes.func.isRequired,
+  excludedRowIds: React.PropTypes.array
+}
+
+HasManyAssociationFormElement.defaultProps = {
+  excludedRowIds: []
+}
+
+export function SingleFieldElement({ controlId, label, value, type, placeholder, onChange}) {
+   return (<FormGroup
+          controlId={controlId}
+        >
+          <ControlLabel>{label}</ControlLabel>
+          <FormControl
+            type={type}
+            value={value}
+            placeholder={placeholder}
+            onChange={onChange}
+          />
+          <FormControl.Feedback />
+        </FormGroup>);
+}
+
+SingleFieldElement.propTypes = {
+  controlId: React.PropTypes.string,
+  label: React.PropTypes.string.isRequired,
+  value: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.number]),
+  type: React.PropTypes.oneOf(["text"]),
+  placeholder: React.PropTypes.string,
+  onChange: React.PropTypes.func.isRequired
+}
+
+SingleFieldElement.defaultProps = {
+  type: "text"
+}
+
 function UnwrappedResourceForm({router, data, baseResource, children}) {
 
   let submit = function(e) {
@@ -168,7 +241,7 @@ function UnwrappedResourceForm({router, data, baseResource, children}) {
 
     let add = baseResource;
 
-    if(data.id == "new") {
+    if(data.id === "new") {
       add = baseResource.split("/new")[0];
       params.method = 'POST';
     }

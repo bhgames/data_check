@@ -9,9 +9,10 @@ from sqlalchemy import MetaData
 engine = create_engine('postgresql://localhost:5432/data_check')
 models.helpers.base.init(engine) # Initialize base declarative class.
 
-from models.check import Check, CheckSchema, CheckType
-from models.rule import Rule, RuleSchema, RuleCondition
+from models.check import Check, CheckType
+from models.rule import Rule, RuleCondition
 from models.job_template import JobTemplate
+from models.helpers.schemas import JobTemplateSchema, CheckSchema, RuleSchema
 from models.schedule import Schedule
 
 app = Flask(__name__)

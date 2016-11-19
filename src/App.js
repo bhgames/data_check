@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
-import { Navbar, NavItem, NavDropdown, MenuItem, Nav } from 'react-bootstrap';
+import { Navbar, NavItem, Nav } from 'react-bootstrap';
 import { IndexLinkContainer, LinkContainer } from 'react-router-bootstrap';
-import {  Link } from 'react-router';
 
 class App extends Component {
   // Put sidebar here.
@@ -27,6 +25,9 @@ class App extends Component {
             </LinkContainer>
             <LinkContainer to={`/rules`}>
               <NavItem eventKey={3}>Rules</NavItem>
+            </LinkContainer>
+            <LinkContainer to={`/job_templates`}>
+              <NavItem eventKey={4}>Job Templates</NavItem>
             </LinkContainer>
           </Nav>
         </Navbar.Collapse>

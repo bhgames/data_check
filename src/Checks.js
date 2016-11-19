@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import { Button, Table, ControlLabel, FormControl, FormGroup, HelpBlock } from 'react-bootstrap';
-import { WithData, List, ResourceForm } from './General';
+import { WithData, List, ResourceForm, SingleFieldElement } from './General';
 
 // General container for all Checks routes. Dont put anything here.
 export function Checks(props) {
@@ -55,12 +55,6 @@ class CheckForm extends Component {
     this.setState(nextProps.data);
   }
 
-  getValidationState() {
-    const length = this.state.check_metadata.column.length;
-    if (length >= 1) return 'success';
-    else if (length > 0) return 'error';
-  }
-
   handleChange(e) {
     this.setState({ check_metadata: { column: e.target.value } });
   }
@@ -82,19 +76,13 @@ class CheckForm extends Component {
           </FormControl>
         </FormGroup>
 
-         <FormGroup
+        <SingleFieldElement
+          value={this.state.check_metadata.column}
+          placeholder="Enter text"
+          onChange={this.handleChange.bind(this)}
+          label="Column to Check"
           controlId="columnType"
-          validationState={this.getValidationState()}
-        >
-          <ControlLabel>Column to Check</ControlLabel>
-          <FormControl
-            type="text"
-            value={this.state.check_metadata.column}
-            placeholder="Enter text"
-            onChange={this.handleChange.bind(this)}
-          />
-          <FormControl.Feedback />
-        </FormGroup>
+        />
       </ResourceForm>
     )
   }

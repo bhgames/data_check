@@ -75,7 +75,7 @@ class DataSourceSchema(Schema):
     port = fields.Number()
     user = fields.Str()
     password = fields.Str()
-    schemas =  fields.List(fields.String)
+    schemas = fields.List(fields.String)
     data_source_type = fields.Str()
 
     class Meta:
@@ -132,6 +132,12 @@ class JobTemplateSchema(Schema):
 
 
 
+
+class LogSchema(Schema):
+    id = fields.Integer()
+    log = fields.List(fields.String)
+ 
+
 class JobRunSchema(Schema):
     id = fields.Integer()
     name = fields.Str()
@@ -145,7 +151,10 @@ class JobRunSchema(Schema):
     status = fields.Str()
     job_template_name = fields.Method("set_template_name", dump_only=True)
     job_template = fields.Nested(JobTemplateSchema())
+    all_connected_logs = fields.Nested(LogSchema(), many=True)
 
+    HIDDEN_FROM_LIST=["all_connected_logs"]
+    
     def set_template_name(self, jr):
         return jr.job_template.name
 

@@ -109,13 +109,20 @@ def new_job_run_save():
     jr = JobRun.create_job_run(jt, now())
     return jsonify({ "id": jr.id })
 
+
 @app.route('/<type>', methods=['GET'])
 def get_items(type):
     klazz = get_class_from_type(type)
     sch_klazz = get_class_schema_from_type(type)
-    qr = db_session.query(klazz)
+    qr = db_session.query(klazz).order_by(desc(klazz.__table__.c.updated_at))
     qr = qr.all()
     sch = sch_klazz(many=True)
+
+    if(hasattr(sch_klazz, "HIDDEN_FROM_LIST")):
+        sch = sch_klazz(many=True, exclude=sch_klazz.HIDDEN_FROM_LIST)
+    else:
+        sch = sch_klazz(many=True)
+
     return sch.dumps(qr)
 
 
@@ -145,7 +152,6 @@ def update_item(type, id):
     return jsonify({})
 
 
-
 @app.route('/<type>/<id>', methods=['DELETE'])
 def delete_item(type, id):
     klazz = get_class_from_type(type)
@@ -153,6 +159,7 @@ def delete_item(type, id):
     db_session.delete(qr)
     db_session.commit()
     return jsonify({})
+
 
 if __name__ == "__main__":
     app.run()

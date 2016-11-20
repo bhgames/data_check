@@ -39,7 +39,12 @@ class JobRun(Base, HasLogs):
     status = Column(Enum(JobRunStatus), nullable=False)
     job_template_id = Column(Integer, ForeignKey('job_template.id'))
     job_template = relationship('JobTemplate')
-    log = relationship('Log', cascade='delete')
+    # .logs returns only logs where loggable_type = JobRun and loggable_id = this id
+    # all_connected_logs grabs logs for any connected object where the job_run_id on logs is set.
+    # So you can use this to see everything that happened for a job.
+    all_connected_logs = relationship('Log')
+
+    ENUMS=["status"]
 
     @classmethod
     def create_job_run(cls, job_template, scheduled_run_time):

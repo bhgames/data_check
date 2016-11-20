@@ -5,9 +5,10 @@ import Recent from './Recent';
 import { Checks, ChecksListWithData, CheckFormWithData } from './Checks';
 import { Rules, RulesListWithData, RuleFormWithData } from './Rules';
 import { JobTemplates, JobTemplatesListWithData, JobTemplateFormWithData } from './JobTemplates';
+import { DataSources, DataSourcesListWithData, DataSourceFormWithData } from './DataSources';
 
 import './index.css';
-import { Router, Route, IndexRoute, Link, hashHistory } from 'react-router';
+import { Router, Route, IndexRoute, hashHistory } from 'react-router';
 
 ReactDOM.render((
   <Router history={hashHistory}>
@@ -24,6 +25,10 @@ ReactDOM.render((
       <Route path="job_templates" component={JobTemplates}>
         <IndexRoute component={JobTemplatesListWithData} />
         <Route path=":id/edit" component={JobTemplateFormWithData} />
+      </Route>
+      <Route path="data_sources" component={DataSources}>
+        <IndexRoute component={DataSourcesListWithData} />
+        <Route path=":id/edit" component={DataSourceFormWithData} />
       </Route>
     </Route>
   </Router>

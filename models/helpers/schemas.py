@@ -69,11 +69,45 @@ class RuleSchema(Schema):
         }
 
 
+class DataSourceSchema(Schema):
+    id = fields.Integer()
+    host = fields.Str()
+    port = fields.Number()
+    user = fields.Str()
+    password = fields.Str()
+    schemas =  fields.List(fields.String)
+    data_source_type = fields.Str()
+
+    class Meta:
+        additional = ()
+
+    @classmethod
+    def default_json(cls):
+        """
+            Used by the NEW action in Flask, to generate a dummy object that can
+            be sent down with id=new for the form on the React-side to use.
+
+            This makes it easy to work with new or existing objects in the form,
+            it only needs to look at ID to know to POST or PUT, but functionality
+            is otherwise identical.
+        """
+        return {
+            "id": 'new',
+            "host": '',
+            "port": 21050,
+            "user": '',
+            "password": '',
+            "schemas": [],
+            "data_source_type": "DataSourceType.impala"
+        }
+
+
 class JobTemplateSchema(Schema):
     id = fields.Integer()
     name = fields.Str()
-    parallelization = fields.Str()
+    parallelization = fields.Number()
     rules = fields.Nested(RuleSchema(), many=True)
+    data_sources = fields.Nested(DataSourceSchema(), many=True)
 
     class Meta:
         additional = ()
@@ -92,7 +126,8 @@ class JobTemplateSchema(Schema):
             "id": 'new',
             "name": '',
             "parallelization": 1,
-            "rules": []
+            "rules": [],
+            "data_sources": []
         }
 
 

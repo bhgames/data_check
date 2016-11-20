@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import './App.css';
-import { ControlLabel, FormControl, FormGroup } from 'react-bootstrap';
+import { ControlLabel, FormControl, FormGroup, Button } from 'react-bootstrap';
 import { RulesList } from './Rules';
+import { DataSourcesList } from './DataSources';
 import { WithData, List, ResourceForm, HasManyAssociationFormElement, SingleFieldElement } from './General';
 
 // General container for all JobTemplates routes. Dont put anything here.
@@ -17,8 +18,30 @@ function JobTemplatesList(props) {
   let columns = ["id", "name", "parallelization"];
   let columnNames = ["ID", "Name", "Parallelization"];
 
+  let run = (row) => {
+    let headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+
+    let params = { method: 'POST',
+                   headers: headers,
+                   mode: 'cors',
+                   body: JSON.stringify({ job_template_id: row.id })
+                 };
+    
+    let post = new Request('http://localhost:5000/job_runs');
+
+    fetch(post, params).then(function(response) {
+      return response.json();
+    }).then(function(json) {
+      alert("Job Run Started. Replace me with a real noty.");
+    })
+
+  };
+
   return (
-    <List columnNames={columnNames} columns={columns} {...props}/>
+    <List columnNames={columnNames} columns={columns} {...props}>
+        <Button onClick={run.bind(this)}>Run</Button>
+    </List>
   );
 }
 
@@ -75,7 +98,7 @@ class JobTemplateForm extends Component {
         <SingleFieldElement 
           label="Name"
           value={this.state.name}
-          controlId="Name"
+          controlId="name"
           onChange={this.handleChange.bind(this, "name")}
           placeholder={"Enter Template Name"}
           />
@@ -83,7 +106,7 @@ class JobTemplateForm extends Component {
         <SingleFieldElement 
           label="Parallelization"
           value={this.state.parallelization}
-          controlId="Parallelization"
+          controlId="parallelization"
           onChange={this.handleChange.bind(this, "parallelization")}
           placeholder={"Enter Number of Threads to Use"}
           />
@@ -94,6 +117,13 @@ class JobTemplateForm extends Component {
           onNewList={this.handleAssocChange.bind(this, "rules")}
           currentList={this.state.rules}
           ListElement={RulesList} />
+
+      <HasManyAssociationFormElement 
+          baseResource="data_sources" 
+          label="Data Sources"
+          onNewList={this.handleAssocChange.bind(this, "data_sources")}
+          currentList={this.state.data_sources}
+          ListElement={DataSourcesList} />
       </ResourceForm>
     )
   }
@@ -108,7 +138,13 @@ JobTemplateForm.propTypes = {
       id: React.PropTypes.oneOfType([React.PropTypes.number, React.PropTypes.string]),
       condition: React.PropTypes.string.isRequired,
       conditional: React.PropTypes.object.isRequired
-    })).isRequired
+    })).isRequired,
+    data_sources: React.PropTypes.arrayOf(React.PropTypes.shape({
+      id: React.PropTypes.oneOfType([React.PropTypes.number, React.PropTypes.string]),
+      data_source_type: React.PropTypes.string.isRequired,
+      host: React.PropTypes.string.isRequired,
+      schemas: React.PropTypes.arrayOf(React.PropTypes.string).isRequired
+    })).isRequired,
    })
 }
 

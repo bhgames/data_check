@@ -12,8 +12,13 @@ models.helpers.base.init(engine) # Initialize base declarative class.
 from models.check import Check, CheckType
 from models.rule import Rule, RuleCondition
 from models.job_template import JobTemplate
-from models.helpers.schemas import JobTemplateSchema, CheckSchema, RuleSchema
+from models.helpers.schemas import JobTemplateSchema, CheckSchema, RuleSchema, DataSourceSchema
 from models.schedule import Schedule
+from models.job_run import JobRun
+from models.data_source import DataSource, DataSourceType
+
+import datetime
+now = datetime.datetime.now
 
 app = Flask(__name__)
 CORS(app)
@@ -45,6 +50,9 @@ def update_attribute(obj, key, value):
 
     if key == "id":
         return False
+
+    if(hasattr(obj, key) == False):
+        return False # Ignore attributes that aren't real attributes.
 
     if(hasattr(obj, "ENUMS") == False):
         raise ValueError("ENUMS is not defined for this model!")
@@ -90,6 +98,17 @@ def new_item_save(type):
     id = new_inst.id
     return jsonify({ "id": id })
 
+
+@app.route('/job_runs', methods=['POST'])
+def new_job_run_save():
+    """
+        JobRuns cannot be created classically from the GUI, only by hitting the Run button on a template,
+        which creates and schedules the job run to be run immediately. Normally job runs are created
+        by the background scheduler.
+    """
+    jt = db_session.query(JobTemplate).get(request.json["job_template_id"])
+    jr = JobRun.create_job_run(jt, now())
+    return jsonify({ "id": jr.id })
 
 @app.route('/<type>', methods=['GET'])
 def get_items(type):

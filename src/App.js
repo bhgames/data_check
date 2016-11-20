@@ -29,6 +29,9 @@ class App extends Component {
             <LinkContainer to={`/job_templates`}>
               <NavItem eventKey={4}>Job Templates</NavItem>
             </LinkContainer>
+            <LinkContainer to={`/data_sources`}>
+              <NavItem eventKey={5}>Data Sources</NavItem>
+            </LinkContainer>
           </Nav>
         </Navbar.Collapse>
       </Navbar>

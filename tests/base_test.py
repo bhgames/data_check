@@ -35,6 +35,7 @@ class BaseTest(unittest.TestCase):
         d = DataSource(**config)
         return d
 
+
     def config(self):
         return {
             "host": "localhost",

@@ -1,7 +1,6 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
+import React from 'react';
 import './App.css';
-import { Button, Table } from 'react-bootstrap';
+import { Table } from 'react-bootstrap';
 
   // Put sidebar here.
 function Recent() {

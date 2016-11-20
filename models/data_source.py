@@ -31,6 +31,7 @@ class DataSource(Base):
     password = Column(String, nullable=True)
     schemas = Column(ARRAY(String), nullable=True)
     job_templates = relationship('JobTemplate', back_populates="data_sources", secondary=data_sources_job_templates)
+    ENUMS = ["data_source_type"]
 
     @validates('port')
     def validate_port(self, key, port):

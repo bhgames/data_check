@@ -90,7 +90,8 @@ def setup_listener(mapper, class_):
                         backref=backref(
                                 "parent_%s" % loggable_type,
                                 primaryjoin=remote(class_.id) == foreign(Log.loggable_id)
-                                ))
+                                ),
+                        cascade='delete')
 
     @event.listens_for(class_.logs, "append")
     def append_address(target, value, initiator):

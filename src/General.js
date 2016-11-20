@@ -81,8 +81,28 @@ WithData.propTypes = {
 
 /* LIST AND DISPLAY ELEMENTS */
 
+/*
 
-export function List({ columnNames, columns, baseResource, data, deleteDataItem, onSelectHandler, selectedRows, excludedRowIds, chromeless }) {
+  The List function expects to be handed a list of column names and actual columns to call on the data,
+  which is expected to be an array. 
+
+  An onSelectHandler will be called(if given) whenever a row is clicked.
+
+  SelectedRows is expected to be (if given) an array of objects that have been selected - passing this ensures
+  that rows in the data array that are selected are highlighted. 
+
+  baseResource is used to assemble links for default buttons, and deleteDataItem is the callback used by the delete button.
+
+  excludedRowIds, if passed, will be used to hide rows in the data array from view. 
+
+  chromeless will hide all buttons from view in the List.
+
+  children is expected to be <Button> elements you wish to include in Actions in addition to Edit/Delete, with onClick handlers
+  bound with the proper this but not yet bound with a proper row(binding will happen here.)
+
+  Please see beneath this function for PropTypes to see proper data typing constraints of each argument.
+*/
+export function List({ columnNames, columns, baseResource, data, deleteDataItem, onSelectHandler, selectedRows, excludedRowIds, chromeless, children }) {
   let deleteHandler = (row) => { deleteDataItem(row.id) };
 
   let handler = null;
@@ -103,12 +123,18 @@ export function List({ columnNames, columns, baseResource, data, deleteDataItem,
   let rowIds = data.map((r) => { return r.id });
   let displayedRows = data.filter((r) => { return !excludedRowIds || !excludedRowIds.includes(rowIds[data.indexOf(r)])});
 
-  let buttons = (row) => { 
+  let buttons = (row) => {
+                  let boundButtons = React.Children.map(children,
+                      (child) => React.cloneElement(child, {
+                        onClick: child.props.onClick.bind(null, row)
+                      })
+                    );
                   return chromeless ? null : <td>
                     <LinkContainer to={'/' + baseResource + '/' + row.id + '/edit'}>
                       <Button>Edit</Button>
                     </LinkContainer>
                     <Button onClick={deleteHandler.bind(null, row)}>Delete</Button>
+                    {boundButtons}
                   </td> 
                 };
                 
@@ -279,5 +305,6 @@ UnwrappedResourceForm.propTypes = {
 
 let ResourceForm = withRouter(UnwrappedResourceForm);
 export { ResourceForm };
+
 
 

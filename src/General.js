@@ -95,21 +95,23 @@ WithData.propTypes = {
 
   excludedRowIds, if passed, will be used to hide rows in the data array from view. 
 
-  chromeless will hide all buttons from view in the List.
+  buttonMask will hide the Edit, Delete button, New Button depending on values. 
+  [1,1,1] - Hide all, [1,0,0] - Edit Hidden, Delete & New Not.
+  0th index = Edit
+  1st index = Delete
+  2nd index = New
 
   children is expected to be <Button> elements you wish to include in Actions in addition to Edit/Delete, with onClick handlers
   bound with the proper this but not yet bound with a proper row(binding will happen here.)
 
   Please see beneath this function for PropTypes to see proper data typing constraints of each argument.
 */
-export function List({ columnNames, columns, baseResource, data, deleteDataItem, onSelectHandler, selectedRows, excludedRowIds, chromeless, children }) {
+export function List({ columnNames, columns, baseResource, data, deleteDataItem, onSelectHandler, selectedRows, excludedRowIds, buttonMask, children }) {
   let deleteHandler = (row) => { deleteDataItem(row.id) };
 
   let handler = null;
   if(onSelectHandler) {    
-    handler = (row) => {
-      onSelectHandler(row);
-    };
+    handler = (row) => onSelectHandler(row);
   } else {
     handler = (row) => { }
   }
@@ -129,18 +131,30 @@ export function List({ columnNames, columns, baseResource, data, deleteDataItem,
                         onClick: child.props.onClick.bind(null, row)
                       })
                     );
-                  return chromeless ? null : <td>
-                    <LinkContainer to={'/' + baseResource + '/' + row.id + '/edit'}>
-                      <Button>Edit</Button>
-                    </LinkContainer>
-                    <Button onClick={deleteHandler.bind(null, row)}>Delete</Button>
+
+                  let defaultButtons = [];
+
+                  if(buttonMask[0] == 0) {
+                    defaultButtons.push(
+                      <LinkContainer to={'/' + baseResource + '/' + row.id + '/edit'} key={'edit'}>
+                        <Button>Edit</Button>
+                      </LinkContainer>
+                    )
+                  }
+
+                  if(buttonMask[1] == 0) {
+                    defaultButtons.push(<Button onClick={deleteHandler.bind(null, row)} key={'delete'}>Delete</Button>)
+                  }
+
+                  return <td>
+                    {defaultButtons}
                     {boundButtons}
                   </td> 
                 };
                 
-  let buttonHeader = chromeless ? null : <th>Actions</th>;
+  let buttonHeader = <th>Actions</th>;
 
-  let newButton = chromeless ? null : <LinkContainer to={ baseResource + '/new/edit'}>
+  let newButton = buttonMask[2] == 1 ? null : <LinkContainer to={ baseResource + '/new/edit'}>
         <Button bsStyle="primary">New</Button>
       </LinkContainer>;
   
@@ -181,8 +195,12 @@ List.propTypes = {
   onSelectHandler: React.PropTypes.func,
   selectedRows: React.PropTypes.array,
   excludedRowIds: React.PropTypes.array, // Used to prevent cyclical Rule depedencies, or similar.
-  chromeless: React.PropTypes.bool // Used to hide edit/delete buttons
+  buttonMask: React.PropTypes.arrayOf(React.PropTypes.number).isRequired // Used to hide edit/delete buttons. See comments above.
 };
+
+List.defaultProps = {
+  buttonMask: [0,0,0] // Show all edit delete new by default.
+}
 
 
 /* FORM ELEMENTS */
@@ -205,7 +223,7 @@ export function HasManyAssociationFormElement({ label, baseResource, onNewList, 
       <FormGroup controlId={baseResource}>
         <ControlLabel>{label}</ControlLabel>
         <WithData baseResource={baseResource}>
-          <ListElement onSelectHandler={handleArrChange.bind(this)} selectedRows={currentList} chromeless={true} excludedRowIds={excludedRowIds}/>
+          <ListElement onSelectHandler={handleArrChange.bind(this)} selectedRows={currentList} buttonMask={[1,1,1]} excludedRowIds={excludedRowIds}/>
         </WithData>
       </FormGroup>
     );

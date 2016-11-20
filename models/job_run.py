@@ -39,6 +39,7 @@ class JobRun(Base, HasLogs):
     status = Column(Enum(JobRunStatus), nullable=False)
     job_template_id = Column(Integer, ForeignKey('job_template.id'))
     job_template = relationship('JobTemplate')
+    log = relationship('Log', cascade='delete')
 
     @classmethod
     def create_job_run(cls, job_template, scheduled_run_time):

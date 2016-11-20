@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App';
-import Recent from './Recent';
+import { IndexComponent, App } from './App';
+import { JobRuns, JobRunsListWithData } from './JobRuns';
 import { Checks, ChecksListWithData, CheckFormWithData } from './Checks';
 import { Rules, RulesListWithData, RuleFormWithData } from './Rules';
 import { JobTemplates, JobTemplatesListWithData, JobTemplateFormWithData } from './JobTemplates';
@@ -10,10 +10,14 @@ import { DataSources, DataSourcesListWithData, DataSourceFormWithData } from './
 import './index.css';
 import { Router, Route, IndexRoute, hashHistory } from 'react-router';
 
+
 ReactDOM.render((
   <Router history={hashHistory}>
     <Route path="/" component={App}>
-      <IndexRoute component={Recent} />
+      <IndexRoute component={IndexComponent} />
+      <Route path="job_runs" component={JobRuns}>
+        <IndexRoute component={JobRunsListWithData} />
+      </Route>
       <Route path="checks" component={Checks}>
         <IndexRoute component={ChecksListWithData} />
         <Route path=":id/edit" component={CheckFormWithData} />

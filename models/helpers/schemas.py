@@ -2,7 +2,7 @@
     Schemas used by the Flask server to present SQLAlchemy models in the models folder.
 """
 
-from marshmallow import Schema, fields, pprint
+from marshmallow import Schema, fields, pprint, pre_load
 
 class CheckMetadataSchema(Schema):
     column = fields.Str()
@@ -129,5 +129,25 @@ class JobTemplateSchema(Schema):
             "rules": [],
             "data_sources": []
         }
+
+
+
+class JobRunSchema(Schema):
+    id = fields.Integer()
+    name = fields.Str()
+    scheduled_at = fields.DateTime()
+    rejected_at = fields.DateTime()
+    failed_at = fields.DateTime()
+    cancelled_at = fields.DateTime()
+    run_at = fields.DateTime()
+    finished_at = fields.DateTime()
+    parallelization = fields.Number()
+    status = fields.Str()
+    job_template_name = fields.Method("set_template_name", dump_only=True)
+    job_template = fields.Nested(JobTemplateSchema())
+
+    def set_template_name(self, jr):
+        return jr.job_template.name
+
 
 

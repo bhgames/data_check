@@ -4,15 +4,14 @@ from inflection import camelize, singularize
 
 import models.helpers.base
 import traceback
-from sqlalchemy import create_engine
-from sqlalchemy import MetaData
+from sqlalchemy import create_engine, MetaData, desc
 engine = create_engine('postgresql://localhost:5432/data_check')
 models.helpers.base.init(engine) # Initialize base declarative class.
 
 from models.check import Check, CheckType
 from models.rule import Rule, RuleCondition
 from models.job_template import JobTemplate
-from models.helpers.schemas import JobTemplateSchema, CheckSchema, RuleSchema, DataSourceSchema
+from models.helpers.schemas import JobTemplateSchema, CheckSchema, RuleSchema, DataSourceSchema, JobRunSchema
 from models.schedule import Schedule
 from models.job_run import JobRun
 from models.data_source import DataSource, DataSourceType

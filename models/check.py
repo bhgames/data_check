@@ -15,6 +15,7 @@ from checks.null_check import NullCheck
 from checks.uniqueness_check import UniquenessCheck
 from models.helpers.crud_mixin import CrudMixin
 import sys
+from inflection import camelize
 
 Base = models.helpers.base.Base
 db_session = models.helpers.base.db_session
@@ -55,7 +56,7 @@ class Check(Base, HasLogs, CrudMixin):
             if (job_run.status in [JobRunStatus.failed, JobRunStatus.cancelled, JobRunStatus.rejected]):
                 log.add_log("cancelled", "Check cancelled due to Job Run Status of %s caused by some other worker." % (job_run.status))
             else:
-                chk_class = eval(str(self.check_type.value).title() + "Check")
+                chk_class = eval(camelize(str(self.check_type.value)) + "Check")
 
                 check = chk_class(metadata)
                 check.run()

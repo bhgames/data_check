@@ -40,24 +40,26 @@ class Check(Base, HasLogs, CrudMixin):
 
     def run(self, job_run, source, table):
         log = self.get_log(job_run=job_run)
-        log.add_log("creation", "Begin %s Check of Source %s Table %s with Metadata %s" % (self.check_type.value, source.id, table, self.check_metadata))
-        db_session.add(job_run)
-
         try:
+            metadata = deepcopy(self.check_metadata)
+            metadata["table"] = table.split(".")[1]
+            metadata["schema"] = table.split(".")[0]
+            metadata["log_metadata"] = { "table": metadata["table"], "schema": metadata["schema"], "source_id": source.id }
+            metadata["config"] = source.config()
+            metadata["log"] = log
+
+            log.add_log("creation", "Begin %s Check of Source %s Table %s with Metadata %s" % (self.check_type.value, source.id, table, self.check_metadata), metadata["log_metadata"])
+            db_session.add(job_run)
+
+        
             if (job_run.status in [JobRunStatus.failed, JobRunStatus.cancelled, JobRunStatus.rejected]):
                 log.add_log("cancelled", "Check cancelled due to Job Run Status of %s caused by some other worker." % (job_run.status))
             else:
                 chk_class = eval(str(self.check_type.value).title() + "Check")
 
-                metadata = deepcopy(self.check_metadata)
-                metadata["table"] = table.split(".")[1]
-                metadata["schema"] = table.split(".")[0]
-                metadata["config"] = source.config()
-                metadata["log"] = log
-
                 check = chk_class(metadata)
                 check.run()
-                log.add_log("finished", "Check Ended")
+                log.add_log("finished", "Check Ended", metadata["log_metadata"])
         except Exception as e:
             print str(sys.exc_info())
             log.new_error_event()

@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { IndexComponent, App } from './App';
-import { JobRuns, JobRunsListWithData } from './JobRuns';
+import { JobRuns, JobRunsListWithData, JobRunsViewWithData } from './JobRuns';
 import { Checks, ChecksListWithData, CheckFormWithData } from './Checks';
 import { Rules, RulesListWithData, RuleFormWithData } from './Rules';
 import { JobTemplates, JobTemplatesListWithData, JobTemplateFormWithData } from './JobTemplates';
@@ -17,6 +17,7 @@ ReactDOM.render((
       <IndexRoute component={IndexComponent} />
       <Route path="job_runs" component={JobRuns}>
         <IndexRoute component={JobRunsListWithData} />
+        <Route path=":id" component={JobRunsViewWithData} />
       </Route>
       <Route path="checks" component={Checks}>
         <IndexRoute component={ChecksListWithData} />

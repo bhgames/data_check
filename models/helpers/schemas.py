@@ -107,6 +107,7 @@ class JobTemplateSchema(Schema):
     name = fields.Str()
     parallelization = fields.Number()
     rules = fields.Nested(RuleSchema(), many=True)
+    checks = fields.Nested(CheckSchema(), many=True)
     data_sources = fields.Nested(DataSourceSchema(), many=True)
 
     class Meta:
@@ -132,10 +133,11 @@ class JobTemplateSchema(Schema):
 
 
 
-
 class LogSchema(Schema):
     id = fields.Integer()
-    log = fields.List(fields.String)
+    log = fields.List(fields.Dict)
+    loggable_type = fields.Str()
+    loggable_id = fields.Integer()
  
 
 class JobRunSchema(Schema):
@@ -149,12 +151,12 @@ class JobRunSchema(Schema):
     finished_at = fields.DateTime()
     parallelization = fields.Number()
     status = fields.Str()
-    job_template_name = fields.Method("set_template_name", dump_only=True)
     job_template = fields.Nested(JobTemplateSchema())
+    job_template_name = fields.Method("set_template_name", dump_only=True)
     all_connected_logs = fields.Nested(LogSchema(), many=True)
 
     HIDDEN_FROM_LIST=["all_connected_logs"]
-    
+
     def set_template_name(self, jr):
         return jr.job_template.name
 

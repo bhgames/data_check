@@ -3,6 +3,7 @@ from sqlalchemy import Column, String, Integer, ForeignKey, DateTime, Table, Dat
 from sqlalchemy.orm import relationship, backref
 import models.helpers.base
 from models.helpers.timestamps_triggers import timestamps_triggers
+import numpy as np
 
 Base = models.helpers.base.Base
 
@@ -38,5 +39,12 @@ class JobTemplate(Base):
     rules = relationship('Rule', back_populates="job_templates", secondary=job_templates_rules)
     schedules = relationship('Schedule', back_populates='job_templates', secondary=job_templates_schedules)
     ENUMS = ["log_level"]
+
+    def checks(self):
+        seen = set()
+        seen_add = seen.add
+        all_checks = np.array(map(lambda r: r.checks, self.rules)).flatten()
+        checks = [c for c in all_checks if not c.id in seen or seen_add(c.id)]
+        return checks
 
 timestamps_triggers(JobTemplate)

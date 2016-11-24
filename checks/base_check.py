@@ -9,13 +9,14 @@ class BaseCheck:
         self.schema = opts["schema"]
         self.column = opts["column"]
         self.config = opts["config"]
+        self.log_metadata = opts["log_metadata"] if "log_metadata" in opts else {}
         self.log = opts["log"] if "log" in opts else None
         self.query_settings = { 'table': self.table, 'col': self.column, 'schema': self.schema }
 
 
     def add_log(self, event, message):
         if self.log:
-            self.log.add_log(event, message)
+            self.log.add_log(event, message, self.log_metadata)
 
 
     def add_results_csv_to_s3(self):

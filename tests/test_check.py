@@ -53,6 +53,7 @@ class TestCheck(BaseTest):
     def test_gets_check_pass(self):
         self.assert_event(JobRunStatus.running, "check_succeeded", 3)
 
+
     def test_gets_check_fail(self):
         self.assert_event(JobRunStatus.running, "check_failed", 3, 'test.test_uniqueness_fail')
 

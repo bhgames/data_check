@@ -5,53 +5,64 @@ You can find the most recent version of this guide [here](https://github.com/fac
 
 ## Table of Contents
 
-- [Updating to New Releases](#updating-to-new-releases)
-- [Sending Feedback](#sending-feedback)
-- [Folder Structure](#folder-structure)
-- [Available Scripts](#available-scripts)
-  - [npm start](#npm-start)
-  - [npm test](#npm-test)
-  - [npm run build](#npm-run-build)
-  - [npm run eject](#npm-run-eject)
-- [Displaying Lint Output in the Editor](#displaying-lint-output-in-the-editor)
-- [Installing a Dependency](#installing-a-dependency)
-- [Importing a Component](#importing-a-component)
-- [Adding a Stylesheet](#adding-a-stylesheet)
-- [Post-Processing CSS](#post-processing-css)
-- [Adding Images and Fonts](#adding-images-and-fonts)
-- [Using the `public` Folder](#using-the-public-folder)
-- [Adding Bootstrap](#adding-bootstrap)
-- [Adding Flow](#adding-flow)
-- [Adding Custom Environment Variables](#adding-custom-environment-variables)
-- [Can I Use Decorators?](#can-i-use-decorators)
-- [Integrating with a Node Backend](#integrating-with-a-node-backend)
-- [Proxying API Requests in Development](#proxying-api-requests-in-development)
-- [Using HTTPS in Development](#using-https-in-development)
-- [Generating Dynamic `<meta>` Tags on the Server](#generating-dynamic-meta-tags-on-the-server)
-- [Running Tests](#running-tests)
-  - [Filename Conventions](#filename-conventions)
-  - [Command Line Interface](#command-line-interface)
-  - [Version Control Integration](#version-control-integration)
-  - [Writing Tests](#writing-tests)
-  - [Testing Components](#testing-components)
-  - [Using Third Party Assertion Libraries](#using-third-party-assertion-libraries)
-  - [Initializing Test Environment](#initializing-test-environment)
-  - [Focusing and Excluding Tests](#focusing-and-excluding-tests)
-  - [Coverage Reporting](#coverage-reporting)
-  - [Continuous Integration](#continuous-integration)
-  - [Disabling jsdom](#disabling-jsdom)
-  - [Experimental Snapshot Testing](#experimental-snapshot-testing)
-- [Deployment](#deployment)
-  - [Building for Relative Paths](#building-for-relative-paths)
-  - [GitHub Pages](#github-pages)
-  - [Heroku](#heroku)
-  - [Modulus](#modulus)
-  - [Netlify](#netlify)
-  - [Now](#now)
-  - [Surge](#surge)
-- [Something Missing?](#something-missing)
+- [Startup](#startup)
+- [React Maintenance](#react-maintenance)
+  - [Updating to New Releases](#updating-to-new-releases)
+  - [Sending Feedback](#sending-feedback)
+  - [Folder Structure](#folder-structure)
+  - [Available Scripts](#available-scripts)
+    - [npm start](#npm-start)
+    - [npm test](#npm-test)
+    - [npm run build](#npm-run-build)
+    - [npm run eject](#npm-run-eject)
+  - [Displaying Lint Output in the Editor](#displaying-lint-output-in-the-editor)
+  - [Installing a Dependency](#installing-a-dependency)
+  - [Importing a Component](#importing-a-component)
+  - [Adding a Stylesheet](#adding-a-stylesheet)
+  - [Post-Processing CSS](#post-processing-css)
+  - [Adding Images and Fonts](#adding-images-and-fonts)
+  - [Using the `public` Folder](#using-the-public-folder)
+  - [Adding Bootstrap](#adding-bootstrap)
+  - [Adding Flow](#adding-flow)
+  - [Adding Custom Environment Variables](#adding-custom-environment-variables)
+  - [Can I Use Decorators?](#can-i-use-decorators)
+  - [Integrating with a Node Backend](#integrating-with-a-node-backend)
+  - [Proxying API Requests in Development](#proxying-api-requests-in-development)
+  - [Using HTTPS in Development](#using-https-in-development)
+  - [Generating Dynamic `<meta>` Tags on the Server](#generating-dynamic-meta-tags-on-the-server)
+  - [Running Tests](#running-tests)
+    - [Filename Conventions](#filename-conventions)
+    - [Command Line Interface](#command-line-interface)
+    - [Version Control Integration](#version-control-integration)
+    - [Writing Tests](#writing-tests)
+    - [Testing Components](#testing-components)
+    - [Using Third Party Assertion Libraries](#using-third-party-assertion-libraries)
+    - [Initializing Test Environment](#initializing-test-environment)
+    - [Focusing and Excluding Tests](#focusing-and-excluding-tests)
+    - [Coverage Reporting](#coverage-reporting)
+    - [Continuous Integration](#continuous-integration)
+    - [Disabling jsdom](#disabling-jsdom)
+    - [Experimental Snapshot Testing](#experimental-snapshot-testing)
+  - [Deployment](#deployment)
+    - [Building for Relative Paths](#building-for-relative-paths)
+    - [GitHub Pages](#github-pages)
+    - [Heroku](#heroku)
+    - [Modulus](#modulus)
+    - [Netlify](#netlify)
+    - [Now](#now)
+    - [Surge](#surge)
+  - [Something Missing?](#something-missing)
 
-## Updating to New Releases
+## Startup
+
+`celery -A celery_jobs.job_runs worker --loglevel=debug`
+`celery -A celery_jobs.job_runs beat --loglevel=debug`
+`python server.py`
+`npm start`
+
+## React Maintenance
+
+### Updating to New Releases
 
 Create React App is divided into two packages:
 
@@ -68,11 +79,11 @@ In most cases bumping the `react-scripts` version in `package.json` and running 
 
 We commit to keeping the breaking changes minimal so you can upgrade `react-scripts` painlessly.
 
-## Sending Feedback
+### Sending Feedback
 
 We are always open to [your feedback](https://github.com/facebookincubator/create-react-app/issues).
 
-## Folder Structure
+### Folder Structure
 
 After creation, your project should look like this:
 
@@ -109,11 +120,11 @@ Read instructions below for using assets from JavaScript and HTML.
 You can, however, create more top-level directories.<br>
 They will not be included in the production build so you can use them for things like documentation.
 
-## Available Scripts
+### Available Scripts
 
 In the project directory, you can run:
 
-### `npm start`
+#### `npm start`
 
 Runs the app in the development mode.<br>
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
@@ -121,12 +132,12 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 The page will reload if you make edits.<br>
 You will also see any lint errors in the console.
 
-### `npm test`
+#### `npm test`
 
 Launches the test runner in the interactive watch mode.<br>
 See the section about [running tests](#running-tests) for more information.
 
-### `npm run build`
+#### `npm run build`
 
 Builds the app for production to the `build` folder.<br>
 It correctly bundles React in production mode and optimizes the build for the best performance.
@@ -134,7 +145,7 @@ It correctly bundles React in production mode and optimizes the build for the be
 The build is minified and the filenames include the hashes.<br>
 Your app is ready to be deployed!
 
-### `npm run eject`
+#### `npm run eject`
 
 **Note: this is a one-way operation. Once you `eject`, you can’t go back!**
 
@@ -144,7 +155,7 @@ Instead, it will copy all the configuration files and the transitive dependencie
 
 You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
 
-## Displaying Lint Output in the Editor
+### Displaying Lint Output in the Editor
 
 >Note: this feature is available with `react-scripts@0.2.0` and higher.
 
@@ -179,7 +190,7 @@ npm install -g eslint-config-react-app@0.3.0 eslint@3.8.1 babel-eslint@7.0.0 esl
 
 We recognize that this is suboptimal, but it is currently required due to the way we hide the ESLint dependency. The ESLint team is already [working on a solution to this](https://github.com/eslint/eslint/issues/3458) so this may become unnecessary in a couple of months.
 
-## Installing a Dependency
+### Installing a Dependency
 
 The generated project includes React and ReactDOM as dependencies. It also includes a set of scripts used by Create React App as a development dependency. You may install other dependencies (for example, React Router) with `npm`:
 
@@ -187,14 +198,14 @@ The generated project includes React and ReactDOM as dependencies. It also inclu
 npm install --save <library-name>
 ```
 
-## Importing a Component
+### Importing a Component
 
 This project setup supports ES6 modules thanks to Babel.<br>
 While you can still use `require()` and `module.exports`, we encourage you to use [`import` and `export`](http://exploringjs.com/es6/ch_modules.html) instead.
 
 For example:
 
-### `Button.js`
+#### `Button.js`
 
 ```js
 import React, { Component } from 'react';
@@ -208,7 +219,7 @@ class Button extends Component {
 export default Button; // Don’t forget to use export default!
 ```
 
-### `DangerButton.js`
+#### `DangerButton.js`
 
 
 ```js
@@ -236,11 +247,11 @@ Learn more about ES6 modules:
 * [Exploring ES6: Modules](http://exploringjs.com/es6/ch_modules.html)
 * [Understanding ES6: Modules](https://leanpub.com/understandinges6/read#leanpub-auto-encapsulating-code-with-modules)
 
-## Adding a Stylesheet
+### Adding a Stylesheet
 
 This project setup uses [Webpack](https://webpack.github.io/) for handling all assets. Webpack offers a custom way of “extending” the concept of `import` beyond JavaScript. To express that a JavaScript file depends on a CSS file, you need to **import the CSS from the JavaScript file**:
 
-### `Button.css`
+#### `Button.css`
 
 ```css
 .Button {
@@ -248,7 +259,7 @@ This project setup uses [Webpack](https://webpack.github.io/) for handling all a
 }
 ```
 
-### `Button.js`
+#### `Button.js`
 
 ```js
 import React, { Component } from 'react';
@@ -268,7 +279,7 @@ In development, expressing dependencies this way allows your styles to be reload
 
 If you are concerned about using Webpack-specific semantics, you can put all your CSS right into `src/index.css`. It would still be imported from `src/index.js`, but you could always remove that import if you later migrate to a different build tool.
 
-## Post-Processing CSS
+### Post-Processing CSS
 
 This project setup minifies your CSS and adds vendor prefixes to it automatically through [Autoprefixer](https://github.com/postcss/autoprefixer) so you don’t need to worry about it.
 
@@ -301,7 +312,7 @@ becomes this:
 
 There is currently no support for preprocessors such as Less, or for sharing variables across CSS files.
 
-## Adding Images and Fonts
+### Adding Images and Fonts
 
 With Webpack, using static assets like images and fonts works similarly to CSS.
 
@@ -340,7 +351,7 @@ Please be advised that this is also a custom feature of Webpack.
 **It is not required for React** but many people enjoy it (and React Native uses a similar mechanism for images).<br>
 An alternative way of handling static assets is described in the next section.
 
-## Using the `public` Folder
+### Using the `public` Folder
 
 >Note: this feature is available with `react-scripts@0.5.0` and higher.
 
@@ -383,7 +394,7 @@ Keep in mind the downsides of this approach:
 
 However, it can be handy for referencing assets like [`manifest.webmanifest`](https://developer.mozilla.org/en-US/docs/Web/Manifest) from HTML, or including small scripts like [`pace.js`](http://github.hubspot.com/pace/docs/welcome/) outside of the bundled code.
 
-## Adding Bootstrap
+### Adding Bootstrap
 
 You don’t have to use [React Bootstrap](https://react-bootstrap.github.io) together with React but it is a popular library for integrating Bootstrap with React apps. If you need it, you can integrate it with Create React App by following these steps:
 
@@ -409,7 +420,7 @@ import { Navbar, Jumbotron, Button } from 'react-bootstrap';
 
 Now you are ready to use the imported React Bootstrap components within your component hierarchy defined in the render method. Here is an example [`App.js`](https://gist.githubusercontent.com/gaearon/85d8c067f6af1e56277c82d19fd4da7b/raw/6158dd991b67284e9fc8d70b9d973efe87659d72/App.js) redone using React Bootstrap.
 
-## Adding Flow
+### Adding Flow
 
 Flow typing is currently [not supported out of the box](https://github.com/facebookincubator/create-react-app/issues/72) with the default `.flowconfig` generated by Flow. If you run it, you might get errors like this:
 
@@ -434,7 +445,7 @@ To fix this, change your `.flowconfig` to look like this:
 
 Re-run flow, and you shouldn’t get any extra issues.
 
-## Adding Custom Environment Variables
+### Adding Custom Environment Variables
 
 >Note: this feature is available with `react-scripts@0.2.3` and higher.
 
@@ -490,12 +501,12 @@ The above form is looking for a variable called `REACT_APP_SECRET_CODE` from the
 value, we need to have it defined in the environment. This can be done using two ways: either in your shell or in
 a `.env` file.
 
-### Adding Temporary Environment Variables In Your Shell
+#### Adding Temporary Environment Variables In Your Shell
 
 Defining environment variables can vary between OSes. It's also important to know that this manner is temporary for the
 life of the shell session.
 
-#### Windows (cmd.exe)
+##### Windows (cmd.exe)
 
 ```cmd
 set REACT_APP_SECRET_CODE=abcdef&&npm start
@@ -503,13 +514,13 @@ set REACT_APP_SECRET_CODE=abcdef&&npm start
 
 (Note: the lack of whitespace is intentional.)
 
-#### Linux, OS X (Bash)
+##### Linux, OS X (Bash)
 
 ```bash
 REACT_APP_SECRET_CODE=abcdef npm start
 ```
 
-### Adding Development Environment Variables In `.env`
+#### Adding Development Environment Variables In `.env`
 
 >Note: this feature is available with `react-scripts@0.5.0` and higher.
 
@@ -525,7 +536,7 @@ Please refer to the [dotenv documentation](https://github.com/motdotla/dotenv) f
 >Note: If you are defining environment variables for development, your CI and/or hosting platform will most likely need
 these defined as well. Consult their documentation how to do this. For example, see the documentation for [Travis CI](https://docs.travis-ci.com/user/environment-variables/) or [Heroku](https://devcenter.heroku.com/articles/config-vars).
 
-## Can I Use Decorators?
+### Can I Use Decorators?
 
 Many popular libraries use [decorators](https://medium.com/google-developers/exploring-es7-decorators-76ecb65fb841) in their documentation.<br>
 Create React App doesn’t support decorator syntax at the moment because:
@@ -542,11 +553,11 @@ Please refer to these two threads for reference:
 
 Create React App will add decorator support when the specification advances to a stable stage.
 
-## Integrating with a Node Backend
+### Integrating with a Node Backend
 
 Check out [this tutorial](https://www.fullstackreact.com/articles/using-create-react-app-with-a-server/) for instructions on integrating an app with a Node backend running on another port, and using `fetch()` to access it. You can find the companion GitHub repository [here](https://github.com/fullstackreact/food-lookup-demo).
 
-## Proxying API Requests in Development
+### Proxying API Requests in Development
 
 >Note: this feature is available with `react-scripts@0.2.3` and higher.
 
@@ -583,7 +594,7 @@ If the `proxy` option is **not** flexible enough for you, alternatively you can:
 * Enable CORS on your server ([here’s how to do it for Express](http://enable-cors.org/server_expressjs.html)).
 * Use [environment variables](#adding-custom-environment-variables) to inject the right server host and port into your app.
 
-## Using HTTPS in Development
+### Using HTTPS in Development
 
 >Note: this feature is available with `react-scripts@0.4.0` and higher.
 
@@ -591,7 +602,7 @@ You may require the dev server to serve pages over HTTPS. One particular case wh
 
 To do this, set the `HTTPS` environment variable to `true`, then start the dev server as usual with `npm start`:
 
-#### Windows (cmd.exe)
+##### Windows (cmd.exe)
 
 ```cmd
 set HTTPS=true&&npm start
@@ -599,7 +610,7 @@ set HTTPS=true&&npm start
 
 (Note: the lack of whitespace is intentional.)
 
-#### Linux, OS X (Bash)
+##### Linux, OS X (Bash)
 
 ```bash
 HTTPS=true npm start
@@ -607,7 +618,7 @@ HTTPS=true npm start
 
 Note that the server will use a self-signed certificate, so your web browser will almost definitely display a warning upon accessing the page.
 
-## Generating Dynamic `<meta>` Tags on the Server
+### Generating Dynamic `<meta>` Tags on the Server
 
 Since Create React App doesn’t support server rendering, you might be wondering how to make `<meta>` tags dynamic and reflect the current URL. To solve this, we recommend to add placeholders into the HTML, like this:
 
@@ -623,7 +634,7 @@ Then, on the server, regardless of the backend you use, you can read `index.html
 
 If you use a Node server, you can even share the route matching logic between the client and the server. However duplicating it also works fine in simple cases.
 
-## Running Tests
+### Running Tests
 
 >Note: this feature is available with `react-scripts@0.3.0` and higher.<br>
 >[Read the migration guide to learn how to enable it in older projects!](https://github.com/facebookincubator/create-react-app/blob/master/CHANGELOG.md#migrating-from-023-to-030)
@@ -636,7 +647,7 @@ While Jest provides browser globals such as `window` thanks to [jsdom](https://g
 
 We recommend that you use a separate tool for browser end-to-end tests if you need them. They are beyond the scope of Create React App.
 
-### Filename Conventions
+#### Filename Conventions
 
 Jest will look for test files with any of the following popular naming conventions:
 
@@ -648,7 +659,7 @@ The `.test.js` / `.spec.js` files (or the `__tests__` folders) can be located at
 
 We recommend to put the test files (or `__tests__` folders) next to the code they are testing so that relative imports appear shorter. For example, if `App.test.js` and `App.js` are in the same folder, the test just needs to `import App from './App'` instead of a long relative path. Colocation also helps find tests more quickly in larger projects.
 
-### Command Line Interface
+#### Command Line Interface
 
 When you run `npm test`, Jest will launch in the watch mode. Every time you save a file, it will re-run the tests, just like `npm start` recompiles the code.
 
@@ -656,7 +667,7 @@ The watcher includes an interactive command-line interface with the ability to r
 
 ![Jest watch mode](http://facebook.github.io/jest/img/blog/15-watch.gif)
 
-### Version Control Integration
+#### Version Control Integration
 
 By default, when you run `npm test`, Jest will only run the tests related to files changed since the last commit. This is an optimization designed to make your tests runs fast regardless of how many tests you have. However it assumes that you don’t often commit the code that doesn’t pass the tests.
 
@@ -664,7 +675,7 @@ Jest will always explicitly mention that it only ran tests related to the files 
 
 Jest will always run all tests on a [continuous integration](#continuous-integration) server or if the project is not inside a Git or Mercurial repository.
 
-### Writing Tests
+#### Writing Tests
 
 To create tests, add `it()` (or `test()`) blocks with the name of the test and its code. You may optionally wrap them in `describe()` blocks for logical grouping but this is neither required nor recommended.
 
@@ -682,7 +693,7 @@ it('sums numbers', () => {
 All `expect()` matchers supported by Jest are [extensively documented here](http://facebook.github.io/jest/docs/api.html#expect-value).<br>
 You can also use [`jest.fn()` and `expect(fn).toBeCalled()`](http://facebook.github.io/jest/docs/api.html#tobecalled) to create “spies” or mock functions.
 
-### Testing Components
+#### Testing Components
 
 There is a broad spectrum of component testing techniques. They range from a “smoke test” verifying that a component renders without throwing, to shallow rendering and testing some of the output, to full rendering and testing component lifecycle and state changes.
 
@@ -741,7 +752,7 @@ it('renders welcome message', () => {
 All Jest matchers are [extensively documented here](http://facebook.github.io/jest/docs/api.html#expect-value).<br>
 Nevertheless you can use a third-party assertion library like [Chai](http://chaijs.com/) if you want to, as described below.
 
-### Using Third Party Assertion Libraries
+#### Using Third Party Assertion Libraries
 
 We recommend that you use `expect()` for assertions and `jest.fn()` for spies. If you are having issues with them please [file those against Jest](https://github.com/facebook/jest/issues/new), and we’ll fix them. We intend to keep making them better for React, supporting, for example, [pretty-printing React elements as JSX](https://github.com/facebook/jest/pull/1566).
 
@@ -754,7 +765,7 @@ import { expect } from 'chai';
 
 and then use them in your tests like you normally do.
 
-### Initializing Test Environment
+#### Initializing Test Environment
 
 >Note: this feature is available with `react-scripts@0.4.0` and higher.
 
@@ -762,7 +773,7 @@ If your app uses a browser API that you need to mock in your tests or if you jus
 
 For example:
 
-#### `src/setupTests.js`
+##### `src/setupTests.js`
 ```js
 const localStorageMock = {
   getItem: jest.fn(),
@@ -772,12 +783,12 @@ const localStorageMock = {
 global.localStorage = localStorageMock
 ```
 
-### Focusing and Excluding Tests
+#### Focusing and Excluding Tests
 
 You can replace `it()` with `xit()` to temporarily exclude a test from being executed.<br>
 Similarly, `fit()` lets you focus on a specific test without running any other tests.
 
-### Coverage Reporting
+#### Coverage Reporting
 
 Jest has an integrated coverage reporter that works well with ES6 and requires no configuration.<br>
 Run `npm test -- --coverage` (note extra `--` in the middle) to include a coverage report like this:
@@ -786,12 +797,12 @@ Run `npm test -- --coverage` (note extra `--` in the middle) to include a covera
 
 Note that tests run much slower with coverage so it is recommended to run it separately from your normal workflow.
 
-### Continuous Integration
+#### Continuous Integration
 
 By default `npm test` runs the watcher with interactive CLI. However, you can force it to run tests once and finish the process by setting an environment variable called `CI`. Popular CI servers already set it by default but you can do this yourself too:
 
-### On CI servers
-#### Travis CI
+#### On CI servers
+##### Travis CI
 
 1. Following the [Travis Getting started](https://docs.travis-ci.com/user/getting-started/) guide for syncing your GitHub repository with Travis.  You may need to initialize some settings manually in your [profile](https://travis-ci.org/profile) page.
 1. Add a `.travis.yml` file to your git repository.
@@ -809,8 +820,8 @@ script:
 1. Trigger your first build with a git push.
 1. [Customize your Travis CI Build](https://docs.travis-ci.com/user/customizing-the-build/) if needed.
 
-### On your own environment
-##### Windows (cmd.exe)
+#### On your own environment
+###### Windows (cmd.exe)
 
 ```cmd
 set CI=true&&npm test
@@ -818,7 +829,7 @@ set CI=true&&npm test
 
 (Note: the lack of whitespace is intentional.)
 
-##### Linux, OS X (Bash)
+###### Linux, OS X (Bash)
 
 ```bash
 CI=true npm test
@@ -828,7 +839,7 @@ This way Jest will run tests once instead of launching the watcher.
 
 If you find yourself doing this often in development, please [file an issue](https://github.com/facebookincubator/create-react-app/issues/new) to tell us about your use case because we want to make watcher the best experience and are open to changing how it works to accommodate more workflows.
 
-### Disabling jsdom
+#### Disabling jsdom
 
 By default, the `package.json` of the generated project looks like this:
 
@@ -855,15 +866,15 @@ In contrast, **jsdom is not needed** for the following APIs:
 
 Finally, jsdom is also not needed for [snapshot testing](http://facebook.github.io/jest/blog/2016/07/27/jest-14.html). Longer term, this is the direction we are interested in exploring, but snapshot testing is [not fully baked yet](https://github.com/facebookincubator/create-react-app/issues/372) so we don’t officially encourage its usage yet.
 
-### Experimental Snapshot Testing
+#### Experimental Snapshot Testing
 
 Snapshot testing is a new feature of Jest that automatically generates text snapshots of your components and saves them on the disk so if the UI output changes, you get notified without manually writing any assertions on the component output.
 
 This feature is experimental and still [has major usage issues](https://github.com/facebookincubator/create-react-app/issues/372) so we only encourage you to use it if you like experimental technology. We intend to gradually improve it over time and eventually offer it as the default solution for testing React components, but this will take time. [Read more about snapshot testing.](http://facebook.github.io/jest/blog/2016/07/27/jest-14.html)
 
-## Deployment
+### Deployment
 
-## Building for Relative Paths
+### Building for Relative Paths
 
 By default, Create React App produces a build assuming your app is hosted at the server root.<br>
 To override this, specify the `homepage` in your `package.json`, for example:
@@ -874,7 +885,7 @@ To override this, specify the `homepage` in your `package.json`, for example:
 
 This will let Create React App correctly infer the root path to use in the generated HTML file.
 
-### GitHub Pages
+#### GitHub Pages
 
 >Note: this feature is available with `react-scripts@0.2.0` and higher.
 
@@ -915,16 +926,16 @@ Note that GitHub Pages doesn't support routers that use the HTML5 `pushState` hi
 * You could switch from using HTML5 history API to routing with hashes. If you use React Router, you can switch to `hashHistory` for this effect, but the URL will be longer and more verbose (for example, `http://user.github.io/todomvc/#/todos/42?_k=yknaj`). [Read more](https://github.com/reactjs/react-router/blob/master/docs/guides/Histories.md#histories) about different history implementations in React Router.
 * Alternatively, you can use a trick to teach GitHub Pages to handle 404 by redirecting to your `index.html` page with a special redirect parameter. You would need to add a `404.html` file with the redirection code to the `build` folder before deploying your project, and you’ll need to add code handling the redirect parameter to `index.html`. You can find a detailed explanation of this technique [in this guide](https://github.com/rafrex/spa-github-pages).
 
-### Heroku
+#### Heroku
 
 Use the [Heroku Buildpack for Create React App](https://github.com/mars/create-react-app-buildpack).<br>
 You can find instructions in [Deploying React with Zero Configuration](https://blog.heroku.com/deploying-react-with-zero-configuration).
 
-### Modulus
+#### Modulus
 
 See the [Modulus blog post](http://blog.modulus.io/deploying-react-apps-on-modulus) on how to deploy your react app to Modulus.
 
-## Netlify
+### Netlify
 
 **To do a manual deploy to Netlify's CDN:**
 
@@ -953,11 +964,11 @@ To support `pushState`, make sure to create a `public/_redirects` file with the 
 
 When you build the project, Create React App will place the `public` folder contents into the build output.
 
-### Now
+#### Now
 
 See [this example](https://github.com/xkawi/create-react-app-now) for a zero-configuration single-command deployment with [now](https://zeit.co/now).
 
-### Surge
+#### Surge
 
 Install the Surge CLI if you haven't already by running `npm install -g surge`. Run the `surge` command and log in you or create a new account. You just need to specify the *build* folder and your custom domain, and you are done.
 
@@ -978,6 +989,6 @@ Install the Surge CLI if you haven't already by running `npm install -g surge`. 
 
 Note that in order to support routers that use HTML5 `pushState` API, you may want to rename the `index.html` in your build folder to `200.html` before deploying to Surge. This [ensures that every URL falls back to that file](https://surge.sh/help/adding-a-200-page-for-client-side-routing).
 
-## Something Missing?
+### Something Missing?
 
 If you have ideas for more “How To” recipes that should be on this page, [let us know](https://github.com/facebookincubator/create-react-app/issues) or [contribute some!](https://github.com/facebookincubator/create-react-app/edit/master/packages/react-scripts/template/README.md)

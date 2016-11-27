@@ -11,13 +11,10 @@ models.helpers.base.init(engine) # Initialize base declarative class.
 from models.check import Check, CheckType
 from models.rule import Rule, RuleCondition
 from models.job_template import JobTemplate
-from models.helpers.schemas import JobTemplateSchema, CheckSchema, RuleSchema, DataSourceSchema, JobRunSchema
+from models.helpers.schemas import JobTemplateSchema, CheckSchema, RuleSchema, DataSourceSchema, JobRunSchema, ScheduleSchema
 from models.schedule import Schedule
 from models.job_run import JobRun
 from models.data_source import DataSource, DataSourceType
-
-import datetime
-now = datetime.datetime.now
 
 app = Flask(__name__)
 CORS(app)
@@ -106,7 +103,7 @@ def new_job_run_save():
         by the background scheduler.
     """
     jt = db_session.query(JobTemplate).get(request.json["job_template_id"])
-    jr = JobRun.create_job_run(jt, now())
+    jr = JobRun.create_job_run(jt)
     return jsonify({ "id": jr.id })
 
 

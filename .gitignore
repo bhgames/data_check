@@ -2,3 +2,6 @@
 __pycache__
 list/
 node_modules/
+celerybeat*
+*.out
+*.log

@@ -17,5 +17,6 @@ class Schedule(Base):
     schedule_config = Column(JSONB, nullable=False)
     job_templates = relationship('JobTemplate', back_populates='schedules', secondary=job_templates_schedules)
     active = Column(Boolean, default=True, nullable=False)
+    ENUMS=[]
 
 timestamps_triggers(Schedule)

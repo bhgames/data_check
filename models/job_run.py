@@ -47,15 +47,15 @@ class JobRun(Base, HasLogs):
     ENUMS=["status"]
 
     @classmethod
-    def create_job_run(cls, job_template, scheduled_run_time):
+    def create_job_run(cls, job_template):
         jr = JobRun(
-            scheduled_at = scheduled_run_time, 
+            scheduled_at = now(), 
             status=JobRunStatus.scheduled, 
             job_template=job_template
         )
         db_session.add(jr)
         db_session.commit()
-        celery_jobs.job_runs.run_job.apply_async([jr.id], eta=scheduled_run_time)
+        celery_jobs.job_runs.run_job.apply_async([jr.id])
         return jr
 
 

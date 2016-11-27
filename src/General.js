@@ -134,7 +134,7 @@ export function List({ columnNames, columns, baseResource, data, deleteDataItem,
 
                   let defaultButtons = [];
 
-                  if(buttonMask[0] == 0) {
+                  if(buttonMask[0] === 0) {
                     defaultButtons.push(
                       <LinkContainer to={'/' + baseResource + '/' + row.id + '/edit'} key={'edit'}>
                         <Button>Edit</Button>
@@ -142,7 +142,7 @@ export function List({ columnNames, columns, baseResource, data, deleteDataItem,
                     )
                   }
 
-                  if(buttonMask[1] == 0) {
+                  if(buttonMask[1] === 0) {
                     defaultButtons.push(<Button onClick={deleteHandler.bind(null, row)} key={'delete'}>Delete</Button>)
                   }
 
@@ -154,7 +154,7 @@ export function List({ columnNames, columns, baseResource, data, deleteDataItem,
                 
   let buttonHeader = <th>Actions</th>;
 
-  let newButton = buttonMask[2] == 1 ? null : <LinkContainer to={ baseResource + '/new/edit'}>
+  let newButton = buttonMask[2] === 1 ? null : <LinkContainer to={ baseResource + '/new/edit'}>
         <Button bsStyle="primary">New</Button>
       </LinkContainer>;
   

@@ -55,9 +55,12 @@ You can find the most recent version of this guide [here](https://github.com/fac
 
 ## Startup
 
-`celery -A celery_jobs.job_runs worker --loglevel=debug`
-`celery -A celery_jobs.job_runs beat --loglevel=debug`
+You will need Rabbit running in the background.
+
+`bin/celery`
+
 `python server.py`
+
 `npm start`
 
 ## React Maintenance

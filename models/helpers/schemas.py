@@ -161,4 +161,36 @@ class JobRunSchema(Schema):
         return jr.job_template.name
 
 
+class ScheduleSchema(Schema):
+    id = fields.Integer()
+    schedule_config = fields.Dict()
+    job_templates = fields.Nested(JobTemplateSchema, only=["id", "name", "parallelization"])
+    job_templates_names = fields.Method("set_template_names", dump_only=True)
+    active = fields.Bool()
+
+    def set_template_names(self, sch):
+        return ",".join(map(lambda jt: jt.name, sch.job_templates))
+
+
+    @classmethod
+    def default_json(cls):
+        """
+            Used by the NEW action in Flask, to generate a dummy object that can
+            be sent down with id=new for the form on the React-side to use.
+
+            This makes it easy to work with new or existing objects in the form,
+            it only needs to look at ID to know to POST or PUT, but functionality
+            is otherwise identical.
+        """
+        return {
+            "id": 'new',
+            "schedule_config": {
+                "hour": 0,
+                "minute": 0,
+                "day_of_week": ''
+            },
+            "active": True,
+            "job_templates": [],
+            "job_templates_names": ""
+        }
 

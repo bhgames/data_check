@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import './App.css';
 import { Navbar, NavItem, Nav } from 'react-bootstrap';
 import { IndexLinkContainer, LinkContainer } from 'react-router-bootstrap';
@@ -34,6 +34,9 @@ export function App({children}) {
           </LinkContainer>
           <LinkContainer to={`/data_sources`}>
             <NavItem eventKey={5}>Data Sources</NavItem>
+          </LinkContainer>
+          <LinkContainer to={`/schedules`}>
+            <NavItem eventKey={6}>Schedules</NavItem>
           </LinkContainer>
         </Nav>
       </Navbar.Collapse>

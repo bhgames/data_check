@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
-import { ControlLabel, FormControl, FormGroup, Button } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import { RulesList } from './Rules';
 import { DataSourcesList } from './DataSources';
 import { WithData, List, ResourceForm, HasManyAssociationFormElement, SingleFieldElement } from './General';
@@ -14,7 +14,7 @@ export function JobTemplates(props) {
   )
 }
 
-function JobTemplatesList(props) {
+export function JobTemplatesList(props) {
   let columns = ["id", "name", "parallelization"];
   let columnNames = ["ID", "Name", "Parallelization"];
 

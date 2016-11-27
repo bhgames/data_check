@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import { ControlLabel, FormControl, FormGroup } from 'react-bootstrap';
-import { WithData, List, ResourceForm, HasManyAssociationFormElement, SingleFieldElement } from './General';
+import { WithData, List, ResourceForm, SingleFieldElement } from './General';
 
 // General container for all DataSources routes. Dont put anything here.
 export function DataSources(props) {
@@ -49,6 +49,7 @@ class DataSourceForm extends Component {
   constructor(props) {
     super(props);
     this.state = props.data;
+    this.state.schemasAsString = this.state.schemas.join(",");
   }
 
   componentWillReceiveProps(nextProps) {

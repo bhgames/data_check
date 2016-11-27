@@ -85,7 +85,7 @@ class JobRunsView extends Component {
       let allLogsFromThisCheck = allCheckLogsWithCheckObj[index][0].log;
       let arrOfFailedLogs = [];
       for(let failedTable of tableMetas) {
-        let allTableLogsFromThisCheck = allLogsFromThisCheck.filter((logEntry) => JSON.stringify(logEntry.metadata) == JSON.stringify(failedTable));
+        let allTableLogsFromThisCheck = allLogsFromThisCheck.filter((logEntry) => JSON.stringify(logEntry.metadata) === JSON.stringify(failedTable));
         arrOfFailedLogs = arrOfFailedLogs.concat(allTableLogsFromThisCheck);
       }
       return [arrOfFailedLogs, lAndC[1]]

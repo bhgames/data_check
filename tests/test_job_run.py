@@ -21,7 +21,7 @@ class TestJobRun(BaseTest):
             self.s.add(jt)
 
             # Actually runs the job
-            jr = JobRun.create_job_run(jt, now())
+            jr = JobRun.create_job_run(jt)
 
             jr = self.s.query(JobRun).get(jr.id)
             jt = self.s.query(JobTemplate).get(jt.id)
@@ -44,7 +44,7 @@ class TestJobRun(BaseTest):
             jt.rules.append(r)
             self.s.add_all([jt, r])
             # Actually runs the job
-            jr = JobRun.create_job_run(jt, now())
+            jr = JobRun.create_job_run(jt)
             # Refresh Obj from DB
             jr = self.s.query(JobRun).get(jr.id)
             jt = self.s.query(JobTemplate).get(jt.id)

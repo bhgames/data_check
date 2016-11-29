@@ -22,5 +22,5 @@ for s in schedules:
     CELERYBEAT_SCHEDULE['schedule-' + str(s.id)] = {
         'task': 'celery_jobs.job_runs.create_jobs_for_schedule',
         'schedule': crontab(**cleaned_schedule),
-        'args': tuple(s.id)
+        'args': tuple([s.id])
     }

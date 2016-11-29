@@ -1,2 +1,2 @@
 nohup celery -A celery_jobs.job_runs beat --loglevel=info --logfile=beat.out &
-celery -A celery_jobs.job_runs worker --loglevel=debug
+celery -A celery_jobs.job_runs worker --loglevel=error

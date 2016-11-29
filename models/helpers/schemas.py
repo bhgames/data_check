@@ -164,7 +164,7 @@ class JobRunSchema(Schema):
 class ScheduleSchema(Schema):
     id = fields.Integer()
     schedule_config = fields.Dict()
-    job_templates = fields.Nested(JobTemplateSchema, only=["id", "name", "parallelization"])
+    job_templates = fields.Nested(JobTemplateSchema, only=["id", "name", "parallelization"], many=True)
     job_templates_names = fields.Method("set_template_names", dump_only=True)
     active = fields.Bool()
 

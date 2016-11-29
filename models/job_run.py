@@ -55,7 +55,9 @@ class JobRun(Base, HasLogs):
         )
         db_session.add(jr)
         db_session.commit()
-        celery_jobs.job_runs.run_job.apply_async([jr.id])
+        # Need to use 3s buffer to give time for postgres commit to propagate to the "real"
+        # postgres. Instant async run causes race condition where it runs before save completed.
+        celery_jobs.job_runs.run_job.apply_async([jr.id], countdown=3)
         return jr
 
 

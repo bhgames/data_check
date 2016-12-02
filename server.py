@@ -55,8 +55,9 @@ def update_attribute(obj, key, value):
 
     if(key in obj.ENUMS):
         setattr(obj, key, enum_from_value(value))
-    elif(hasattr(getattr(obj.__class__, key).property, 'mapper')):
+    elif(hasattr(getattr(obj.__class__, key), 'property') and hasattr(getattr(obj.__class__, key).property, 'mapper')):
         #Means this is an association of some kind.
+
         klazz = getattr(obj.__class__, key).property.mapper.class_
 
         if(isinstance(value, list)):            

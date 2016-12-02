@@ -5,7 +5,7 @@ def init(engine):
     global Base
     global db_session
     Base = declarative_base()
-    db_session = scoped_session(sessionmaker(bind=engine))
+    db_session = scoped_session(sessionmaker(bind=engine, autocommit=False, autoflush=False))
 
 
 if __name__ == '__main__':

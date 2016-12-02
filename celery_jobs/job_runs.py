@@ -1,4 +1,4 @@
-from celery import Celery
+from celery import Celery, Task
 from celery.schedules import crontab
 
 import models.helpers.base
@@ -30,7 +30,6 @@ app.config_from_object('celery_jobs.celeryconfig')
 
 from celery.signals import worker_shutdown
 
-
 def kill_beat():
     if isfile("celerybeat.pid"):
         call(["kill $(cat celerybeat.pid)"], shell=True)
@@ -44,7 +43,17 @@ def worker_shutdown(**kwargs):
     kill_beat()
 
 
-@app.task
+
+class SqlAlchemyTask(Task):
+    """An abstract Celery Task that ensures that the connection the the
+    database is closed on task completion"""
+    abstract = True
+
+    def after_return(self, status, retval, task_id, args, kwargs, einfo):
+        db_session.remove()
+
+
+@app.task(base=SqlAlchemyTask)
 def reset_beat():
     """
         Beat schedule can only be updated by restarting it...so to avoid having to bring in Django for true dynamic
@@ -59,19 +68,19 @@ def reset_beat():
     call(["nohup celery -A celery_jobs.job_runs beat --loglevel=info --logfile beat.out &"], shell=True)
 
 
-@app.task
+@app.task(base=SqlAlchemyTask)
 def create_jobs_for_schedule(schedule_id):
     schedule = db_session.query(models.schedule.Schedule).get(schedule_id)
     [models.job_run.JobRun.create_job_run(jt) for jt in schedule.job_templates]
 
 
-@app.task
+@app.task(base=SqlAlchemyTask)
 def run_job(job_run_id):
     jr = db_session.query(models.job_run.JobRun).get(job_run_id)
     jr.run()
 
 
-@app.task
+@app.task(base=SqlAlchemyTask)
 def run_check(source_id, table_name_string, check_id, job_run_id):
     check = db_session.query(models.check.Check).get(check_id)
     job_run = db_session.query(models.job_run.JobRun).get(job_run_id)
@@ -79,7 +88,7 @@ def run_check(source_id, table_name_string, check_id, job_run_id):
     check.run(job_run, source, table_name_string)
 
 
-@app.task
+@app.task(base=SqlAlchemyTask)
 def register_finished(some_other_arg, job_run_id):
     """
         Admittedly Im not sure what first arg is, but it has to be there to get to the one I want. TODO figure out what it is.

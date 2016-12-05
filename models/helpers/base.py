@@ -7,6 +7,11 @@ def init(engine):
     Base = declarative_base()
     db_session = scoped_session(sessionmaker(bind=engine, autocommit=False, autoflush=False))
 
+def celery_init(engine):
+    """
+        Doesnt make use of globals. Each worker needs its own connection.
+    """
+    return scoped_session(sessionmaker(bind=engine, autocommit=False, autoflush=False))
 
 if __name__ == '__main__':
     import models.helpers.base

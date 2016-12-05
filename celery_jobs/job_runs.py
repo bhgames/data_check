@@ -23,12 +23,10 @@ now = datetime.datetime.now
 
 CELERY_TIMEZONE = 'America/Chicago'
 
-db_session = models.helpers.base.db_session
-
 app = Celery('job_runs', broker='amqp://guest@localhost//')
 app.config_from_object('celery_jobs.celeryconfig')
 
-from celery.signals import worker_shutdown
+from celery.signals import worker_shutdown, celeryd_after_setup
 
 def kill_beat():
     if isfile("celerybeat.pid"):
@@ -43,17 +41,26 @@ def worker_shutdown(**kwargs):
     kill_beat()
 
 
+@celeryd_after_setup.connect
+def setup_engine(**kwargs):
+    # Since we have forked, we need a new engine and db_session.
+    engine = create_engine('postgresql://localhost:5432/data_check')
+    models.helpers.base.init(engine)
+    db_session = models.helpers.base.db_session
+    models.job_run.db_session = db_session
+    models.data_source.db_session = db_session
+    models.check.db_session = db_session
+    models.schedule.db_session = db_session
+    models.rule.db_session = db_session
+    models.job_template.db_session = db_session
+    models.log.db_session = db_session
 
-class SqlAlchemyTask(Task):
-    """An abstract Celery Task that ensures that the connection the the
-    database is closed on task completion"""
-    abstract = True
 
-    def after_return(self, status, retval, task_id, args, kwargs, einfo):
-        db_session.remove()
+def setup_connection():
+    return models.helpers.base.db_session
 
 
-@app.task(base=SqlAlchemyTask)
+@app.task
 def reset_beat():
     """
         Beat schedule can only be updated by restarting it...so to avoid having to bring in Django for true dynamic
@@ -68,37 +75,46 @@ def reset_beat():
     call(["nohup celery -A celery_jobs.job_runs beat --loglevel=info --logfile beat.out &"], shell=True)
 
 
-@app.task(base=SqlAlchemyTask)
+@app.task
 def create_jobs_for_schedule(schedule_id):
+    db_session = setup_connection()
     schedule = db_session.query(models.schedule.Schedule).get(schedule_id)
     [models.job_run.JobRun.create_job_run(jt) for jt in schedule.job_templates]
+    db_session.close_all()
 
 
-@app.task(base=SqlAlchemyTask)
+@app.task
 def run_job(job_run_id):
+    db_session = setup_connection()
     jr = db_session.query(models.job_run.JobRun).get(job_run_id)
     jr.run()
+    db_session.close_all()
 
 
-@app.task(base=SqlAlchemyTask)
+@app.task
 def run_check(source_id, table_name_string, check_id, job_run_id):
+    db_session = setup_connection()
     check = db_session.query(models.check.Check).get(check_id)
     job_run = db_session.query(models.job_run.JobRun).get(job_run_id)
     source = db_session.query(models.data_source.DataSource).get(source_id)
     check.run(job_run, source, table_name_string)
+    db_session.close_all()
 
 
-@app.task(base=SqlAlchemyTask)
+@app.task
 def register_finished(some_other_arg, job_run_id):
     """
         Admittedly Im not sure what first arg is, but it has to be there to get to the one I want. TODO figure out what it is.
     """
+    db_session = setup_connection()
+
     jr = db_session.query(models.job_run.JobRun).get(job_run_id)
 
     if jr.status == models.job_run.JobRunStatus.running:
         jr.set_finished()
         db_session.add(jr)
         db_session.commit()
+    db_session.close_all()
 
 
 

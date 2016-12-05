@@ -57,6 +57,8 @@ def setup_engine(**kwargs):
 
 
 def setup_connection():
+    # Use a method because .db_Session reassigned after forking, need to make sure
+    # you get the most up-to-date value.
     return models.helpers.base.db_session
 
 
@@ -80,7 +82,6 @@ def create_jobs_for_schedule(schedule_id):
     db_session = setup_connection()
     schedule = db_session.query(models.schedule.Schedule).get(schedule_id)
     [models.job_run.JobRun.create_job_run(jt) for jt in schedule.job_templates]
-    db_session.close_all()
 
 
 @app.task
@@ -88,7 +89,6 @@ def run_job(job_run_id):
     db_session = setup_connection()
     jr = db_session.query(models.job_run.JobRun).get(job_run_id)
     jr.run()
-    db_session.close_all()
 
 
 @app.task
@@ -98,7 +98,6 @@ def run_check(source_id, table_name_string, check_id, job_run_id):
     job_run = db_session.query(models.job_run.JobRun).get(job_run_id)
     source = db_session.query(models.data_source.DataSource).get(source_id)
     check.run(job_run, source, table_name_string)
-    db_session.close_all()
 
 
 @app.task
@@ -114,7 +113,6 @@ def register_finished(some_other_arg, job_run_id):
         jr.set_finished()
         db_session.add(jr)
         db_session.commit()
-    db_session.close_all()
 
 
 

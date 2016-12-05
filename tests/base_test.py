@@ -8,15 +8,19 @@ engine = create_engine('postgresql://localhost:5432/data_check_test')
 
 models.helpers.base.init(engine) # Initialize base declarative class.
 
-from celery_jobs.job_runs import app as celery_app
-celery_app.conf.update(CELERY_ALWAYS_EAGER=True)
-
 from models import *
 from models.data_source import DataSource, DataSourceType
 
 db_session = models.helpers.base.db_session
 
 class BaseTest(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        models.helpers.base.Base.metadata.create_all(engine)
+        from celery_jobs.job_runs import app as celery_app
+        celery_app.conf.update(CELERY_ALWAYS_EAGER=True)
+
 
     def setUp(self):
         models.helpers.base.Base.metadata.create_all(engine)

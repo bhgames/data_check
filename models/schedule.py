@@ -1,4 +1,3 @@
-
 from sqlalchemy import Column, String, Integer, ForeignKey, Boolean, Table, Enum, DateTime
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship, backref

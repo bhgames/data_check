@@ -2,9 +2,11 @@ import unittest
 
 from sqlalchemy import create_engine
 from sqlalchemy import MetaData
+from os import environ
+environ['DCHK_ENV'] = 'test'
 
 import models.helpers.base
-engine = create_engine('postgresql://localhost:5432/data_check_test')
+engine = models.helpers.base.get_new_engine()
 
 models.helpers.base.init(engine) # Initialize base declarative class.
 

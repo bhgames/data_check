@@ -42,7 +42,7 @@ class JobRun(Base, HasLogs):
     # .logs returns only logs where loggable_type = JobRun and loggable_id = this id
     # all_connected_logs grabs logs for any connected object where the job_run_id on logs is set.
     # So you can use this to see everything that happened for a job.
-    all_connected_logs = relationship('Log')
+    all_connected_logs = relationship('Log', cascade="all, delete-orphan")
 
     ENUMS=["status"]
 

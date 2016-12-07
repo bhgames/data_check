@@ -5,3 +5,4 @@ node_modules/
 celerybeat*
 *.out
 *.log
+config.yml

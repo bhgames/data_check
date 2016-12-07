@@ -1,0 +1,34 @@
+database: 
+  production:
+    host: localhost
+    port: 5432
+    database: data_check
+    type: postgresql
+
+  development:
+    host: localhost
+    port: 5432
+    database: data_check
+    type: postgresql
+
+  test:
+    host: localhost
+    port: 5432
+    database: data_check_test
+    type: postgresql
+
+message_passing:
+  production:
+    type: 'amqp'
+    username: 'guest'
+    host: 'localhost'
+
+  development:
+    type: 'amqp'
+    username: 'guest'
+    host: 'localhost'
+
+  test:
+    type: 'amqp'
+    username: 'guest'
+    host: 'localhost'

@@ -1,11 +1,11 @@
 from celery import Celery, Task
 from celery.schedules import crontab
-
+import yaml
 import models.helpers.base
 
 if(hasattr(models.helpers.base, "db_session") == False):
     from sqlalchemy import create_engine, MetaData
-    engine = create_engine('postgresql://localhost:5432/data_check')
+    engine = models.helpers.base.get_new_engine()
     models.helpers.base.init(engine)
 
 import models.job_run
@@ -19,11 +19,18 @@ import datetime
 from subprocess import call
 from time import sleep
 from os.path import isfile
+from os import environ
 now = datetime.datetime.now
 
 CELERY_TIMEZONE = 'America/Chicago'
 
-app = Celery('job_runs', broker='amqp://guest@localhost//')
+with open('config/config.yml', 'r') as f:
+    config = yaml.load(f)
+
+conf = config['message_passing'][environ['DCHK_ENV']]
+broker = (conf['type'] + '://' + conf['username'] + (':' + conf['password'] if 'password' in conf else '') + '@' + 
+         conf['host'] + (':' + str(conf['port']) if 'port' in conf else '') + '//')
+app = Celery('job_runs', broker=broker)
 app.config_from_object('celery_jobs.celeryconfig')
 
 from celery.signals import worker_shutdown, celeryd_after_setup
@@ -44,7 +51,7 @@ def worker_shutdown(**kwargs):
 @celeryd_after_setup.connect
 def setup_engine(**kwargs):
     # Since we have forked, we need a new engine and db_session.
-    engine = create_engine('postgresql://localhost:5432/data_check')
+    engine = models.helpers.base.get_new_engine()
     models.helpers.base.init(engine)
     db_session = models.helpers.base.db_session
     models.job_run.db_session = db_session

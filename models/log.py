@@ -77,7 +77,6 @@ class Log(Base):
         flag_modified(self, "log")
 
 
-
 @event.listens_for(HasLogs, "mapper_configured", propagate=True)
 def setup_listener(mapper, class_):
     name = class_.__name__
@@ -91,7 +90,8 @@ def setup_listener(mapper, class_):
                                 "parent_%s" % loggable_type,
                                 primaryjoin=remote(class_.id) == foreign(Log.loggable_id)
                                 ),
-                        cascade='delete')
+                        cascade="all, delete-orphan")
+
 
     @event.listens_for(class_.logs, "append")
     def append_address(target, value, initiator):

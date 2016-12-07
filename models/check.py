@@ -13,7 +13,6 @@ now = datetime.datetime.now
 from checks.date_gap_check import DateGapCheck
 from checks.null_check import NullCheck
 from checks.uniqueness_check import UniquenessCheck
-from models.helpers.crud_mixin import CrudMixin
 import sys
 from inflection import camelize
 
@@ -27,7 +26,7 @@ class CheckType(enum.Enum):
     date_gap = "date_gap"
 
 
-class Check(Base, HasLogs, CrudMixin):
+class Check(Base, HasLogs):
     __tablename__ = 'check'
     id = Column(Integer, primary_key=True)
     created_at = Column(DateTime)

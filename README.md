@@ -1,8 +1,3 @@
-This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
-
-Below you will find some information on how to perform common tasks.<br>
-You can find the most recent version of this guide [here](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md).
-
 ## Table of Contents
 - [Introduction](#introduction)
 - [Startup](#startup)
@@ -63,6 +58,7 @@ It currently supports:
 * Job Template Creation
 * Job Scheduling
 * Nested AND-type Rules and Check Types (e.g. if table name matches loans AND has updated_at column, check date_gaps)
+* Three types of check: DateGap, Uniqueness, and Nullness
 
 ## Startup
 
@@ -72,8 +68,9 @@ Please use:
 
 To install all required libraries.
 
-The backend requires a database(preferably Postgres) and RabbitMQ. To configure the locations of these,
-please copy config/config.yml.sample to make config/config.yml. Then you can customize it to your needs.
+The backend requires a database(preferably Postgres but any supported by SqlAlchemy will do) and RabbitMQ. 
+To configure the locations of these, please copy config/config.yml.sample to make config/config.yml. 
+Then you can customize it to your needs.
 
 If just using the default values in config/config.yml, running
 

@@ -1,0 +1,1178 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>DataCheck by bhgames</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-dark.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>DataCheck</h1>
+        <p>Free Hadoop Data Quality for the Masses</p>
+        <p class="view"><a href="https://github.com/bhgames/data_check">View the Project on GitHub <small>bhgames/data_check</small></a></p>
+        <ul>
+          <li><a href="https://github.com/bhgames/data_check/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/bhgames/data_check/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/bhgames/data_check">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h2>
+<a id="table-of-contents" class="anchor" href="#table-of-contents" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Table of Contents</h2>
+
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#startup">Startup</a></li>
+<li><a href="#todo">TODO</a></li>
+<li>
+<a href="#react-maintenance">React Maintenance</a>
+
+<ul>
+<li><a href="#updating-to-new-releases">Updating to New Releases</a></li>
+<li><a href="#sending-feedback">Sending Feedback</a></li>
+<li><a href="#folder-structure">Folder Structure</a></li>
+<li>
+<a href="#available-scripts">Available Scripts</a>
+
+<ul>
+<li><a href="#npm-start">npm start</a></li>
+<li><a href="#npm-test">npm test</a></li>
+<li><a href="#npm-run-build">npm run build</a></li>
+<li><a href="#npm-run-eject">npm run eject</a></li>
+</ul>
+</li>
+<li><a href="#displaying-lint-output-in-the-editor">Displaying Lint Output in the Editor</a></li>
+<li><a href="#installing-a-dependency">Installing a Dependency</a></li>
+<li><a href="#importing-a-component">Importing a Component</a></li>
+<li><a href="#adding-a-stylesheet">Adding a Stylesheet</a></li>
+<li><a href="#post-processing-css">Post-Processing CSS</a></li>
+<li><a href="#adding-images-and-fonts">Adding Images and Fonts</a></li>
+<li><a href="#using-the-public-folder">Using the <code>public</code> Folder</a></li>
+<li><a href="#adding-bootstrap">Adding Bootstrap</a></li>
+<li><a href="#adding-flow">Adding Flow</a></li>
+<li><a href="#adding-custom-environment-variables">Adding Custom Environment Variables</a></li>
+<li><a href="#can-i-use-decorators">Can I Use Decorators?</a></li>
+<li><a href="#integrating-with-a-node-backend">Integrating with a Node Backend</a></li>
+<li><a href="#proxying-api-requests-in-development">Proxying API Requests in Development</a></li>
+<li><a href="#using-https-in-development">Using HTTPS in Development</a></li>
+<li><a href="#generating-dynamic-meta-tags-on-the-server">Generating Dynamic <code>&lt;meta&gt;</code> Tags on the Server</a></li>
+<li>
+<a href="#running-tests">Running Tests</a>
+
+<ul>
+<li><a href="#filename-conventions">Filename Conventions</a></li>
+<li><a href="#command-line-interface">Command Line Interface</a></li>
+<li><a href="#version-control-integration">Version Control Integration</a></li>
+<li><a href="#writing-tests">Writing Tests</a></li>
+<li><a href="#testing-components">Testing Components</a></li>
+<li><a href="#using-third-party-assertion-libraries">Using Third Party Assertion Libraries</a></li>
+<li><a href="#initializing-test-environment">Initializing Test Environment</a></li>
+<li><a href="#focusing-and-excluding-tests">Focusing and Excluding Tests</a></li>
+<li><a href="#coverage-reporting">Coverage Reporting</a></li>
+<li><a href="#continuous-integration">Continuous Integration</a></li>
+<li><a href="#disabling-jsdom">Disabling jsdom</a></li>
+<li><a href="#experimental-snapshot-testing">Experimental Snapshot Testing</a></li>
+</ul>
+</li>
+<li>
+<a href="#deployment">Deployment</a>
+
+<ul>
+<li><a href="#building-for-relative-paths">Building for Relative Paths</a></li>
+<li><a href="#github-pages">GitHub Pages</a></li>
+<li><a href="#heroku">Heroku</a></li>
+<li><a href="#modulus">Modulus</a></li>
+<li><a href="#netlify">Netlify</a></li>
+<li><a href="#now">Now</a></li>
+<li><a href="#surge">Surge</a></li>
+</ul>
+</li>
+<li><a href="#something-missing">Something Missing?</a></li>
+</ul>
+</li>
+</ul>
+
+<h2>
+<a id="introduction" class="anchor" href="#introduction" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Introduction</h2>
+
+<p>DataCheck is an open sourced data quality tool for the Hadoop ecosystem. It is built to be extensible and while it currently
+supports only Impala connections, a future TODO is to add Spark 1.6 and 2 support.</p>
+
+<p>It currently supports:</p>
+
+<ul>
+<li>Job Template Creation</li>
+<li>Job Scheduling</li>
+<li>Nested AND-type Rules and Check Types (e.g. if table name matches loans AND has updated_at column, check date_gaps)</li>
+<li>Three types of check: DateGap, Uniqueness, and Nullness</li>
+</ul>
+
+<h2>
+<a id="startup" class="anchor" href="#startup" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Startup</h2>
+
+<p>Please use:</p>
+
+<p><code>pip install -r requirements.txt</code></p>
+
+<p>To install all required libraries.</p>
+
+<p>The backend requires a database(preferably Postgres but any supported by SqlAlchemy will do) and RabbitMQ. 
+To configure the locations of these, please copy config/config.yml.sample to make config/config.yml. 
+Then you can customize it to your needs.</p>
+
+<p>If just using the default values in config/config.yml, running</p>
+
+<p><code>bin/db_setup</code> will setup your database.</p>
+
+<p>If you are using a custom database, run</p>
+
+<p><code>python -m models.helpers.base</code> </p>
+
+<p>to setup the database. By default the database will always use "development" as the DCHK_ENV,
+but if you set this environmental to 'production' it will use that entry on config.yml.</p>
+
+<p>Once this is done, you can turn on Celery and the Celery Beat scheduler using the special script:</p>
+
+<p><code>bin/celery</code></p>
+
+<p>This starts both the scheduler, and the celery workers simultaneously. The scheduler then schedules a once per 5 minute
+job that kills the scheduler, and starts up a new one. In this way, updated job run schedules are reingested by the scheduler
+at five minute intervals.</p>
+
+<p>To run the web interface, use these commands in separate windows, or with nohup:</p>
+
+<p><code>python server.py</code></p>
+
+<p><code>npm start</code></p>
+
+<p>One turns on the Flask API, and the other will turn on the npm server that will render the actual frontend GUI.</p>
+
+<p>It is to this port(normally 3000 that you can visit to see the site):</p>
+
+<p>localhost:3000</p>
+
+<p>There is as yet no user authentication of any kind, and the design is very basic.</p>
+
+<h2>
+<a id="todo" class="anchor" href="#todo" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>TODO</h2>
+
+<p>This is open source software and as such I don't have time to add all the things I would like. Here is a roadmap of
+things I wish to add, in the order I wish to add them:</p>
+
+<ul>
+<li>Support for Alembic migrations</li>
+<li>Storing failed rows in S3 for viewing</li>
+<li>Statistical Sampling</li>
+<li>LogLevels</li>
+<li>Spark 1.6 support</li>
+<li>Spark 2 support</li>
+<li>Accept AWS Pubsub for failure notifications</li>
+<li>Encrypt passwords stored for data sources and don't display them</li>
+<li>Use DockerCompose to create development and production setups</li>
+<li>Checks have one log per "unit work" instead of one log for the entire check</li>
+</ul>
+
+<h2>
+<a id="react-maintenance" class="anchor" href="#react-maintenance" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>React Maintenance</h2>
+
+<h3>
+<a id="updating-to-new-releases" class="anchor" href="#updating-to-new-releases" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Updating to New Releases</h3>
+
+<p>Create React App is divided into two packages:</p>
+
+<ul>
+<li>
+<code>create-react-app</code> is a global command-line utility that you use to create new projects.</li>
+<li>
+<code>react-scripts</code> is a development dependency in the generated projects (including this one).</li>
+</ul>
+
+<p>You almost never need to update <code>create-react-app</code> itself: it delegates all the setup to <code>react-scripts</code>.</p>
+
+<p>When you run <code>create-react-app</code>, it always creates the project with the latest version of <code>react-scripts</code> so you’ll get all the new features and improvements in newly created apps automatically.</p>
+
+<p>To update an existing project to a new version of <code>react-scripts</code>, <a href="https://github.com/facebookincubator/create-react-app/blob/master/CHANGELOG.md">open the changelog</a>, find the version you’re currently on (check <code>package.json</code> in this folder if you’re not sure), and apply the migration instructions for the newer versions.</p>
+
+<p>In most cases bumping the <code>react-scripts</code> version in <code>package.json</code> and running <code>npm install</code> in this folder should be enough, but it’s good to consult the <a href="https://github.com/facebookincubator/create-react-app/blob/master/CHANGELOG.md">changelog</a> for potential breaking changes.</p>
+
+<p>We commit to keeping the breaking changes minimal so you can upgrade <code>react-scripts</code> painlessly.</p>
+
+<h3>
+<a id="sending-feedback" class="anchor" href="#sending-feedback" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Sending Feedback</h3>
+
+<p>We are always open to <a href="https://github.com/facebookincubator/create-react-app/issues">your feedback</a>.</p>
+
+<h3>
+<a id="folder-structure" class="anchor" href="#folder-structure" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Folder Structure</h3>
+
+<p>After creation, your project should look like this:</p>
+
+<pre><code>my-app/
+  README.md
+  node_modules/
+  package.json
+  public/
+    index.html
+    favicon.ico
+  src/
+    App.css
+    App.js
+    App.test.js
+    index.css
+    index.js
+    logo.svg
+</code></pre>
+
+<p>For the project to build, <strong>these files must exist with exact filenames</strong>:</p>
+
+<ul>
+<li>
+<code>public/index.html</code> is the page template;</li>
+<li>
+<code>src/index.js</code> is the JavaScript entry point.</li>
+</ul>
+
+<p>You can delete or rename the other files.</p>
+
+<p>You may create subdirectories inside <code>src</code>. For faster rebuilds, only files inside <code>src</code> are processed by Webpack.<br>
+You need to <strong>put any JS and CSS files inside <code>src</code></strong>, or Webpack won’t see them.</p>
+
+<p>Only files inside <code>public</code> can be used from <code>public/index.html</code>.<br>
+Read instructions below for using assets from JavaScript and HTML.</p>
+
+<p>You can, however, create more top-level directories.<br>
+They will not be included in the production build so you can use them for things like documentation.</p>
+
+<h3>
+<a id="available-scripts" class="anchor" href="#available-scripts" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Available Scripts</h3>
+
+<p>In the project directory, you can run:</p>
+
+<h4>
+<a id="npm-start" class="anchor" href="#npm-start" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><code>npm start</code>
+</h4>
+
+<p>Runs the app in the development mode.<br>
+Open <a href="http://localhost:3000">http://localhost:3000</a> to view it in the browser.</p>
+
+<p>The page will reload if you make edits.<br>
+You will also see any lint errors in the console.</p>
+
+<h4>
+<a id="npm-test" class="anchor" href="#npm-test" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><code>npm test</code>
+</h4>
+
+<p>Launches the test runner in the interactive watch mode.<br>
+See the section about <a href="#running-tests">running tests</a> for more information.</p>
+
+<h4>
+<a id="npm-run-build" class="anchor" href="#npm-run-build" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><code>npm run build</code>
+</h4>
+
+<p>Builds the app for production to the <code>build</code> folder.<br>
+It correctly bundles React in production mode and optimizes the build for the best performance.</p>
+
+<p>The build is minified and the filenames include the hashes.<br>
+Your app is ready to be deployed!</p>
+
+<h4>
+<a id="npm-run-eject" class="anchor" href="#npm-run-eject" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><code>npm run eject</code>
+</h4>
+
+<p><strong>Note: this is a one-way operation. Once you <code>eject</code>, you can’t go back!</strong></p>
+
+<p>If you aren’t satisfied with the build tool and configuration choices, you can <code>eject</code> at any time. This command will remove the single build dependency from your project.</p>
+
+<p>Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except <code>eject</code> will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.</p>
+
+<p>You don’t have to ever use <code>eject</code>. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.</p>
+
+<h3>
+<a id="displaying-lint-output-in-the-editor" class="anchor" href="#displaying-lint-output-in-the-editor" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Displaying Lint Output in the Editor</h3>
+
+<blockquote>
+<p>Note: this feature is available with <code>react-scripts@0.2.0</code> and higher.</p>
+</blockquote>
+
+<p>Some editors, including Sublime Text, Atom, and Visual Studio Code, provide plugins for ESLint.</p>
+
+<p>They are not required for linting. You should see the linter output right in your terminal as well as the browser console. However, if you prefer the lint results to appear right in your editor, there are some extra steps you can do.</p>
+
+<p>You would need to install an ESLint plugin for your editor first.</p>
+
+<blockquote>
+<p><strong>A note for Atom <code>linter-eslint</code> users</strong></p>
+
+<p>If you are using the Atom <code>linter-eslint</code> plugin, make sure that <strong>Use global ESLint installation</strong> option is checked:</p>
+
+<p><img src="http://i.imgur.com/yVNNHJM.png" width="300"></p>
+</blockquote>
+
+<p>Then add this block to the <code>package.json</code> file of your project:</p>
+
+<div class="highlight highlight-source-js"><pre>{
+  <span class="pl-c">// ...</span>
+  <span class="pl-s"><span class="pl-pds">"</span>eslintConfig<span class="pl-pds">"</span></span><span class="pl-k">:</span> {
+    <span class="pl-s"><span class="pl-pds">"</span>extends<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>react-app<span class="pl-pds">"</span></span>
+  }
+}</pre></div>
+
+<p>Finally, you will need to install some packages <em>globally</em>:</p>
+
+<div class="highlight highlight-source-shell"><pre>npm install -g eslint-config-react-app@0.3.0 eslint@3.8.1 babel-eslint@7.0.0 eslint-plugin-react@6.4.1 eslint-plugin-import@2.0.1 eslint-plugin-jsx-a11y@2.2.3 eslint-plugin-flowtype@2.21.0</pre></div>
+
+<p>We recognize that this is suboptimal, but it is currently required due to the way we hide the ESLint dependency. The ESLint team is already <a href="https://github.com/eslint/eslint/issues/3458">working on a solution to this</a> so this may become unnecessary in a couple of months.</p>
+
+<h3>
+<a id="installing-a-dependency" class="anchor" href="#installing-a-dependency" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installing a Dependency</h3>
+
+<p>The generated project includes React and ReactDOM as dependencies. It also includes a set of scripts used by Create React App as a development dependency. You may install other dependencies (for example, React Router) with <code>npm</code>:</p>
+
+<pre><code>npm install --save &lt;library-name&gt;
+</code></pre>
+
+<h3>
+<a id="importing-a-component" class="anchor" href="#importing-a-component" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Importing a Component</h3>
+
+<p>This project setup supports ES6 modules thanks to Babel.<br>
+While you can still use <code>require()</code> and <code>module.exports</code>, we encourage you to use <a href="http://exploringjs.com/es6/ch_modules.html"><code>import</code> and <code>export</code></a> instead.</p>
+
+<p>For example:</p>
+
+<h4>
+<a id="buttonjs" class="anchor" href="#buttonjs" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><code>Button.js</code>
+</h4>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-k">import</span> <span class="pl-smi">React</span>, { <span class="pl-smi">Component</span> } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>react<span class="pl-pds">'</span></span>;
+
+<span class="pl-k">class</span> <span class="pl-en">Button</span> <span class="pl-k">extends</span> <span class="pl-e">Component</span> {
+  <span class="pl-en">render</span>() {
+    <span class="pl-c">// ...</span>
+  }
+}
+
+<span class="pl-k">export</span> <span class="pl-v">default</span> <span class="pl-smi">Button</span>; <span class="pl-c">// Don’t forget to use export default!</span></pre></div>
+
+<h4>
+<a id="dangerbuttonjs" class="anchor" href="#dangerbuttonjs" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><code>DangerButton.js</code>
+</h4>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-k">import</span> <span class="pl-smi">React</span>, { <span class="pl-smi">Component</span> } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>react<span class="pl-pds">'</span></span>;
+<span class="pl-k">import</span> <span class="pl-smi">Button</span> <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>./Button<span class="pl-pds">'</span></span>; <span class="pl-c">// Import a component from another file</span>
+
+<span class="pl-k">class</span> <span class="pl-en">DangerButton</span> <span class="pl-k">extends</span> <span class="pl-e">Component</span> {
+  <span class="pl-en">render</span>() {
+    <span class="pl-k">return</span> <span class="pl-k">&lt;</span>Button color<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>red<span class="pl-pds">"</span></span> <span class="pl-k">/</span><span class="pl-k">&gt;</span>;
+  }
+}
+
+<span class="pl-k">export</span> <span class="pl-v">default</span> <span class="pl-smi">DangerButton</span>;</pre></div>
+
+<p>Be aware of the <a href="http://stackoverflow.com/questions/36795819/react-native-es-6-when-should-i-use-curly-braces-for-import/36796281#36796281">difference between default and named exports</a>. It is a common source of mistakes.</p>
+
+<p>We suggest that you stick to using default imports and exports when a module only exports a single thing (for example, a component). That’s what you get when you use <code>export default Button</code> and <code>import Button from './Button'</code>.</p>
+
+<p>Named exports are useful for utility modules that export several functions. A module may have at most one default export and as many named exports as you like.</p>
+
+<p>Learn more about ES6 modules:</p>
+
+<ul>
+<li><a href="http://stackoverflow.com/questions/36795819/react-native-es-6-when-should-i-use-curly-braces-for-import/36796281#36796281">When to use the curly braces?</a></li>
+<li><a href="http://exploringjs.com/es6/ch_modules.html">Exploring ES6: Modules</a></li>
+<li><a href="https://leanpub.com/understandinges6/read#leanpub-auto-encapsulating-code-with-modules">Understanding ES6: Modules</a></li>
+</ul>
+
+<h3>
+<a id="adding-a-stylesheet" class="anchor" href="#adding-a-stylesheet" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Adding a Stylesheet</h3>
+
+<p>This project setup uses <a href="https://webpack.github.io/">Webpack</a> for handling all assets. Webpack offers a custom way of “extending” the concept of <code>import</code> beyond JavaScript. To express that a JavaScript file depends on a CSS file, you need to <strong>import the CSS from the JavaScript file</strong>:</p>
+
+<h4>
+<a id="buttoncss" class="anchor" href="#buttoncss" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><code>Button.css</code>
+</h4>
+
+<div class="highlight highlight-source-css"><pre><span class="pl-e">.Button</span> {
+  <span class="pl-c1"><span class="pl-c1">padding</span></span>: <span class="pl-c1">20<span class="pl-k">px</span></span>;
+}</pre></div>
+
+<h4>
+<a id="buttonjs-1" class="anchor" href="#buttonjs-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><code>Button.js</code>
+</h4>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-k">import</span> <span class="pl-smi">React</span>, { <span class="pl-smi">Component</span> } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>react<span class="pl-pds">'</span></span>;
+<span class="pl-k">import</span> <span class="pl-s"><span class="pl-pds">'</span>./Button.css<span class="pl-pds">'</span></span>; <span class="pl-c">// Tell Webpack that Button.js uses these styles</span>
+
+<span class="pl-k">class</span> <span class="pl-en">Button</span> <span class="pl-k">extends</span> <span class="pl-e">Component</span> {
+  <span class="pl-en">render</span>() {
+    <span class="pl-c">// You can use them as regular CSS styles</span>
+    <span class="pl-k">return</span> <span class="pl-k">&lt;</span>div className<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>Button<span class="pl-pds">"</span></span> <span class="pl-k">/</span><span class="pl-k">&gt;</span>;
+  }
+}</pre></div>
+
+<p><strong>This is not required for React</strong> but many people find this feature convenient. You can read about the benefits of this approach <a href="https://medium.com/seek-ui-engineering/block-element-modifying-your-javascript-components-d7f99fcab52b">here</a>. However you should be aware that this makes your code less portable to other build tools and environments than Webpack.</p>
+
+<p>In development, expressing dependencies this way allows your styles to be reloaded on the fly as you edit them. In production, all CSS files will be concatenated into a single minified <code>.css</code> file in the build output.</p>
+
+<p>If you are concerned about using Webpack-specific semantics, you can put all your CSS right into <code>src/index.css</code>. It would still be imported from <code>src/index.js</code>, but you could always remove that import if you later migrate to a different build tool.</p>
+
+<h3>
+<a id="post-processing-css" class="anchor" href="#post-processing-css" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Post-Processing CSS</h3>
+
+<p>This project setup minifies your CSS and adds vendor prefixes to it automatically through <a href="https://github.com/postcss/autoprefixer">Autoprefixer</a> so you don’t need to worry about it.</p>
+
+<p>For example, this:</p>
+
+<div class="highlight highlight-source-css"><pre><span class="pl-e">.App</span> {
+  <span class="pl-c1"><span class="pl-c1">display</span></span>: flex;
+  <span class="pl-c1"><span class="pl-c1">flex</span>-<span class="pl-c1">direction</span></span>: row;
+  <span class="pl-c1"><span class="pl-c1">align</span>-items</span>: <span class="pl-c1">center</span>;
+}</pre></div>
+
+<p>becomes this:</p>
+
+<div class="highlight highlight-source-css"><pre><span class="pl-e">.App</span> {
+  <span class="pl-c1"><span class="pl-c1">display</span></span>: -webkit-box;
+  <span class="pl-c1"><span class="pl-c1">display</span></span>: -ms-flexbox;
+  <span class="pl-c1"><span class="pl-c1">display</span></span>: flex;
+  <span class="pl-c1">-webkit-<span class="pl-c1">box-orient</span></span>: <span class="pl-c1">horizontal</span>;
+  <span class="pl-c1">-webkit-<span class="pl-c1">box-direction</span></span>: <span class="pl-c1">normal</span>;
+      <span class="pl-c1">-ms-<span class="pl-c1">flex</span>-<span class="pl-c1">direction</span></span>: row;
+          <span class="pl-c1"><span class="pl-c1">flex</span>-<span class="pl-c1">direction</span></span>: row;
+  <span class="pl-c1">-webkit-<span class="pl-c1">box-align</span></span>: <span class="pl-c1">center</span>;
+      <span class="pl-c1">-ms-<span class="pl-c1">flex</span>-<span class="pl-c1">align</span></span>: <span class="pl-c1">center</span>;
+          <span class="pl-c1"><span class="pl-c1">align</span>-items</span>: <span class="pl-c1">center</span>;
+}</pre></div>
+
+<p>There is currently no support for preprocessors such as Less, or for sharing variables across CSS files.</p>
+
+<h3>
+<a id="adding-images-and-fonts" class="anchor" href="#adding-images-and-fonts" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Adding Images and Fonts</h3>
+
+<p>With Webpack, using static assets like images and fonts works similarly to CSS.</p>
+
+<p>You can <strong><code>import</code> an image right in a JavaScript module</strong>. This tells Webpack to include that image in the bundle. Unlike CSS imports, importing an image or a font gives you a string value. This value is the final image path you can reference in your code.</p>
+
+<p>Here is an example:</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-k">import</span> <span class="pl-smi">React</span> <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>react<span class="pl-pds">'</span></span>;
+<span class="pl-k">import</span> <span class="pl-smi">logo</span> <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>./logo.png<span class="pl-pds">'</span></span>; <span class="pl-c">// Tell Webpack this JS file uses this image</span>
+
+<span class="pl-en">console</span>.<span class="pl-c1">log</span>(logo); <span class="pl-c">// /logo.84287d09.png</span>
+
+<span class="pl-k">function</span> <span class="pl-en">Header</span>() {
+  <span class="pl-c">// Import result is the URL of your image</span>
+  <span class="pl-k">return</span> <span class="pl-k">&lt;</span>img src<span class="pl-k">=</span>{logo} alt<span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>Logo<span class="pl-pds">"</span></span> <span class="pl-k">/</span><span class="pl-k">&gt;</span>;
+}
+
+<span class="pl-k">export</span> <span class="pl-v">default</span> <span class="pl-k">function</span> Header;</pre></div>
+
+<p>This ensures that when the project is built, Webpack will correctly move the images into the build folder, and provide us with correct paths.</p>
+
+<p>This works in CSS too:</p>
+
+<div class="highlight highlight-source-css"><pre><span class="pl-e">.Logo</span> {
+  <span class="pl-c1"><span class="pl-c1">background-image</span></span>: <span class="pl-c1">url</span>(<span class="pl-v">./logo.png</span>);
+}</pre></div>
+
+<p>Webpack finds all relative module references in CSS (they start with <code>./</code>) and replaces them with the final paths from the compiled bundle. If you make a typo or accidentally delete an important file, you will see a compilation error, just like when you import a non-existent JavaScript module. The final filenames in the compiled bundle are generated by Webpack from content hashes. If the file content changes in the future, Webpack will give it a different name in production so you don’t need to worry about long-term caching of assets.</p>
+
+<p>Please be advised that this is also a custom feature of Webpack.</p>
+
+<p><strong>It is not required for React</strong> but many people enjoy it (and React Native uses a similar mechanism for images).<br>
+An alternative way of handling static assets is described in the next section.</p>
+
+<h3>
+<a id="using-the-public-folder" class="anchor" href="#using-the-public-folder" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Using the <code>public</code> Folder</h3>
+
+<blockquote>
+<p>Note: this feature is available with <code>react-scripts@0.5.0</code> and higher.</p>
+</blockquote>
+
+<p>Normally we encourage you to <code>import</code> assets in JavaScript files as described above. This mechanism provides a number of benefits:</p>
+
+<ul>
+<li>Scripts and stylesheets get minified and bundled together to avoid extra network requests.</li>
+<li>Missing files cause compilation errors instead of 404 errors for your users.</li>
+<li>Result filenames include content hashes so you don’t need to worry about browsers caching their old versions.</li>
+</ul>
+
+<p>However there is an <strong>escape hatch</strong> that you can use to add an asset outside of the module system.</p>
+
+<p>If you put a file into the <code>public</code> folder, it will <strong>not</strong> be processed by Webpack. Instead it will be copied into the build folder untouched.   To reference assets in the <code>public</code> folder, you need to use a special variable called <code>PUBLIC_URL</code>.</p>
+
+<p>Inside <code>index.html</code>, you can use it like this:</p>
+
+<div class="highlight highlight-text-html-basic"><pre>&lt;<span class="pl-ent">link</span> <span class="pl-e">rel</span>=<span class="pl-s"><span class="pl-pds">"</span>shortcut icon<span class="pl-pds">"</span></span> <span class="pl-e">href</span>=<span class="pl-s"><span class="pl-pds">"</span>%PUBLIC_URL%/favicon.ico<span class="pl-pds">"</span></span>&gt;</pre></div>
+
+<p>Only files inside the <code>public</code> folder will be accessible by <code>%PUBLIC_URL%</code> prefix. If you need to use a file from <code>src</code> or <code>node_modules</code>, you’ll have to copy it there to explicitly specify your intention to make this file a part of the build.</p>
+
+<p>When you run <code>npm run build</code>, Create React App will substitute <code>%PUBLIC_URL%</code> with a correct absolute path so your project works even if you use client-side routing or host it at a non-root URL.</p>
+
+<p>In JavaScript code, you can use <code>process.env.PUBLIC_URL</code> for similar purposes:</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-en">render</span>() {
+  <span class="pl-c">// Note: this is an escape hatch and should be used sparingly!</span>
+  <span class="pl-c">// Normally we recommend using `import` for getting asset URLs</span>
+  <span class="pl-c">// as described in “Adding Images and Fonts” above this section.</span>
+  <span class="pl-k">return</span> <span class="pl-k">&lt;</span>img src<span class="pl-k">=</span>{<span class="pl-c1">process</span>.<span class="pl-smi">env</span>.<span class="pl-c1">PUBLIC_URL</span> <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">'</span>/img/logo.png<span class="pl-pds">'</span></span>} <span class="pl-k">/</span><span class="pl-k">&gt;</span>;
+}</pre></div>
+
+<p>Keep in mind the downsides of this approach:</p>
+
+<ul>
+<li>None of the files in <code>public</code> folder get post-processed or minified.</li>
+<li>Missing files will not be called at compilation time, and will cause 404 errors for your users.</li>
+<li>Result filenames won’t include content hashes so you’ll need to add query arguments or rename them every time they change.</li>
+</ul>
+
+<p>However, it can be handy for referencing assets like <a href="https://developer.mozilla.org/en-US/docs/Web/Manifest"><code>manifest.webmanifest</code></a> from HTML, or including small scripts like <a href="http://github.hubspot.com/pace/docs/welcome/"><code>pace.js</code></a> outside of the bundled code.</p>
+
+<h3>
+<a id="adding-bootstrap" class="anchor" href="#adding-bootstrap" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Adding Bootstrap</h3>
+
+<p>You don’t have to use <a href="https://react-bootstrap.github.io">React Bootstrap</a> together with React but it is a popular library for integrating Bootstrap with React apps. If you need it, you can integrate it with Create React App by following these steps:</p>
+
+<p>Install React Bootstrap and Bootstrap from NPM. React Bootstrap does not include Bootstrap CSS so this needs to be installed as well:</p>
+
+<pre><code>npm install react-bootstrap --save
+npm install bootstrap@3 --save
+</code></pre>
+
+<p>Import Bootstrap CSS and optionally Bootstrap theme CSS in the <code>src/index.js</code> file:</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-k">import</span> <span class="pl-s"><span class="pl-pds">'</span>bootstrap/dist/css/bootstrap.css<span class="pl-pds">'</span></span>;
+<span class="pl-k">import</span> <span class="pl-s"><span class="pl-pds">'</span>bootstrap/dist/css/bootstrap-theme.css<span class="pl-pds">'</span></span>;</pre></div>
+
+<p>Import required React Bootstrap components within <code>src/App.js</code> file or your custom component files:</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-k">import</span> { <span class="pl-smi">Navbar</span>, <span class="pl-smi">Jumbotron</span>, <span class="pl-smi">Button</span> } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>react-bootstrap<span class="pl-pds">'</span></span>;</pre></div>
+
+<p>Now you are ready to use the imported React Bootstrap components within your component hierarchy defined in the render method. Here is an example <a href="https://gist.githubusercontent.com/gaearon/85d8c067f6af1e56277c82d19fd4da7b/raw/6158dd991b67284e9fc8d70b9d973efe87659d72/App.js"><code>App.js</code></a> redone using React Bootstrap.</p>
+
+<h3>
+<a id="adding-flow" class="anchor" href="#adding-flow" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Adding Flow</h3>
+
+<p>Flow typing is currently <a href="https://github.com/facebookincubator/create-react-app/issues/72">not supported out of the box</a> with the default <code>.flowconfig</code> generated by Flow. If you run it, you might get errors like this:</p>
+
+<div class="highlight highlight-source-js"><pre>node_modules<span class="pl-k">/</span>fbjs<span class="pl-k">/</span>lib<span class="pl-k">/</span><span class="pl-smi">Deferred</span>.<span class="pl-smi">js</span>.<span class="pl-smi">flow</span><span class="pl-k">:</span><span class="pl-c1">60</span>
+ <span class="pl-c1">60</span><span class="pl-k">:</span>     <span class="pl-c1">Promise</span>.<span class="pl-c1">prototype</span>.<span class="pl-smi">done</span>.<span class="pl-c1">apply</span>(<span class="pl-v">this</span>.<span class="pl-smi">_promise</span>, <span class="pl-v">arguments</span>);
+                           <span class="pl-k">^^^^</span> property <span class="pl-s"><span class="pl-pds">`</span>done<span class="pl-pds">`</span></span>. <span class="pl-smi">Property</span> not found <span class="pl-k">in</span>
+<span class="pl-c1">495</span><span class="pl-k">:</span> declare <span class="pl-k">class</span> <span class="pl-en">Promise</span><span class="pl-k">&lt;</span><span class="pl-k">+</span><span class="pl-c1">R</span><span class="pl-k">&gt;</span> {
+     <span class="pl-k">^</span> <span class="pl-c1">Promise</span>. <span class="pl-smi">See</span> lib<span class="pl-k">:</span><span class="pl-sr"> <span class="pl-pds">/</span>private<span class="pl-pds">/</span></span>tmp<span class="pl-k">/</span>flow<span class="pl-k">/</span>flowlib_34952d31<span class="pl-k">/</span><span class="pl-smi">core</span>.<span class="pl-smi">js</span><span class="pl-k">:</span><span class="pl-c1">495</span>
+
+node_modules<span class="pl-k">/</span>fbjs<span class="pl-k">/</span>lib<span class="pl-k">/</span><span class="pl-smi">shallowEqual</span>.<span class="pl-smi">js</span>.<span class="pl-smi">flow</span><span class="pl-k">:</span><span class="pl-c1">29</span>
+ <span class="pl-c1">29</span><span class="pl-k">:</span>     <span class="pl-k">return</span> x <span class="pl-k">!==</span> <span class="pl-c1">0</span> <span class="pl-k">||</span> <span class="pl-c1">1</span> <span class="pl-k">/</span> (x<span class="pl-k">:</span> $FlowIssue) <span class="pl-k">===</span> <span class="pl-c1">1</span> <span class="pl-k">/</span> (y<span class="pl-k">:</span> $FlowIssue);
+                                   <span class="pl-k">^^^^^^^^^^</span> identifier <span class="pl-s"><span class="pl-pds">`</span>$FlowIssue<span class="pl-pds">`</span></span>. <span class="pl-smi">Could</span> not resolve name</pre></div>
+
+<p>To fix this, change your <code>.flowconfig</code> to look like this:</p>
+
+<div class="highlight highlight-source-ini"><pre><span class="pl-en">[ignore]</span>
+&lt;PROJECT_ROOT&gt;/node_modules/fbjs/.*</pre></div>
+
+<p>Re-run flow, and you shouldn’t get any extra issues.</p>
+
+<h3>
+<a id="adding-custom-environment-variables" class="anchor" href="#adding-custom-environment-variables" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Adding Custom Environment Variables</h3>
+
+<blockquote>
+<p>Note: this feature is available with <code>react-scripts@0.2.3</code> and higher.</p>
+</blockquote>
+
+<p>Your project can consume variables declared in your environment as if they were declared locally in your JS files. By
+default you will have <code>NODE_ENV</code> defined for you, and any other environment variables starting with
+<code>REACT_APP_</code>. These environment variables will be defined for you on <code>process.env</code>. For example, having an environment
+variable named <code>REACT_APP_SECRET_CODE</code> will be exposed in your JS as <code>process.env.REACT_APP_SECRET_CODE</code>, in addition
+to <code>process.env.NODE_ENV</code>.</p>
+
+<blockquote>
+<p>Note: Changing any environment variables will require you to restart the development server if it is running.</p>
+</blockquote>
+
+<p>These environment variables can be useful for displaying information conditionally based on where the project is
+deployed or consuming sensitive data that lives outside of version control.</p>
+
+<p>First, you need to have environment variables defined. For example, let’s say you wanted to consume a secret defined
+in the environment inside a <code>&lt;form&gt;</code>:</p>
+
+<div class="highlight highlight-source-js-jsx"><pre><span class="pl-en">render</span>() {
+<span class="pl-k">  return</span> (
+    &lt;<span class="pl-ent">div</span>&gt;
+      &lt;<span class="pl-ent">small</span>&gt;You are running this application in &lt;<span class="pl-ent">b</span>&gt;<span class="pl-pse">{</span><span class="pl-s1"><span class="pl-c1">process</span><span class="pl-k">.</span><span class="pl-c1">env</span><span class="pl-k">.</span><span class="pl-c1">NODE_ENV</span></span><span class="pl-pse">}</span>&lt;/<span class="pl-ent">b</span>&gt; mode.&lt;/<span class="pl-ent">small</span>&gt;
+      &lt;<span class="pl-ent">form</span>&gt;
+        &lt;<span class="pl-ent">input</span> <span class="pl-e">type</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>hidden<span class="pl-pds">"</span></span> <span class="pl-e">defaultValue</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-s1"><span class="pl-c1">process</span><span class="pl-k">.</span><span class="pl-c1">env</span><span class="pl-k">.</span><span class="pl-c1">REACT_APP_SECRET_CODE</span></span><span class="pl-pse">}</span> /&gt;
+      &lt;/<span class="pl-ent">form</span>&gt;
+    &lt;/<span class="pl-ent">div</span>&gt;
+  );
+}</pre></div>
+
+<p>During the build, <code>process.env.REACT_APP_SECRET_CODE</code> will be replaced with the current value of the <code>REACT_APP_SECRET_CODE</code> environment variable. Remember that the <code>NODE_ENV</code> variable will be set for you automatically.</p>
+
+<p>When you load the app in the browser and inspect the <code>&lt;input&gt;</code>, you will see its value set to <code>abcdef</code>, and the bold text will show the environment provided when using <code>npm start</code>:</p>
+
+<div class="highlight highlight-text-html-basic"><pre>&lt;<span class="pl-ent">div</span>&gt;
+  &lt;<span class="pl-ent">small</span>&gt;You are running this application in &lt;<span class="pl-ent">b</span>&gt;development&lt;/<span class="pl-ent">b</span>&gt; mode.&lt;/<span class="pl-ent">small</span>&gt;
+  &lt;<span class="pl-ent">form</span>&gt;
+    &lt;<span class="pl-ent">input</span> <span class="pl-e">type</span>=<span class="pl-s"><span class="pl-pds">"</span>hidden<span class="pl-pds">"</span></span> <span class="pl-e">value</span>=<span class="pl-s"><span class="pl-pds">"</span>abcdef<span class="pl-pds">"</span></span> /&gt;
+  &lt;/<span class="pl-ent">form</span>&gt;
+&lt;/<span class="pl-ent">div</span>&gt;</pre></div>
+
+<p>Having access to the <code>NODE_ENV</code> is also useful for performing actions conditionally:</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-k">if</span> (<span class="pl-c1">process</span>.<span class="pl-smi">env</span>.<span class="pl-c1">NODE_ENV</span> <span class="pl-k">!==</span> <span class="pl-s"><span class="pl-pds">'</span>production<span class="pl-pds">'</span></span>) {
+  <span class="pl-smi">analytics</span>.<span class="pl-en">disable</span>();
+}</pre></div>
+
+<p>The above form is looking for a variable called <code>REACT_APP_SECRET_CODE</code> from the environment. In order to consume this
+value, we need to have it defined in the environment. This can be done using two ways: either in your shell or in
+a <code>.env</code> file.</p>
+
+<h4>
+<a id="adding-temporary-environment-variables-in-your-shell" class="anchor" href="#adding-temporary-environment-variables-in-your-shell" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Adding Temporary Environment Variables In Your Shell</h4>
+
+<p>Defining environment variables can vary between OSes. It's also important to know that this manner is temporary for the
+life of the shell session.</p>
+
+<h5>
+<a id="windows-cmdexe" class="anchor" href="#windows-cmdexe" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Windows (cmd.exe)</h5>
+
+<div class="highlight highlight-source-batchfile"><pre><span class="pl-k">set</span> REACT_APP_SECRET_CODE=abcdef&amp;&amp;npm <span class="pl-k">start</span></pre></div>
+
+<p>(Note: the lack of whitespace is intentional.)</p>
+
+<h5>
+<a id="linux-os-x-bash" class="anchor" href="#linux-os-x-bash" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Linux, OS X (Bash)</h5>
+
+<div class="highlight highlight-source-shell"><pre>REACT_APP_SECRET_CODE=abcdef npm start</pre></div>
+
+<h4>
+<a id="adding-development-environment-variables-in-env" class="anchor" href="#adding-development-environment-variables-in-env" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Adding Development Environment Variables In <code>.env</code>
+</h4>
+
+<blockquote>
+<p>Note: this feature is available with <code>react-scripts@0.5.0</code> and higher.</p>
+</blockquote>
+
+<p>To define permanent environment variables, create a file called <code>.env</code> in the root of your project:</p>
+
+<pre><code>REACT_APP_SECRET_CODE=abcdef
+</code></pre>
+
+<p>These variables will act as the defaults if the machine does not explicitly set them.<br>
+Please refer to the <a href="https://github.com/motdotla/dotenv">dotenv documentation</a> for more details.</p>
+
+<blockquote>
+<p>Note: If you are defining environment variables for development, your CI and/or hosting platform will most likely need
+these defined as well. Consult their documentation how to do this. For example, see the documentation for <a href="https://docs.travis-ci.com/user/environment-variables/">Travis CI</a> or <a href="https://devcenter.heroku.com/articles/config-vars">Heroku</a>.</p>
+</blockquote>
+
+<h3>
+<a id="can-i-use-decorators" class="anchor" href="#can-i-use-decorators" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Can I Use Decorators?</h3>
+
+<p>Many popular libraries use <a href="https://medium.com/google-developers/exploring-es7-decorators-76ecb65fb841">decorators</a> in their documentation.<br>
+Create React App doesn’t support decorator syntax at the moment because:</p>
+
+<ul>
+<li>It is an experimental proposal and is subject to change.</li>
+<li>The current specification version is not officially supported by Babel.</li>
+<li>If the specification changes, we won’t be able to write a codemod because we don’t use them internally at Facebook.</li>
+</ul>
+
+<p>However in many cases you can rewrite decorator-based code without decorators just as fine.<br>
+Please refer to these two threads for reference:</p>
+
+<ul>
+<li><a href="https://github.com/facebookincubator/create-react-app/issues/214">#214</a></li>
+<li><a href="https://github.com/facebookincubator/create-react-app/issues/411">#411</a></li>
+</ul>
+
+<p>Create React App will add decorator support when the specification advances to a stable stage.</p>
+
+<h3>
+<a id="integrating-with-a-node-backend" class="anchor" href="#integrating-with-a-node-backend" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Integrating with a Node Backend</h3>
+
+<p>Check out <a href="https://www.fullstackreact.com/articles/using-create-react-app-with-a-server/">this tutorial</a> for instructions on integrating an app with a Node backend running on another port, and using <code>fetch()</code> to access it. You can find the companion GitHub repository <a href="https://github.com/fullstackreact/food-lookup-demo">here</a>.</p>
+
+<h3>
+<a id="proxying-api-requests-in-development" class="anchor" href="#proxying-api-requests-in-development" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Proxying API Requests in Development</h3>
+
+<blockquote>
+<p>Note: this feature is available with <code>react-scripts@0.2.3</code> and higher.</p>
+</blockquote>
+
+<p>People often serve the front-end React app from the same host and port as their backend implementation.<br>
+For example, a production setup might look like this after the app is deployed:</p>
+
+<pre><code>/             - static server returns index.html with React app
+/todos        - static server returns index.html with React app
+/api/todos    - server handles any /api/* requests using the backend implementation
+</code></pre>
+
+<p>Such setup is <strong>not</strong> required. However, if you <strong>do</strong> have a setup like this, it is convenient to write requests like <code>fetch('/api/todos')</code> without worrying about redirecting them to another host or port during development.</p>
+
+<p>To tell the development server to proxy any unknown requests to your API server in development, add a <code>proxy</code> field to your <code>package.json</code>, for example:</p>
+
+<div class="highlight highlight-source-js"><pre>  <span class="pl-s"><span class="pl-pds">"</span>proxy<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>http://localhost:4000<span class="pl-pds">"</span></span>,</pre></div>
+
+<p>This way, when you <code>fetch('/api/todos')</code> in development, the development server will recognize that it’s not a static asset, and will proxy your request to <code>http://localhost:4000/api/todos</code> as a fallback. The development server will only attempt to send requests without a <code>text/html</code> accept header to the proxy.</p>
+
+<p>Conveniently, this avoids <a href="http://stackoverflow.com/questions/21854516/understanding-ajax-cors-and-security-considerations">CORS issues</a> and error messages like this in development:</p>
+
+<pre><code>Fetch API cannot load http://localhost:4000/api/todos. No 'Access-Control-Allow-Origin' header is present on the requested resource. Origin 'http://localhost:3000' is therefore not allowed access. If an opaque response serves your needs, set the request's mode to 'no-cors' to fetch the resource with CORS disabled.
+</code></pre>
+
+<p>Keep in mind that <code>proxy</code> only has effect in development (with <code>npm start</code>), and it is up to you to ensure that URLs like <code>/api/todos</code> point to the right thing in production. You don’t have to use the <code>/api</code> prefix. Any unrecognized request without a <code>text/html</code> accept header will be redirected to the specified <code>proxy</code>.</p>
+
+<p>Currently the <code>proxy</code> option only handles HTTP requests, and it won’t proxy WebSocket connections.<br>
+If the <code>proxy</code> option is <strong>not</strong> flexible enough for you, alternatively you can:</p>
+
+<ul>
+<li>Enable CORS on your server (<a href="http://enable-cors.org/server_expressjs.html">here’s how to do it for Express</a>).</li>
+<li>Use <a href="#adding-custom-environment-variables">environment variables</a> to inject the right server host and port into your app.</li>
+</ul>
+
+<h3>
+<a id="using-https-in-development" class="anchor" href="#using-https-in-development" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Using HTTPS in Development</h3>
+
+<blockquote>
+<p>Note: this feature is available with <code>react-scripts@0.4.0</code> and higher.</p>
+</blockquote>
+
+<p>You may require the dev server to serve pages over HTTPS. One particular case where this could be useful is when using <a href="#proxying-api-requests-in-development">the "proxy" feature</a> to proxy requests to an API server when that API server is itself serving HTTPS.</p>
+
+<p>To do this, set the <code>HTTPS</code> environment variable to <code>true</code>, then start the dev server as usual with <code>npm start</code>:</p>
+
+<h5>
+<a id="windows-cmdexe-1" class="anchor" href="#windows-cmdexe-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Windows (cmd.exe)</h5>
+
+<div class="highlight highlight-source-batchfile"><pre><span class="pl-k">set</span> HTTPS=true&amp;&amp;npm <span class="pl-k">start</span></pre></div>
+
+<p>(Note: the lack of whitespace is intentional.)</p>
+
+<h5>
+<a id="linux-os-x-bash-1" class="anchor" href="#linux-os-x-bash-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Linux, OS X (Bash)</h5>
+
+<div class="highlight highlight-source-shell"><pre>HTTPS=<span class="pl-c1">true</span> npm start</pre></div>
+
+<p>Note that the server will use a self-signed certificate, so your web browser will almost definitely display a warning upon accessing the page.</p>
+
+<h3>
+<a id="generating-dynamic-meta-tags-on-the-server" class="anchor" href="#generating-dynamic-meta-tags-on-the-server" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Generating Dynamic <code>&lt;meta&gt;</code> Tags on the Server</h3>
+
+<p>Since Create React App doesn’t support server rendering, you might be wondering how to make <code>&lt;meta&gt;</code> tags dynamic and reflect the current URL. To solve this, we recommend to add placeholders into the HTML, like this:</p>
+
+<div class="highlight highlight-text-html-basic"><pre>&lt;!doctype html&gt;
+&lt;<span class="pl-ent">html</span> <span class="pl-e">lang</span>=<span class="pl-s"><span class="pl-pds">"</span>en<span class="pl-pds">"</span></span>&gt;
+  &lt;<span class="pl-ent">head</span>&gt;
+    &lt;<span class="pl-ent">meta</span> <span class="pl-e">property</span>=<span class="pl-s"><span class="pl-pds">"</span>og:title<span class="pl-pds">"</span></span> <span class="pl-e">content</span>=<span class="pl-s"><span class="pl-pds">"</span>%OG_TITLE%<span class="pl-pds">"</span></span>&gt;
+    &lt;<span class="pl-ent">meta</span> <span class="pl-e">property</span>=<span class="pl-s"><span class="pl-pds">"</span>og:description<span class="pl-pds">"</span></span> <span class="pl-e">content</span>=<span class="pl-s"><span class="pl-pds">"</span>%OG_DESCRIPTION%<span class="pl-pds">"</span></span>&gt;</pre></div>
+
+<p>Then, on the server, regardless of the backend you use, you can read <code>index.html</code> into memory and replace <code>%OG_TITLE%</code>, <code>%OG_DESCRIPTION%</code>, and any other placeholders with values depending on the current URL. Just make sure to sanitize and escape the interpolated values so that they are safe to embed into HTML!</p>
+
+<p>If you use a Node server, you can even share the route matching logic between the client and the server. However duplicating it also works fine in simple cases.</p>
+
+<h3>
+<a id="running-tests" class="anchor" href="#running-tests" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Running Tests</h3>
+
+<blockquote>
+<p>Note: this feature is available with <code>react-scripts@0.3.0</code> and higher.<br>
+<a href="https://github.com/facebookincubator/create-react-app/blob/master/CHANGELOG.md#migrating-from-023-to-030">Read the migration guide to learn how to enable it in older projects!</a></p>
+</blockquote>
+
+<p>Create React App uses <a href="https://facebook.github.io/jest/">Jest</a> as its test runner. To prepare for this integration, we did a <a href="https://facebook.github.io/jest/blog/2016/09/01/jest-15.html">major revamp</a> of Jest so if you heard bad things about it years ago, give it another try.</p>
+
+<p>Jest is a Node-based runner. This means that the tests always run in a Node environment and not in a real browser. This lets us enable fast iteration speed and prevent flakiness.</p>
+
+<p>While Jest provides browser globals such as <code>window</code> thanks to <a href="https://github.com/tmpvar/jsdom">jsdom</a>, they are only approximations of the real browser behavior. Jest is intended to be used for unit tests of your logic and your components rather than the DOM quirks.</p>
+
+<p>We recommend that you use a separate tool for browser end-to-end tests if you need them. They are beyond the scope of Create React App.</p>
+
+<h4>
+<a id="filename-conventions" class="anchor" href="#filename-conventions" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Filename Conventions</h4>
+
+<p>Jest will look for test files with any of the following popular naming conventions:</p>
+
+<ul>
+<li>Files with <code>.js</code> suffix in <code>__tests__</code> folders.</li>
+<li>Files with <code>.test.js</code> suffix.</li>
+<li>Files with <code>.spec.js</code> suffix.</li>
+</ul>
+
+<p>The <code>.test.js</code> / <code>.spec.js</code> files (or the <code>__tests__</code> folders) can be located at any depth under the <code>src</code> top level folder.</p>
+
+<p>We recommend to put the test files (or <code>__tests__</code> folders) next to the code they are testing so that relative imports appear shorter. For example, if <code>App.test.js</code> and <code>App.js</code> are in the same folder, the test just needs to <code>import App from './App'</code> instead of a long relative path. Colocation also helps find tests more quickly in larger projects.</p>
+
+<h4>
+<a id="command-line-interface" class="anchor" href="#command-line-interface" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Command Line Interface</h4>
+
+<p>When you run <code>npm test</code>, Jest will launch in the watch mode. Every time you save a file, it will re-run the tests, just like <code>npm start</code> recompiles the code.</p>
+
+<p>The watcher includes an interactive command-line interface with the ability to run all tests, or focus on a search pattern. It is designed this way so that you can keep it open and enjoy fast re-runs. You can learn the commands from the “Watch Usage” note that the watcher prints after every run:</p>
+
+<p><img src="http://facebook.github.io/jest/img/blog/15-watch.gif" alt="Jest watch mode"></p>
+
+<h4>
+<a id="version-control-integration" class="anchor" href="#version-control-integration" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Version Control Integration</h4>
+
+<p>By default, when you run <code>npm test</code>, Jest will only run the tests related to files changed since the last commit. This is an optimization designed to make your tests runs fast regardless of how many tests you have. However it assumes that you don’t often commit the code that doesn’t pass the tests.</p>
+
+<p>Jest will always explicitly mention that it only ran tests related to the files changed since the last commit. You can also press <code>a</code> in the watch mode to force Jest to run all tests.</p>
+
+<p>Jest will always run all tests on a <a href="#continuous-integration">continuous integration</a> server or if the project is not inside a Git or Mercurial repository.</p>
+
+<h4>
+<a id="writing-tests" class="anchor" href="#writing-tests" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Writing Tests</h4>
+
+<p>To create tests, add <code>it()</code> (or <code>test()</code>) blocks with the name of the test and its code. You may optionally wrap them in <code>describe()</code> blocks for logical grouping but this is neither required nor recommended.</p>
+
+<p>Jest provides a built-in <code>expect()</code> global function for making assertions. A basic test could look like this:</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-k">import</span> <span class="pl-smi">sum</span> <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>./sum<span class="pl-pds">'</span></span>;
+
+<span class="pl-en">it</span>(<span class="pl-s"><span class="pl-pds">'</span>sums numbers<span class="pl-pds">'</span></span>, () <span class="pl-k">=&gt;</span> {
+  <span class="pl-en">expect</span>(<span class="pl-en">sum</span>(<span class="pl-c1">1</span>, <span class="pl-c1">2</span>)).<span class="pl-en">toEqual</span>(<span class="pl-c1">3</span>);
+  <span class="pl-en">expect</span>(<span class="pl-en">sum</span>(<span class="pl-c1">2</span>, <span class="pl-c1">2</span>)).<span class="pl-en">toEqual</span>(<span class="pl-c1">4</span>);
+});</pre></div>
+
+<p>All <code>expect()</code> matchers supported by Jest are <a href="http://facebook.github.io/jest/docs/api.html#expect-value">extensively documented here</a>.<br>
+You can also use <a href="http://facebook.github.io/jest/docs/api.html#tobecalled"><code>jest.fn()</code> and <code>expect(fn).toBeCalled()</code></a> to create “spies” or mock functions.</p>
+
+<h4>
+<a id="testing-components" class="anchor" href="#testing-components" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Testing Components</h4>
+
+<p>There is a broad spectrum of component testing techniques. They range from a “smoke test” verifying that a component renders without throwing, to shallow rendering and testing some of the output, to full rendering and testing component lifecycle and state changes.</p>
+
+<p>Different projects choose different testing tradeoffs based on how often components change, and how much logic they contain. If you haven’t decided on a testing strategy yet, we recommend that you start with creating simple smoke tests for your components:</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-k">import</span> <span class="pl-smi">React</span> <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>react<span class="pl-pds">'</span></span>;
+<span class="pl-k">import</span> <span class="pl-smi">ReactDOM</span> <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>react-dom<span class="pl-pds">'</span></span>;
+<span class="pl-k">import</span> <span class="pl-smi">App</span> <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>./App<span class="pl-pds">'</span></span>;
+
+<span class="pl-en">it</span>(<span class="pl-s"><span class="pl-pds">'</span>renders without crashing<span class="pl-pds">'</span></span>, () <span class="pl-k">=&gt;</span> {
+  <span class="pl-k">const</span> <span class="pl-c1">div</span> <span class="pl-k">=</span> <span class="pl-c1">document</span>.<span class="pl-c1">createElement</span>(<span class="pl-s"><span class="pl-pds">'</span>div<span class="pl-pds">'</span></span>);
+  <span class="pl-smi">ReactDOM</span>.<span class="pl-en">render</span>(<span class="pl-k">&lt;</span>App <span class="pl-k">/</span><span class="pl-k">&gt;</span>, div);
+});</pre></div>
+
+<p>This test mounts a component and makes sure that it didn’t throw during rendering. Tests like this provide a lot value with very little effort so they are great as a starting point, and this is the test you will find in <code>src/App.test.js</code>.</p>
+
+<p>When you encounter bugs caused by changing components, you will gain a deeper insight into which parts of them are worth testing in your application. This might be a good time to introduce more specific tests asserting specific expected output or behavior.</p>
+
+<p>If you’d like to test components in isolation from the child components they render, we recommend using <a href="http://airbnb.io/enzyme/docs/api/shallow.html"><code>shallow()</code> rendering API</a> from <a href="http://airbnb.io/enzyme/">Enzyme</a>. You can write a smoke test with it too:</p>
+
+<div class="highlight highlight-source-shell"><pre>npm install --save-dev enzyme react-addons-test-utils</pre></div>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-k">import</span> <span class="pl-smi">React</span> <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>react<span class="pl-pds">'</span></span>;
+<span class="pl-k">import</span> { <span class="pl-smi">shallow</span> } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>enzyme<span class="pl-pds">'</span></span>;
+<span class="pl-k">import</span> <span class="pl-smi">App</span> <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>./App<span class="pl-pds">'</span></span>;
+
+<span class="pl-en">it</span>(<span class="pl-s"><span class="pl-pds">'</span>renders without crashing<span class="pl-pds">'</span></span>, () <span class="pl-k">=&gt;</span> {
+  <span class="pl-en">shallow</span>(<span class="pl-k">&lt;</span>App <span class="pl-k">/</span><span class="pl-k">&gt;</span>);
+});</pre></div>
+
+<p>Unlike the previous smoke test using <code>ReactDOM.render()</code>, this test only renders <code>&lt;App&gt;</code> and doesn’t go deeper. For example, even if <code>&lt;App&gt;</code> itself renders a <code>&lt;Button&gt;</code> that throws, this test will pass. Shallow rendering is great for isolated unit tests, but you may still want to create some full rendering tests to ensure the components integrate correctly. Enzyme supports <a href="http://airbnb.io/enzyme/docs/api/mount.html">full rendering with <code>mount()</code></a>, and you can also use it for testing state changes and component lifecycle.</p>
+
+<p>You can read the <a href="http://airbnb.io/enzyme/">Enzyme documentation</a> for more testing techniques. Enzyme documentation uses Chai and Sinon for assertions but you don’t have to use them because Jest provides built-in <code>expect()</code> and <code>jest.fn()</code> for spies.</p>
+
+<p>Here is an example from Enzyme documentation that asserts specific output, rewritten to use Jest matchers:</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-k">import</span> <span class="pl-smi">React</span> <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>react<span class="pl-pds">'</span></span>;
+<span class="pl-k">import</span> { <span class="pl-smi">shallow</span> } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>enzyme<span class="pl-pds">'</span></span>;
+<span class="pl-k">import</span> <span class="pl-smi">App</span> <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>./App<span class="pl-pds">'</span></span>;
+
+<span class="pl-en">it</span>(<span class="pl-s"><span class="pl-pds">'</span>renders welcome message<span class="pl-pds">'</span></span>, () <span class="pl-k">=&gt;</span> {
+  <span class="pl-k">const</span> <span class="pl-c1">wrapper</span> <span class="pl-k">=</span> <span class="pl-en">shallow</span>(<span class="pl-k">&lt;</span>App <span class="pl-k">/</span><span class="pl-k">&gt;</span>);
+  <span class="pl-k">const</span> <span class="pl-c1">welcome</span> <span class="pl-k">=</span> <span class="pl-k">&lt;</span>h2<span class="pl-k">&gt;</span>Welcome to React<span class="pl-k">&lt;</span><span class="pl-k">/</span>h2<span class="pl-k">&gt;</span>;
+  <span class="pl-c">// expect(wrapper.contains(welcome)).to.equal(true);</span>
+  <span class="pl-en">expect</span>(<span class="pl-smi">wrapper</span>.<span class="pl-c1">contains</span>(welcome)).<span class="pl-en">toEqual</span>(<span class="pl-c1">true</span>);
+});</pre></div>
+
+<p>All Jest matchers are <a href="http://facebook.github.io/jest/docs/api.html#expect-value">extensively documented here</a>.<br>
+Nevertheless you can use a third-party assertion library like <a href="http://chaijs.com/">Chai</a> if you want to, as described below.</p>
+
+<h4>
+<a id="using-third-party-assertion-libraries" class="anchor" href="#using-third-party-assertion-libraries" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Using Third Party Assertion Libraries</h4>
+
+<p>We recommend that you use <code>expect()</code> for assertions and <code>jest.fn()</code> for spies. If you are having issues with them please <a href="https://github.com/facebook/jest/issues/new">file those against Jest</a>, and we’ll fix them. We intend to keep making them better for React, supporting, for example, <a href="https://github.com/facebook/jest/pull/1566">pretty-printing React elements as JSX</a>.</p>
+
+<p>However, if you are used to other libraries, such as <a href="http://chaijs.com/">Chai</a> and <a href="http://sinonjs.org/">Sinon</a>, or if you have existing code using them that you’d like to port over, you can import them normally like this:</p>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-k">import</span> <span class="pl-smi">sinon</span> <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>sinon<span class="pl-pds">'</span></span>;
+<span class="pl-k">import</span> { <span class="pl-smi">expect</span> } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>chai<span class="pl-pds">'</span></span>;</pre></div>
+
+<p>and then use them in your tests like you normally do.</p>
+
+<h4>
+<a id="initializing-test-environment" class="anchor" href="#initializing-test-environment" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Initializing Test Environment</h4>
+
+<blockquote>
+<p>Note: this feature is available with <code>react-scripts@0.4.0</code> and higher.</p>
+</blockquote>
+
+<p>If your app uses a browser API that you need to mock in your tests or if you just need a global setup before running your tests, add a <code>src/setupTests.js</code> to your project. It will be automatically executed before running your tests.</p>
+
+<p>For example:</p>
+
+<h5>
+<a id="srcsetuptestsjs" class="anchor" href="#srcsetuptestsjs" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><code>src/setupTests.js</code>
+</h5>
+
+<div class="highlight highlight-source-js"><pre><span class="pl-k">const</span> <span class="pl-c1">localStorageMock</span> <span class="pl-k">=</span> {
+  getItem<span class="pl-k">:</span> <span class="pl-smi">jest</span>.<span class="pl-en">fn</span>(),
+  setItem<span class="pl-k">:</span> <span class="pl-smi">jest</span>.<span class="pl-en">fn</span>(),
+  clear<span class="pl-k">:</span> <span class="pl-smi">jest</span>.<span class="pl-en">fn</span>()
+};
+<span class="pl-c1">global</span>.<span class="pl-smi">localStorage</span> <span class="pl-k">=</span> localStorageMock</pre></div>
+
+<h4>
+<a id="focusing-and-excluding-tests" class="anchor" href="#focusing-and-excluding-tests" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Focusing and Excluding Tests</h4>
+
+<p>You can replace <code>it()</code> with <code>xit()</code> to temporarily exclude a test from being executed.<br>
+Similarly, <code>fit()</code> lets you focus on a specific test without running any other tests.</p>
+
+<h4>
+<a id="coverage-reporting" class="anchor" href="#coverage-reporting" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Coverage Reporting</h4>
+
+<p>Jest has an integrated coverage reporter that works well with ES6 and requires no configuration.<br>
+Run <code>npm test -- --coverage</code> (note extra <code>--</code> in the middle) to include a coverage report like this:</p>
+
+<p><img src="http://i.imgur.com/5bFhnTS.png" alt="coverage report"></p>
+
+<p>Note that tests run much slower with coverage so it is recommended to run it separately from your normal workflow.</p>
+
+<h4>
+<a id="continuous-integration" class="anchor" href="#continuous-integration" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Continuous Integration</h4>
+
+<p>By default <code>npm test</code> runs the watcher with interactive CLI. However, you can force it to run tests once and finish the process by setting an environment variable called <code>CI</code>. Popular CI servers already set it by default but you can do this yourself too:</p>
+
+<h4>
+<a id="on-ci-servers" class="anchor" href="#on-ci-servers" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>On CI servers</h4>
+
+<h5>
+<a id="travis-ci" class="anchor" href="#travis-ci" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Travis CI</h5>
+
+<ol>
+<li>Following the <a href="https://docs.travis-ci.com/user/getting-started/">Travis Getting started</a> guide for syncing your GitHub repository with Travis.  You may need to initialize some settings manually in your <a href="https://travis-ci.org/profile">profile</a> page.</li>
+<li>Add a <code>.travis.yml</code> file to your git repository.</li>
+</ol>
+
+<pre><code>language: node_js
+node_js:
+  - 4
+  - 6
+cache:
+  directories:
+    - node_modules
+script:
+  - npm test
+</code></pre>
+
+<ol>
+<li>Trigger your first build with a git push.</li>
+<li>
+<a href="https://docs.travis-ci.com/user/customizing-the-build/">Customize your Travis CI Build</a> if needed.</li>
+</ol>
+
+<h4>
+<a id="on-your-own-environment" class="anchor" href="#on-your-own-environment" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>On your own environment</h4>
+
+<h6>
+<a id="windows-cmdexe-2" class="anchor" href="#windows-cmdexe-2" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Windows (cmd.exe)</h6>
+
+<div class="highlight highlight-source-batchfile"><pre><span class="pl-k">set</span> CI=true&amp;&amp;npm test</pre></div>
+
+<p>(Note: the lack of whitespace is intentional.)</p>
+
+<h6>
+<a id="linux-os-x-bash-2" class="anchor" href="#linux-os-x-bash-2" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Linux, OS X (Bash)</h6>
+
+<div class="highlight highlight-source-shell"><pre>CI=<span class="pl-c1">true</span> npm <span class="pl-c1">test</span></pre></div>
+
+<p>This way Jest will run tests once instead of launching the watcher.</p>
+
+<p>If you find yourself doing this often in development, please <a href="https://github.com/facebookincubator/create-react-app/issues/new">file an issue</a> to tell us about your use case because we want to make watcher the best experience and are open to changing how it works to accommodate more workflows.</p>
+
+<h4>
+<a id="disabling-jsdom" class="anchor" href="#disabling-jsdom" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Disabling jsdom</h4>
+
+<p>By default, the <code>package.json</code> of the generated project looks like this:</p>
+
+<div class="highlight highlight-source-js"><pre>  <span class="pl-c">// ...</span>
+  <span class="pl-s"><span class="pl-pds">"</span>scripts<span class="pl-pds">"</span></span><span class="pl-k">:</span> {
+    <span class="pl-c">// ...</span>
+    <span class="pl-s"><span class="pl-pds">"</span>test<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>react-scripts test --env=jsdom<span class="pl-pds">"</span></span>
+  }</pre></div>
+
+<p>If you know that none of your tests depend on <a href="https://github.com/tmpvar/jsdom">jsdom</a>, you can safely remove <code>--env=jsdom</code>, and your tests will run faster.<br>
+To help you make up your mind, here is a list of APIs that <strong>need jsdom</strong>:</p>
+
+<ul>
+<li>Any browser globals like <code>window</code> and <code>document</code>
+</li>
+<li><a href="https://facebook.github.io/react/docs/top-level-api.html#reactdom.render"><code>ReactDOM.render()</code></a></li>
+<li>
+<a href="https://facebook.github.io/react/docs/test-utils.html#renderintodocument"><code>TestUtils.renderIntoDocument()</code></a> (<a href="https://github.com/facebook/react/blob/34761cf9a252964abfaab6faf74d473ad95d1f21/src/test/ReactTestUtils.js#L83-L91">a shortcut</a> for the above)</li>
+<li>
+<a href="http://airbnb.io/enzyme/docs/api/mount.html"><code>mount()</code></a> in <a href="http://airbnb.io/enzyme/index.html">Enzyme</a>
+</li>
+</ul>
+
+<p>In contrast, <strong>jsdom is not needed</strong> for the following APIs:</p>
+
+<ul>
+<li>
+<a href="https://facebook.github.io/react/docs/test-utils.html#shallow-rendering"><code>TestUtils.createRenderer()</code></a> (shallow rendering)</li>
+<li>
+<a href="http://airbnb.io/enzyme/docs/api/shallow.html"><code>shallow()</code></a> in <a href="http://airbnb.io/enzyme/index.html">Enzyme</a>
+</li>
+</ul>
+
+<p>Finally, jsdom is also not needed for <a href="http://facebook.github.io/jest/blog/2016/07/27/jest-14.html">snapshot testing</a>. Longer term, this is the direction we are interested in exploring, but snapshot testing is <a href="https://github.com/facebookincubator/create-react-app/issues/372">not fully baked yet</a> so we don’t officially encourage its usage yet.</p>
+
+<h4>
+<a id="experimental-snapshot-testing" class="anchor" href="#experimental-snapshot-testing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Experimental Snapshot Testing</h4>
+
+<p>Snapshot testing is a new feature of Jest that automatically generates text snapshots of your components and saves them on the disk so if the UI output changes, you get notified without manually writing any assertions on the component output.</p>
+
+<p>This feature is experimental and still <a href="https://github.com/facebookincubator/create-react-app/issues/372">has major usage issues</a> so we only encourage you to use it if you like experimental technology. We intend to gradually improve it over time and eventually offer it as the default solution for testing React components, but this will take time. <a href="http://facebook.github.io/jest/blog/2016/07/27/jest-14.html">Read more about snapshot testing.</a></p>
+
+<h3>
+<a id="deployment" class="anchor" href="#deployment" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Deployment</h3>
+
+<h3>
+<a id="building-for-relative-paths" class="anchor" href="#building-for-relative-paths" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Building for Relative Paths</h3>
+
+<p>By default, Create React App produces a build assuming your app is hosted at the server root.<br>
+To override this, specify the <code>homepage</code> in your <code>package.json</code>, for example:</p>
+
+<div class="highlight highlight-source-js"><pre>  <span class="pl-s"><span class="pl-pds">"</span>homepage<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>http://mywebsite.com/relativepath<span class="pl-pds">"</span></span>,</pre></div>
+
+<p>This will let Create React App correctly infer the root path to use in the generated HTML file.</p>
+
+<h4>
+<a id="github-pages" class="anchor" href="#github-pages" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>GitHub Pages</h4>
+
+<blockquote>
+<p>Note: this feature is available with <code>react-scripts@0.2.0</code> and higher.</p>
+</blockquote>
+
+<p>Open your <code>package.json</code> and add a <code>homepage</code> field:</p>
+
+<div class="highlight highlight-source-js"><pre>  <span class="pl-s"><span class="pl-pds">"</span>homepage<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>http://myusername.github.io/my-app<span class="pl-pds">"</span></span>,</pre></div>
+
+<p><strong>The above step is important!</strong><br>
+Create React App uses the <code>homepage</code> field to determine the root URL in the built HTML file.</p>
+
+<p>Now, whenever you run <code>npm run build</code>, you will see a cheat sheet with instructions on how to deploy to GitHub pages.</p>
+
+<p>To publish it at <a href="http://myusername.github.io/my-app">http://myusername.github.io/my-app</a>, run:</p>
+
+<div class="highlight highlight-source-shell"><pre>npm install --save-dev gh-pages</pre></div>
+
+<p>Add the following script in your <code>package.json</code>:</p>
+
+<div class="highlight highlight-source-js"><pre>  <span class="pl-c">// ...</span>
+  <span class="pl-s"><span class="pl-pds">"</span>scripts<span class="pl-pds">"</span></span><span class="pl-k">:</span> {
+    <span class="pl-c">// ...</span>
+    <span class="pl-s"><span class="pl-pds">"</span>deploy<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>gh-pages -d build<span class="pl-pds">"</span></span>
+  }</pre></div>
+
+<p>Then run:</p>
+
+<div class="highlight highlight-source-shell"><pre>npm run deploy</pre></div>
+
+<p>Note that GitHub Pages doesn't support routers that use the HTML5 <code>pushState</code> history API under the hood (for example, React Router using <code>browserHistory</code>). This is because when there is a fresh page load for a url like <code>http://user.github.io/todomvc/todos/42</code>, where <code>/todos/42</code> is a frontend route, the GitHub Pages server returns 404 because it knows nothing of <code>/todos/42</code>. If you want to add a router to a project hosted on GitHub Pages, here are a couple of solutions:</p>
+
+<ul>
+<li>You could switch from using HTML5 history API to routing with hashes. If you use React Router, you can switch to <code>hashHistory</code> for this effect, but the URL will be longer and more verbose (for example, <code>http://user.github.io/todomvc/#/todos/42?_k=yknaj</code>). <a href="https://github.com/reactjs/react-router/blob/master/docs/guides/Histories.md#histories">Read more</a> about different history implementations in React Router.</li>
+<li>Alternatively, you can use a trick to teach GitHub Pages to handle 404 by redirecting to your <code>index.html</code> page with a special redirect parameter. You would need to add a <code>404.html</code> file with the redirection code to the <code>build</code> folder before deploying your project, and you’ll need to add code handling the redirect parameter to <code>index.html</code>. You can find a detailed explanation of this technique <a href="https://github.com/rafrex/spa-github-pages">in this guide</a>.</li>
+</ul>
+
+<h4>
+<a id="heroku" class="anchor" href="#heroku" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Heroku</h4>
+
+<p>Use the <a href="https://github.com/mars/create-react-app-buildpack">Heroku Buildpack for Create React App</a>.<br>
+You can find instructions in <a href="https://blog.heroku.com/deploying-react-with-zero-configuration">Deploying React with Zero Configuration</a>.</p>
+
+<h4>
+<a id="modulus" class="anchor" href="#modulus" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Modulus</h4>
+
+<p>See the <a href="http://blog.modulus.io/deploying-react-apps-on-modulus">Modulus blog post</a> on how to deploy your react app to Modulus.</p>
+
+<h3>
+<a id="netlify" class="anchor" href="#netlify" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Netlify</h3>
+
+<p><strong>To do a manual deploy to Netlify's CDN:</strong></p>
+
+<div class="highlight highlight-source-shell"><pre>npm install netlify-cli
+netlify deploy</pre></div>
+
+<p>Choose <code>build</code> as the path to deploy.</p>
+
+<p><strong>To setup continuous delivery:</strong></p>
+
+<p>With this setup Netlify will build and deploy when you push to git or open a pull request:</p>
+
+<ol>
+<li><a href="https://app.netlify.com/signup">Start a new netlify project</a></li>
+<li>Pick your Git hosting service and select your repository</li>
+<li>Click <code>Build your site</code>
+</li>
+</ol>
+
+<p><strong>Support for client-side routing:</strong></p>
+
+<p>To support <code>pushState</code>, make sure to create a <code>public/_redirects</code> file with the following rewrite rules:</p>
+
+<pre><code>/*  /index.html  200
+</code></pre>
+
+<p>When you build the project, Create React App will place the <code>public</code> folder contents into the build output.</p>
+
+<h4>
+<a id="now" class="anchor" href="#now" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Now</h4>
+
+<p>See <a href="https://github.com/xkawi/create-react-app-now">this example</a> for a zero-configuration single-command deployment with <a href="https://zeit.co/now">now</a>.</p>
+
+<h4>
+<a id="surge" class="anchor" href="#surge" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Surge</h4>
+
+<p>Install the Surge CLI if you haven't already by running <code>npm install -g surge</code>. Run the <code>surge</code> command and log in you or create a new account. You just need to specify the <em>build</em> folder and your custom domain, and you are done.</p>
+
+<div class="highlight highlight-source-shell"><pre>              email: email@domain.com
+           password: <span class="pl-k">********</span>
+       project path: /path/to/project/build
+               size: 7 files, 1.8 MB
+             domain: create-react-app.surge.sh
+             upload: [<span class="pl-k">====================</span>] 100%, eta: 0.0s
+   propagate on CDN: [<span class="pl-k">====================</span>] 100%
+               plan: Free
+              users: email@domain.com
+         IP Address: X.X.X.X
+
+    Success<span class="pl-k">!</span> Project is published and running at create-react-app.surge.sh</pre></div>
+
+<p>Note that in order to support routers that use HTML5 <code>pushState</code> API, you may want to rename the <code>index.html</code> in your build folder to <code>200.html</code> before deploying to Surge. This <a href="https://surge.sh/help/adding-a-200-page-for-client-side-routing">ensures that every URL falls back to that file</a>.</p>
+
+<h3>
+<a id="something-missing" class="anchor" href="#something-missing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Something Missing?</h3>
+
+<p>If you have ideas for more “How To” recipes that should be on this page, <a href="https://github.com/facebookincubator/create-react-app/issues">let us know</a> or <a href="https://github.com/facebookincubator/create-react-app/edit/master/packages/react-scripts/template/README.md">contribute some!</a></p>
+      </section>
+    </div>
+    <footer>
+      <p>Project maintained by <a href="https://github.com/bhgames">bhgames</a></p>
+      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
+    </footer>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>

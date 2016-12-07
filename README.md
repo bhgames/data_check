@@ -4,8 +4,9 @@ Below you will find some information on how to perform common tasks.<br>
 You can find the most recent version of this guide [here](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md).
 
 ## Table of Contents
-
+- [Introduction](#introduction)
 - [Startup](#startup)
+- [TODO](#todo)
 - [React Maintenance](#react-maintenance)
   - [Updating to New Releases](#updating-to-new-releases)
   - [Sending Feedback](#sending-feedback)
@@ -53,15 +54,76 @@ You can find the most recent version of this guide [here](https://github.com/fac
     - [Surge](#surge)
   - [Something Missing?](#something-missing)
 
+## Introduction
+
+DataCheck is an open sourced data quality tool for the Hadoop ecosystem. It is built to be extensible and while it currently
+supports only Impala connections, a future TODO is to add Spark 1.6 and 2 support.
+
+It currently supports:
+* Job Template Creation
+* Job Scheduling
+* Nested AND-type Rules and Check Types (e.g. if table name matches loans AND has updated_at column, check date_gaps)
+
 ## Startup
 
-You will need Rabbit running in the background.
+Please use:
+
+`pip install -r requirements.txt`
+
+To install all required libraries.
+
+The backend requires a database(preferably Postgres) and RabbitMQ. To configure the locations of these,
+please copy config/config.yml.sample to make config/config.yml. Then you can customize it to your needs.
+
+If just using the default values in config/config.yml, running
+
+`bin/db_setup` will setup your database.
+
+If you are using a custom database, run
+
+`python -m models.helpers.base` 
+
+to setup the database. By default the database will always use "development" as the DCHK_ENV,
+but if you set this environmental to 'production' it will use that entry on config.yml.
+
+Once this is done, you can turn on Celery and the Celery Beat scheduler using the special script:
 
 `bin/celery`
+
+This starts both the scheduler, and the celery workers simultaneously. The scheduler then schedules a once per 5 minute
+job that kills the scheduler, and starts up a new one. In this way, updated job run schedules are reingested by the scheduler
+at five minute intervals.
+
+To run the web interface, use these commands in separate windows, or with nohup:
 
 `python server.py`
 
 `npm start`
+
+One turns on the Flask API, and the other will turn on the npm server that will render the actual frontend GUI.
+
+It is to this port(normally 3000 that you can visit to see the site):
+
+localhost:3000
+
+There is as yet no user authentication of any kind, and the design is very basic.
+
+## TODO
+
+This is open source software and as such I don't have time to add all the things I would like. Here is a roadmap of
+things I wish to add, in the order I wish to add them:
+
+
+* Support for Alembic migrations
+* Storing failed rows in S3 for viewing
+* Statistical Sampling
+* LogLevels
+* Spark 1.6 support
+* Spark 2 support
+* Accept AWS Pubsub for failure notifications
+* Encrypt passwords stored for data sources and don't display them
+* Use DockerCompose to create development and production setups
+* Checks have one log per "unit work" instead of one log for the entire check
 
 ## React Maintenance
 

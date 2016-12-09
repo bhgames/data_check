@@ -3,6 +3,7 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from os import environ
 import yaml
 if 'DCHK_ENV' not in environ:
+    print environ['DCHK_ENV']
     environ['DCHK_ENV'] = 'development'
 
 def init(engine):
@@ -13,6 +14,7 @@ def init(engine):
 
 def get_new_engine():
     from sqlalchemy import create_engine
+    print get_db_connection_string()
     return create_engine(get_db_connection_string())
 
 def get_db_connection_string():
@@ -25,13 +27,19 @@ def get_db_connection_string():
     return (
             conf['type'] + '://' + (conf['username'] if 'username' in conf else '') + 
             (':' + conf['password'] if 'password' in conf else '') + 
-            '@' + conf['host'] + (':' + str(conf['port']) if 'port' in conf else '') + '/' + conf['database']
+            ('@' if 'username' in conf else '') + conf['host'] + (':' + str(conf['port']) if 'port' in conf else '') + '/' + conf['database']
         )
 
 if __name__ == '__main__':
     import models.helpers.base
     engine = get_new_engine()
     models.helpers.base.init(engine)
-    from models import *
+    import models.data_source
+    import models.check
+    import models.job_run
+    import models.schedule
+    import models.rule
+    import models.job_template
+    import models.log
     models.helpers.base.Base.metadata.create_all(engine)
     print "done"

@@ -5,7 +5,7 @@ from inflection import camelize, singularize
 import models.helpers.base
 import traceback
 from sqlalchemy import create_engine, MetaData, desc
-engine = create_engine('postgresql://localhost:5432/data_check')
+engine = models.helpers.base.get_new_engine()
 models.helpers.base.init(engine) # Initialize base declarative class.
 
 from models.check import Check, CheckType
@@ -160,4 +160,4 @@ def delete_item(type, id):
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host= '0.0.0.0')

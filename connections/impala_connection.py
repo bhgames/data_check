@@ -9,7 +9,7 @@ class ImpalaConnection(BaseConnection):
         self.__enter__()
 
     def __enter__(self):
-        self.db = connect(host=self.host, port=self.port, user=self.user, password=self.password)
+        self.db = connect(host=self.host, port=self.port, user=self.user, password=self.password, use_ssl=True, auth_mechanism='PLAIN')
         return self.db
 
     def __exit__(self, type, value, traceback):

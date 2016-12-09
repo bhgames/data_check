@@ -76,6 +76,13 @@ If just using the default values in config/config.yml, running
 
 `bin/db_setup` will setup your database.
 
+You'll also need to create a src/Config.js file for the front end. This contains environmentals for the react app.
+
+Your Config.js file needs to atleast specify the apiUrl, or else the frontend won't know what API to talk to. To get a default
+Config.js, simply copy the sample file:
+
+`cp src/Config.js.sample src/Config.js`
+
 If you are using a custom database, run
 
 `python -m models.helpers.base` 

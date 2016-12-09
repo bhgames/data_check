@@ -3,7 +3,7 @@ import { LinkContainer } from 'react-router-bootstrap';
 import { Button, Table, ControlLabel, FormGroup, FormControl } from 'react-bootstrap';
 import { withRouter } from 'react-router';
 import './App.css';
-
+import Config from './Config.js';
 /*
 
   General File contains a lot of the elements used to do the various REST functions
@@ -13,7 +13,7 @@ import './App.css';
 */
 
 /* DATA AND CONTROL ELEMENTS */
-
+console.log(Config());
 export class WithData extends Component {
 
   constructor(props) {
@@ -30,7 +30,7 @@ export class WithData extends Component {
                    mode: 'cors'
                  };
 
-    let get = new Request('http://localhost:5000/' + this.props.baseResource);
+    let get = new Request('http://' + Config().apiUrl + '/' + this.props.baseResource);
     let that = this;
 
     fetch(get, params).then(function(response) {
@@ -49,7 +49,7 @@ export class WithData extends Component {
                    mode: 'cors'
                  };
 
-    let del = new Request('http://localhost:5000/' + this.props.baseResource + '/' + id);
+    let del = new Request('http://' + Config().apiUrl + '/' + this.props.baseResource + '/' + id);
 
     let that = this;
     fetch(del, params).then(function(response) {

@@ -6,3 +6,4 @@ celerybeat*
 *.out
 *.log
 config.yml
+src/Config.js

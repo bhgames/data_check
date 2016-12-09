@@ -4,6 +4,7 @@ import { Button } from 'react-bootstrap';
 import { RulesList } from './Rules';
 import { DataSourcesList } from './DataSources';
 import { WithData, List, ResourceForm, HasManyAssociationFormElement, SingleFieldElement } from './General';
+import Config from './Config.js';
 
 // General container for all JobTemplates routes. Dont put anything here.
 export function JobTemplates(props) {
@@ -28,7 +29,7 @@ export function JobTemplatesList(props) {
                    body: JSON.stringify({ job_template_id: row.id })
                  };
     
-    let post = new Request('http://localhost:5000/job_runs');
+    let post = new Request('http://' + Config().apiUrl + '/job_runs');
 
     fetch(post, params).then(function(response) {
       return response.json();

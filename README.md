@@ -68,7 +68,7 @@ Please use:
 
 To install all required libraries.
 
-The backend requires a database(preferably Postgres but any supported by SqlAlchemy will do) and RabbitMQ. 
+The backend requires a database(only Postgres support for now) and RabbitMQ. 
 To configure the locations of these, please copy config/config.yml.sample to make config/config.yml. 
 Then you can customize it to your needs.
 

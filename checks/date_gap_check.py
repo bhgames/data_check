@@ -7,7 +7,7 @@ class DateGapCheck(BaseCheck):
         cur = db.cursor()
 
         query = """
-            select count(*) from (select abs(datediff(lag(`%(col)s`, 1) over (order by `%(col)s`), `%(col)s`)) as diff, `%(col)s` from `%(schema)s`.`%(table)s`) t where diff > 1
+            select count(*) from (select abs(datediff(lead(cast(`%(col)s` as timestamp), 1) over (order by cast(`%(col)s` as timestamp)), cast(`%(col)s` as timestamp))) as diff, `%(col)s` from `%(schema)s`.`%(table)s`) t where diff > 1
         """ % self.query_settings
 
         self.add_log("collection", "Run query %s" % (query))
@@ -22,9 +22,9 @@ class DateGapCheck(BaseCheck):
 
         self.failed_rows_query = """
                 select gap_start, gap_end from (
-                    select `%(col)s` as gap_start, lead(`%(col)s`,1) over (order by `%(col)s`) as gap_end from 
+                    select `%(col)s` as gap_start, cast(`%(col)s` as timestamp) + interval diff days as gap_end from 
                         (
-                            select abs(datediff(lag(`%(col)s`, 1) over (order by `%(col)s`), `%(col)s`)) as diff, `%(col)s` from `%(schema)s`.`%(table)s`) t where diff > 1
+                            select abs(datediff(lead(cast(`%(col)s` as timestamp), 1) over (order by cast(`%(col)s` as timestamp)), cast(`%(col)s` as timestamp))) as diff, `%(col)s` from `%(schema)s`.`%(table)s`) t where diff > 1
                         ) t2
                     where gap_end is not null
             """ % self.query_settings

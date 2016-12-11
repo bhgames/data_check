@@ -57,6 +57,13 @@ export function JobRunsListWithData() {
 
 
 class JobRunsView extends Component {
+  getAllChecks(rule) {
+    let start = [].concat(rule.checks);
+    for(let r of rule.children) {
+      start = start.concat(this.getAllChecks(r));
+    }
+    return start;
+  }
 
   render() {
 
@@ -71,14 +78,25 @@ class JobRunsView extends Component {
 
     // TODO REFACTOR EACH CHECK TO CONTAIN ONE LOG PER "UNIT" WORK INSTEAD OF LUMPING ALL TOGETHER.
     // THIS WILL PREVENT THIS MAD FILTERING FROM HAPPENING BELOW.
+    let allChecks = jt.rules.map((r) => this.getAllChecks(r));
+    allChecks = allChecks.reduce((list, arrOfChecks) => {
+      for(let c of arrOfChecks) {
+        let byId = list.map((chk) => chk.id);
+        if(byId.indexOf(c.id) == -1) {
+       	  list.push(c);
+        }
+      }
+
+      return list;
+    }, []);
 
     let allCheckLogs = jr.all_connected_logs.filter((l) => l.loggable_type === "check");
-    let allCheckLogsWithCheckObj = allCheckLogs.map((l) => [l, jt.checks.find((c) => c.id === l.loggable_id)]);
+    let allCheckLogsWithCheckObj = allCheckLogs.map((l) => [l, allChecks.find((c) => c.id === l.loggable_id)]);
     let allCheckLogsLogDataWithCheckObj = allCheckLogsWithCheckObj.map((lAndC) => [lAndC[0].log, lAndC[1]]);
 
     let allFailedCheckEventsWithCheckObj = allCheckLogsWithCheckObj.map((lAndC) => [lAndC[0].log.filter((logEntry) => logEntry.event === "check_failed"), lAndC[1]]);
     let allFailedTablesAndChecks = allFailedCheckEventsWithCheckObj.map((lAndC) => [lAndC[0].map((logEntry) => logEntry.metadata), lAndC[1]]);
-
+    
     let allFailedLogsAndChecks = allFailedTablesAndChecks.map((lAndC) => {
       let tableMetas = lAndC[0];
       let index = allFailedTablesAndChecks.indexOf(lAndC);
@@ -90,8 +108,6 @@ class JobRunsView extends Component {
       }
       return [arrOfFailedLogs, lAndC[1]]
     });
-
-    console.log(allFailedLogsAndChecks);
 
     return (
       <Grid>
@@ -115,7 +131,7 @@ class JobRunsView extends Component {
           <PageHeader><small>Failures</small></PageHeader>
             <Accordion>
               {allFailedLogsAndChecks.map(row => 
-                <Panel header={row[1].check_type} eventKey={row[1].id} key={row[1].id}>
+                <Panel header={row[1].check_type} eventKey={row[1].id} key={allFailedLogsAndChecks.indexOf(row)}>
                   <List columnNames={logLabels} columns={logColumns} buttonMask={[1,1,1]} baseResource="checks" deleteDataItem={noop} data={row[0]} />
                 </Panel>
               )}
@@ -128,7 +144,7 @@ class JobRunsView extends Component {
           <PageHeader><small>All Logs</small></PageHeader>
             <Accordion>
               {allCheckLogsLogDataWithCheckObj.map(row => 
-                <Panel header={row[1].check_type} eventKey={row[1].id} key={row[1].id}>
+                <Panel header={row[1].check_type} eventKey={row[1].id} key={allCheckLogsLogDataWithCheckObj.indexOf(row)}>
                   <List columnNames={logLabels} columns={logColumns} buttonMask={[1,1,1]} baseResource="checks" deleteDataItem={noop} data={row[0]} />
                 </Panel>
               )}

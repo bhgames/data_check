@@ -128,7 +128,8 @@ class JobTemplateSchema(Schema):
             "name": '',
             "parallelization": 1,
             "rules": [],
-            "data_sources": []
+            "data_sources": [],
+            "checks": []
         }
 
 

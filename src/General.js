@@ -290,7 +290,7 @@ function UnwrappedResourceForm({router, data, baseResource, children}) {
       params.method = 'POST';
     }
 
-    let post = new Request('http://localhost:5000/' + add);
+    let post = new Request('http://' + Config().apiUrl + '/' + add);
 
     fetch(post,params).then(function(response) {
       if(response.ok) {

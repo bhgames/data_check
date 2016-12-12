@@ -15,6 +15,8 @@ import sys
 import enum
 import numpy as np
 import traceback
+# Used for massive chaining of checks.
+sys.setrecursionlimit(10000) 
 
 class JobRunStatus(enum.Enum):
     scheduled = "scheduled"
@@ -108,6 +110,7 @@ class JobRun(Base, HasLogs):
                 # Then finally you call register finished when all done.
                 separate_queues = [map(lambda c: celery_jobs.job_runs.run_check.si(c[0].id, c[1], c[2].id, self.id), chks) for chks in checks_by_parallelization]
                 sep_chains = [chain(*queue) for queue in separate_queues]
+                print sep_chains
                 group_of_chains = (group(*sep_chains) | celery_jobs.job_runs.register_finished.s(self.id)).apply_async()
             else:
                 self.set_finished()

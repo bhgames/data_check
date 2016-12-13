@@ -48,8 +48,8 @@ class DataSourceForm extends Component {
 
   constructor(props) {
     super(props);
+    props.data.schemasAsString = props.data.schemas.join(",");
     this.state = props.data;
-    this.state.schemasAsString = this.state.schemas.join(",");
   }
 
   componentWillReceiveProps(nextProps) {

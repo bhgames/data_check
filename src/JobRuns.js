@@ -82,7 +82,7 @@ class JobRunsView extends Component {
     allChecks = allChecks.reduce((list, arrOfChecks) => {
       for(let c of arrOfChecks) {
         let byId = list.map((chk) => chk.id);
-        if(byId.indexOf(c.id) == -1) {
+        if(byId.indexOf(c.id) === -1) {
        	  list.push(c);
         }
       }

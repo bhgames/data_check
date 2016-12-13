@@ -54,8 +54,10 @@ class CheckForm extends Component {
     this.setState(nextProps.data);
   }
 
-  handleChange(e) {
-    this.setState({ check_metadata: { column: e.target.value } });
+  handleMetadataChange(type, e) {
+    let newState = { check_metadata: {} }
+    newState.check_metadata[type] = e.target.value;
+    this.setState(newState);
   }
 
   handleTypeChange(e) {
@@ -63,6 +65,19 @@ class CheckForm extends Component {
   }
 
   render() {
+    let controlId = "column";
+    let onChange = this.handleMetadataChange.bind(this, "column");
+    let placeholder = "Enter column name";
+    let label = "Column to Check";
+    let value = this.state.check_metadata.column;
+
+    if(this.state.check_type === 'CheckType.column_comparison') {
+      controlId = "expression";
+      label = "Expression";
+      value = this.state.check_metadata.expression;
+      onChange = this.handleMetadataChange.bind(this, "expression");
+      placeholder = "Please enter a SQL expression using one or more columns in the table that evaluates to true. Eg. x != y"
+    } 
 
     return (
       <ResourceForm data={this.state} baseResource={this.props.baseResource}>
@@ -72,15 +87,16 @@ class CheckForm extends Component {
             <option value="CheckType.uniqueness">Uniqueness</option>
             <option value="CheckType.null">Null</option>
             <option value="CheckType.date_gap">DateGap</option>
+            <option value="CheckType.column_comparison">Column Comparison</option>
           </FormControl>
         </FormGroup>
 
-        <SingleFieldElement
-          value={this.state.check_metadata.column}
-          placeholder="Enter text"
-          onChange={this.handleChange.bind(this)}
-          label="Column to Check"
-          controlId="columnType"
+        <SingleFieldElement 
+          label={label}
+          value={value}
+          controlId={controlId}
+          onChange={onChange}
+          placeholder={placeholder}
         />
       </ResourceForm>
     )

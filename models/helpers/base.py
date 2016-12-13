@@ -3,7 +3,6 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from os import environ
 import yaml
 if 'DCHK_ENV' not in environ:
-    print environ['DCHK_ENV']
     environ['DCHK_ENV'] = 'development'
 
 def init(engine):

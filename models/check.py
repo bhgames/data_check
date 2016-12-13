@@ -13,6 +13,8 @@ now = datetime.datetime.now
 from checks.date_gap_check import DateGapCheck
 from checks.null_check import NullCheck
 from checks.uniqueness_check import UniquenessCheck
+from checks.column_comparison_check import ColumnComparisonCheck
+
 import sys
 from inflection import camelize
 
@@ -24,6 +26,7 @@ class CheckType(enum.Enum):
     uniqueness = "uniqueness"
     null = "null"
     date_gap = "date_gap"
+    column_comparison = "column_comparison"
 
 
 class Check(Base, HasLogs):

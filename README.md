@@ -58,7 +58,7 @@ It currently supports:
 * Job Template Creation
 * Job Scheduling
 * Nested AND-type Rules and Check Types (e.g. if table name matches loans AND has updated_at column, check date_gaps)
-* Three types of check: DateGap, Uniqueness, and Nullness
+* Four types of check: DateGap, Uniqueness, Nullness, and Column Comparison on Same Table
 
 ## Startup
 

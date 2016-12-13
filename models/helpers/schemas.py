@@ -7,6 +7,7 @@ from marshmallow import Schema, fields, pprint, pre_load
 class CheckMetadataSchema(Schema):
     column = fields.Str()
     expression = fields.Str()
+    threshold = fields.Integer()
 
 
 class CheckSchema(Schema):

@@ -15,6 +15,8 @@ import sys
 import enum
 import numpy as np
 import traceback
+# Used for massive chaining of checks.
+sys.setrecursionlimit(10000) 
 
 class JobRunStatus(enum.Enum):
     scheduled = "scheduled"
@@ -77,6 +79,7 @@ class JobRun(Base, HasLogs):
     def run(self):
         db_session.add(self)
         log = self.get_log(job_run=self)
+        db_session.add(log)
 
         try:
             self.status = JobRunStatus.running
@@ -84,20 +87,19 @@ class JobRun(Base, HasLogs):
             print self.run_at
             
             log.add_log("started", "Job Started at %s" % (self.run_at))
+            db_session.commit()
 
             checks_to_run = []
-
             # Let the rules populate the checks they wish to run.
             # Don't forget to first open connections on all sources so they can be queried.
             [source.open_connection() for source in self.job_template.data_sources]
+
             map(lambda r: r.run(self, checks_to_run), self.job_template.rules)
             [source.close_connection() for source in self.job_template.data_sources]
-
             # Dedupe checks_to_run even against checks. Expect of tuples of format (DataSource, table_name_string, Check)
             seen = set()
             seen_add = seen.add
             checks_to_run = [c for c in checks_to_run if not ((c[0].id, c[1], c[2].id) in seen or seen_add((c[0].id, c[1], c[2].id)))]
-
             if len(checks_to_run) > 0:
                 # Bucketize checks based on parallelization chosen. Each bucket runs sequentially.
                 checks_by_parallelization = np.split(np.array(checks_to_run), self.job_template.parallelization)
@@ -108,6 +110,7 @@ class JobRun(Base, HasLogs):
                 # Then finally you call register finished when all done.
                 separate_queues = [map(lambda c: celery_jobs.job_runs.run_check.si(c[0].id, c[1], c[2].id, self.id), chks) for chks in checks_by_parallelization]
                 sep_chains = [chain(*queue) for queue in separate_queues]
+                print sep_chains
                 group_of_chains = (group(*sep_chains) | celery_jobs.job_runs.register_finished.s(self.id)).apply_async()
             else:
                 self.set_finished()

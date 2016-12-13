@@ -9,10 +9,11 @@ class BaseCheck:
         self.schema = opts["schema"]
         self.column = opts["column"] if "column" in opts else None
         self.expression = opts["expression"] if "expression" in opts else None
+        self.threshold = opts["threshold"] if "threshold" in opts else None
         self.config = opts["config"]
         self.log_metadata = opts["log_metadata"] if "log_metadata" in opts else {}
         self.log = opts["log"] if "log" in opts else None
-        self.query_settings = { 'table': self.table, 'col': self.column, 'schema': self.schema, 'expression': self.expression }
+        self.query_settings = { 'table': self.table, 'col': self.column, 'threshold': self.threshold, 'schema': self.schema, 'expression': self.expression }
 
 
     def add_log(self, event, message):

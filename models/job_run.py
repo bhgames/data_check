@@ -102,7 +102,15 @@ class JobRun(Base, HasLogs):
             checks_to_run = [c for c in checks_to_run if not ((c[0].id, c[1], c[2].id) in seen or seen_add((c[0].id, c[1], c[2].id)))]
             if len(checks_to_run) > 0:
                 # Bucketize checks based on parallelization chosen. Each bucket runs sequentially.
-                checks_by_parallelization = np.split(np.array(checks_to_run), self.job_template.parallelization)
+                parallelization = self.job_template.parallelization
+                checks_by_parallelization = np.array([])
+                try:
+                    checks_by_parallelization = np.split(np.array(checks_to_run), self.job_template.parallelization)
+                except ValueError:
+                    print "Subtracting 1 from parallelization because not an even split."
+                    parallelization -= 1
+                    if parallelization > 1:
+                        retry
 
                 # Run each bucket of checks in a separate celery worker, by turning each subarray into an array of celery run check
                 # job signatures, and then splatting each array of run check signatures into a chain(requiring them to be done one 

@@ -76,6 +76,19 @@ class JobRun(Base, HasLogs):
         self.get_log(job_run=self).add_log("finished", "Job Finished at %s" % (self.finished_at))
 
 
+    def get_checks_by_parallelization(self, checks_to_run, parallelization = None):
+	parallelization = self.job_template.parallelization if not parallelization else parallelization
+        checks_by_parallelization = np.array([])
+        try:
+            checks_by_parallelization = np.split(np.array(checks_to_run), parallelization)
+            print checks_by_parallelization
+        except ValueError:
+            print "Subtracting 1 from parallelization because not an even split. New parallelization: " + str(parallelization - 1)
+            if parallelization > 1:
+                checks_by_parallelization = self.get_checks_by_parallelization(checks_to_run, parallelization - 1)
+	return checks_by_parallelization
+
+
     def run(self):
         db_session.add(self)
         log = self.get_log(job_run=self)
@@ -102,15 +115,7 @@ class JobRun(Base, HasLogs):
             checks_to_run = [c for c in checks_to_run if not ((c[0].id, c[1], c[2].id) in seen or seen_add((c[0].id, c[1], c[2].id)))]
             if len(checks_to_run) > 0:
                 # Bucketize checks based on parallelization chosen. Each bucket runs sequentially.
-                parallelization = self.job_template.parallelization
-                checks_by_parallelization = np.array([])
-                try:
-                    checks_by_parallelization = np.split(np.array(checks_to_run), self.job_template.parallelization)
-                except ValueError:
-                    print "Subtracting 1 from parallelization because not an even split."
-                    parallelization -= 1
-                    if parallelization > 1:
-                        retry
+                checks_by_parallelization = self.get_checks_by_parallelization(checks_to_run) 
 
                 # Run each bucket of checks in a separate celery worker, by turning each subarray into an array of celery run check
                 # job signatures, and then splatting each array of run check signatures into a chain(requiring them to be done one 

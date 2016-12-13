@@ -55,7 +55,7 @@ class CheckForm extends Component {
   }
 
   handleMetadataChange(type, e) {
-    let newState = { check_metadata: {} }
+    let newState = { check_metadata: this.state.check_metadata };
     newState.check_metadata[type] = e.target.value;
     this.setState(newState);
   }
@@ -70,6 +70,7 @@ class CheckForm extends Component {
     let placeholder = "Enter column name";
     let label = "Column to Check";
     let value = this.state.check_metadata.column;
+    let fields = [];
 
     if(this.state.check_type === 'CheckType.column_comparison') {
       controlId = "expression";
@@ -77,7 +78,23 @@ class CheckForm extends Component {
       value = this.state.check_metadata.expression;
       onChange = this.handleMetadataChange.bind(this, "expression");
       placeholder = "Please enter a SQL expression using one or more columns in the table that evaluates to true. Eg. x != y"
-    } 
+    } else if(this.state.check_type === 'CheckType.id_gap') {
+      fields.push(<SingleFieldElement 
+          label='Choose a range threshold'
+          value={this.state.check_metadata.threshold}
+          controlId='threshold'
+          onChange={this.handleMetadataChange.bind(this, "threshold")}
+          placeholder='If you want to catch a missing gap of id = 1, followed by id = 5, threshold should be 5'
+        />);
+    }
+
+    fields.push(<SingleFieldElement 
+          label={label}
+          value={value}
+          controlId={controlId}
+          onChange={onChange}
+          placeholder={placeholder}
+        />);
 
     return (
       <ResourceForm data={this.state} baseResource={this.props.baseResource}>
@@ -88,16 +105,12 @@ class CheckForm extends Component {
             <option value="CheckType.null">Null</option>
             <option value="CheckType.date_gap">DateGap</option>
             <option value="CheckType.column_comparison">Column Comparison</option>
+            <option value="CheckType.id_gap">ID Gap</option>
           </FormControl>
         </FormGroup>
 
-        <SingleFieldElement 
-          label={label}
-          value={value}
-          controlId={controlId}
-          onChange={onChange}
-          placeholder={placeholder}
-        />
+        {fields}
+        
       </ResourceForm>
     )
   }

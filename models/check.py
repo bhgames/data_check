@@ -14,6 +14,7 @@ from checks.date_gap_check import DateGapCheck
 from checks.null_check import NullCheck
 from checks.uniqueness_check import UniquenessCheck
 from checks.column_comparison_check import ColumnComparisonCheck
+from checks.id_gap_check import IdGapCheck
 
 import sys
 from inflection import camelize
@@ -27,6 +28,7 @@ class CheckType(enum.Enum):
     null = "null"
     date_gap = "date_gap"
     column_comparison = "column_comparison"
+    id_gap = "id_gap"
 
 
 class Check(Base, HasLogs):

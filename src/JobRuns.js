@@ -131,7 +131,7 @@ class JobRunsView extends Component {
           <PageHeader><small>Failures</small></PageHeader>
             <Accordion>
               {allFailedLogsAndChecks.map(row => 
-                <Panel header={row[1].check_type} eventKey={row[1].id} key={allFailedLogsAndChecks.indexOf(row)}>
+                <Panel header={row[1].check_type} eventKey={allFailedLogsAndChecks.indexOf(row)} key={allFailedLogsAndChecks.indexOf(row)}>
                   <List columnNames={logLabels} columns={logColumns} buttonMask={[1,1,1]} baseResource="checks" deleteDataItem={noop} data={row[0]} />
                 </Panel>
               )}

@@ -30,7 +30,7 @@ with open('config/config.yml', 'r') as f:
 conf = config['message_passing'][environ['DCHK_ENV']]
 broker = (conf['type'] + '://' + conf['username'] + (':' + conf['password'] if 'password' in conf else '') + '@' + 
          conf['host'] + (':' + str(conf['port']) if 'port' in conf else '') + '//')
-app = Celery('job_runs', broker=broker)
+app = Celery('job_runs', broker=broker, backend='rpc://')
 app.config_from_object('celery_jobs.celeryconfig')
 
 from celery.signals import worker_shutdown, celeryd_after_setup

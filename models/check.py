@@ -19,6 +19,8 @@ from checks.id_gap_check import IdGapCheck
 import sys
 from inflection import camelize
 
+from models.rule import checks_rules
+
 Base = models.helpers.base.Base
 db_session = models.helpers.base.db_session
 
@@ -38,8 +40,7 @@ class Check(Base, HasLogs):
     updated_at = Column(DateTime)
     check_type = Column(Enum(CheckType), nullable=False)
     check_metadata = Column(JSONB, nullable=False)
-    rule_id = Column(Integer, ForeignKey('rule.id'))
-    rule = relationship("Rule", back_populates="checks")
+    rules = relationship("Rule", back_populates="checks", secondary=checks_rules)
 
     ENUMS = ["check_type"]
 

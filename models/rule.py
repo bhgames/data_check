@@ -17,6 +17,10 @@ db_session = models.helpers.base.db_session
 
 from models.job_template import job_templates_rules
 
+checks_rules = Table('checks_rules', Base.metadata,
+    Column('rule_id', Integer, ForeignKey('rule.id')),
+    Column('check_id', Integer, ForeignKey('check.id')))
+
 rules_tree = Table('rules_tree', Base.metadata,
     Column('parent_rule_id', Integer, ForeignKey('rule.id')),
     Column('child_rule_id', Integer, ForeignKey('rule.id')))
@@ -38,7 +42,7 @@ class Rule(Base, HasLogs):
     updated_at = Column(DateTime, nullable=True)
     condition = Column(Enum(RuleCondition), nullable=False)
     conditional = Column(JSONB, default={}, nullable=False)
-    checks = relationship('Check', back_populates="rule")
+    checks = relationship('Check', back_populates="rules", secondary=checks_rules)
     job_templates = relationship('JobTemplate', back_populates="rules", secondary=job_templates_rules)
     children = relationship('Rule', back_populates="parent", secondary=rules_tree, 
                             primaryjoin= id == rules_tree.c.parent_rule_id,

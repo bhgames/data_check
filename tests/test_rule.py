@@ -133,14 +133,14 @@ class TestRule(BaseTest):
     @dummy_rule
     def test_rule_runs_returns_proper_number_of_checks(self, r, d, jr):
         checks_to_run = self.run_rule(r,d, jr)
-        # Only tables with id present(the rule in dummy rule) are the uniqueness fail/succ tables and null check tables.
-        self.assertEqual(4, len(checks_to_run))
+        # Only tables with id present(the rule in dummy rule) are the uniqueness fail/succ tables, null check tables, and id gap table.
+        self.assertEqual(5, len(checks_to_run))
 
 
     @dummy_rule
     def test_rule_runs_doesnt_return_improper_checks(self, r, d, jr):
         checks_to_run = self.run_rule(r,d, jr)
-        # Only tables with id present(the rule in dummy rule) are the uniqueness fail/succ tables and null check tables.
+        # Only tables with id present(the rule in dummy rule) are the uniqueness fail/succ tables, null check tables and id gap table.
         self.assertFalse((d, 'test.test_date_gap_success', r.checks[0]) in checks_to_run)
 
 

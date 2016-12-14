@@ -129,6 +129,10 @@ things I wish to add, in the order I wish to add them:
 * Use DockerCompose to create development and production setups
 * Checks have one log per "unit work" instead of one log for the entire check
 
+## Development
+
+With MapR Demo Box, you need to make sure the port 21050 is open(see VirtualBox opening ports or similar) so impala can talk.
+
 ## React Maintenance
 
 ### Updating to New Releases

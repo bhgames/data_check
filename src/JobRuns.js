@@ -109,6 +109,7 @@ class JobRunsView extends Component {
       return [arrOfFailedLogs, lAndC[1]]
     });
 
+    console.log(allCheckLogsLogDataWithCheckObj);
     return (
       <Grid>
         <Row>

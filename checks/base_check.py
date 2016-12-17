@@ -24,6 +24,7 @@ class BaseCheck:
     def add_results_csv_to_s3(self):
         """
             Big TODO here
+            Store, and add link to log. Easy as pie. Make it a new log event type.
         """
         pass
 

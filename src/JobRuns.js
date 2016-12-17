@@ -3,6 +3,7 @@ import './App.css';
 import { Grid, Row, Col, Button, PageHeader, Accordion, Panel } from 'react-bootstrap';
 import { WithData, List } from './General';
 import { withRouter } from 'react-router';
+import { Pie } from 'react-chartjs';
 
 // General container for all JobRuns routes. Dont put anything here.
 export function JobRuns(props) {
@@ -56,6 +57,32 @@ export function JobRunsListWithData() {
 }
 
 
+function SuccessFailTablePieChart({ totalFail, totalSuccess, labelSuccess, labelFail }) {
+  let data = [{label: labelFail, color: '#F7464A', highlight: '#FF5A5E', value: totalFail}, 
+              {label: labelSuccess, color: '#46BFBD', highlight: '#5AD3D1', value: totalSuccess}]
+  return <Pie data={data}/>
+}
+
+SuccessFailTablePieChart.propTypes = {
+  totalFail: React.PropTypes.number.isRequired,
+  totalSuccess: React.PropTypes.number.isRequired
+}
+
+function ByTypeTablePieChart({ types }) {
+  let data = [];
+
+  for(let t of Object.keys(types)) {
+    data.push({label: t, value: types[t]}); 
+  }
+
+  return <Pie data={data}/>
+}
+
+ByTypeTablePieChart.propTypes = {
+  types: React.PropTypes.object.isRequired
+}
+
+
 class JobRunsView extends Component {
   getAllChecks(rule) {
     let start = [].concat(rule.checks);
@@ -95,21 +122,48 @@ class JobRunsView extends Component {
     let allCheckLogsLogDataWithCheckObj = allCheckLogsWithCheckObj.map((lAndC) => [lAndC[0].log, lAndC[1]]);
 
     let allFailedCheckEventsWithCheckObj = allCheckLogsWithCheckObj.map((lAndC) => [lAndC[0].log.filter((logEntry) => logEntry.event === "check_failed"), lAndC[1]]);
+    let allSucceededCheckEventsWithCheckObj = allCheckLogsWithCheckObj.map((lAndC) => [lAndC[0].log.filter((logEntry) => logEntry.event === "check_succeeded"), lAndC[1]]);
     let allFailedTablesAndChecks = allFailedCheckEventsWithCheckObj.map((lAndC) => [lAndC[0].map((logEntry) => logEntry.metadata), lAndC[1]]);
-    
+    let allSucceededTablesAndChecks = allSucceededCheckEventsWithCheckObj.map((lAndC) => [lAndC[0].map((logEntry) => logEntry.metadata), lAndC[1]]);
+
+    let failedTables = [];
+    let succeededTables = [];
+    let failedCheckCount = 0;
+    let successCheckCount = 0;
+    let byTypeFailCount = {};
+
+    allSucceededTablesAndChecks.map((lAndC) => {
+      let tableMetas = lAndC[0];
+
+      for(let succeededTable of tableMetas) {
+        if(!succeededTables.includes(JSON.stringify(succeededTable))) {
+          succeededTables.push(JSON.stringify(succeededTable));
+        }
+
+        successCheckCount++;
+      }
+    })
+
     let allFailedLogsAndChecks = allFailedTablesAndChecks.map((lAndC) => {
       let tableMetas = lAndC[0];
       let index = allFailedTablesAndChecks.indexOf(lAndC);
       let allLogsFromThisCheck = allCheckLogsWithCheckObj[index][0].log;
       let arrOfFailedLogs = [];
+
       for(let failedTable of tableMetas) {
+        if(!failedTables.includes(JSON.stringify(failedTable))) {
+          failedTables.push(JSON.stringify(failedTable));
+        }
+
+        failedCheckCount++;
+        byTypeFailCount[lAndC[1].check_type] = byTypeFailCount[lAndC[1].id] ? byTypeFailCount[lAndC[1].id] + 1 : 1;
+
         let allTableLogsFromThisCheck = allLogsFromThisCheck.filter((logEntry) => JSON.stringify(logEntry.metadata) === JSON.stringify(failedTable));
         arrOfFailedLogs = arrOfFailedLogs.concat(allTableLogsFromThisCheck);
       }
       return [arrOfFailedLogs, lAndC[1]]
     });
-
-    console.log(allCheckLogsLogDataWithCheckObj);
+    console.log(byTypeFailCount);
     return (
       <Grid>
         <Row>
@@ -124,6 +178,21 @@ class JobRunsView extends Component {
         <Row>
           <Col>
             <List columnNames={tsColumnNames} columns={tsColumns} buttonMask={[1,1,1]} baseResource="job_runs" deleteDataItem={noop} data={[jr]}/>
+          </Col>
+        </Row>
+
+        <Row>
+          <Col md={4} xs={12}>
+            <PageHeader><small>Table Stats</small></PageHeader>
+            <SuccessFailTablePieChart totalFail={failedTables.length} totalSuccess={succeededTables.length} labelSuccess="Tables Succeeded" labelFail="Tables Failed" />
+          </Col>
+          <Col md={4} xs={12}>
+            <PageHeader><small>Check Stats</small></PageHeader>
+            <SuccessFailTablePieChart totalFail={failedCheckCount} totalSuccess={successCheckCount} labelSuccess="Checks Succeeded" labelFail="Checks Failed" />
+          </Col>
+          <Col md={4} xs={12}>
+            <PageHeader><small>Failures by Check Type</small></PageHeader>
+            <ByTypeTablePieChart types={byTypeFailCount} />
           </Col>
         </Row>
 

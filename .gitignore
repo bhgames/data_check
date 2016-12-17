@@ -6,4 +6,5 @@ celerybeat*
 *.out
 *.log
 config.yml
+aws.yml
 src/Config.js

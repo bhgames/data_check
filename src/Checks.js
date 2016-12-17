@@ -85,6 +85,7 @@ class CheckForm extends Component {
           controlId='threshold'
           onChange={this.handleMetadataChange.bind(this, "threshold")}
           placeholder='If you want to catch a missing gap of id = 1, followed by id = 5, threshold should be 5'
+          key='threshold'
         />);
     }
 
@@ -94,6 +95,7 @@ class CheckForm extends Component {
           controlId={controlId}
           onChange={onChange}
           placeholder={placeholder}
+          key='control'
         />);
 
     return (

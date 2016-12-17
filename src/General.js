@@ -173,7 +173,7 @@ export function List({ columnNames, columns, baseResource, data, deleteDataItem,
         </thead>
         <tbody>
           {displayedRows.map(row => 
-            <tr key={row.id} onClick={handler.bind(this, row)} className={selectedStyleHandler(row)}>
+            <tr key={displayedRows.indexOf(row)} onClick={handler.bind(this, row)} className={selectedStyleHandler(row)}>
               {columns.map(col =>
                 <td key={col}>{typeof row[col] === 'object' ? JSON.stringify(row[col]) : row[col]}</td>
               )}

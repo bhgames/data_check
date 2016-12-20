@@ -156,7 +156,12 @@ class JobRunsView extends Component {
         }
 
         failedCheckCount++;
-        byTypeFailCount[lAndC[1].check_type] = byTypeFailCount[lAndC[1].id] ? byTypeFailCount[lAndC[1].id] + 1 : 1;
+
+        if(byTypeFailCount[lAndC[1].check_type] === undefined) {
+          byTypeFailCount[lAndC[1].check_type] = 1;
+        } else {
+          byTypeFailCount[lAndC[1].check_type] += 1;
+        }
 
         let allTableLogsFromThisCheck = allLogsFromThisCheck.filter((logEntry) => JSON.stringify(logEntry.metadata) === JSON.stringify(failedTable));
         arrOfFailedLogs = arrOfFailedLogs.concat(allTableLogsFromThisCheck);

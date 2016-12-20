@@ -58,7 +58,8 @@ It currently supports:
 * Job Template Creation
 * Job Scheduling
 * Nested AND-type Rules and Check Types (e.g. if table name matches loans AND has updated_at column, check date_gaps)
-* Four types of check: DateGap, Uniqueness, Nullness, and Column Comparison on Same Table
+* Five types of check: DateGap, Uniqueness, Nullness, ID Gap, and Column Comparison on Same Table
+* Storage of Failed Rows as CSVs in S3
 
 ## Startup
 
@@ -68,13 +69,15 @@ Please use:
 
 To install all required libraries.
 
-The backend requires a database(only Postgres support for now) and RabbitMQ. 
+The backend requires a database(only Postgres support for now) and RabbitMQ or Redis. 
 To configure the locations of these, please copy config/config.yml.sample to make config/config.yml. 
 Then you can customize it to your needs.
 
 If just using the default values in config/config.yml, running
 
 `bin/db_setup` will setup your database.
+
+To setup S3 storage of failed rows, you can also copy config/aws.yml.sample and fill in the required fields.
 
 You'll also need to create a src/Config.js file for the front end. This contains environmentals for the react app.
 

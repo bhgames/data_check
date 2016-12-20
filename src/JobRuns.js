@@ -128,8 +128,8 @@ class JobRunsView extends Component {
 
     let failedTables = [];
     let succeededTables = [];
-    let failedCheckCount = 0;
     let successCheckCount = 0;
+    let failedCheckCount = 0;
     let byTypeFailCount = {};
 
     allSucceededTablesAndChecks.map((lAndC) => {
@@ -163,6 +163,13 @@ class JobRunsView extends Component {
       }
       return [arrOfFailedLogs, lAndC[1]]
     });
+    
+    let succeededTablesMinusFailed = [];
+    for(let table of succeededTables) {
+      if(!failedTables.includes(table)) {
+        succeededTablesMinusFailed.push(table);
+      }
+    }
 
     return (
       <Grid>
@@ -184,7 +191,7 @@ class JobRunsView extends Component {
         <Row>
           <Col md={4} xs={12}>
             <PageHeader><small>Table Stats</small></PageHeader>
-            <SuccessFailTablePieChart totalFail={failedTables.length} totalSuccess={succeededTables.length} labelSuccess="Tables Succeeded" labelFail="Tables Failed" />
+            <SuccessFailTablePieChart totalFail={failedTables.length} totalSuccess={succeededTablesMinusFailed.length} labelSuccess="Tables Succeeded" labelFail="Tables Failed" />
           </Col>
           <Col md={4} xs={12}>
             <PageHeader><small>Check Stats</small></PageHeader>

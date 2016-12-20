@@ -21,5 +21,5 @@ class NullCheck(BaseCheck):
         self.failed = row[0] > 0
 
         self.failed_rows_query = """
-                select * from `%(schema)s`.`%(table)s` where `%(col)s` is null
+                select * from `%(schema)s`.`%(table)s` where `%(col)s` is null limit 10000
             """ % self.query_settings

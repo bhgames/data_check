@@ -2,7 +2,7 @@ from connections.impala_connection import ImpalaConnection
 import pandas as pd
 from impala.util import as_pandas
 import pandas as pd
-from io import StringIO
+from StringIO import StringIO
 import os
 import boto3
 from uuid import uuid4
@@ -35,13 +35,13 @@ class BaseCheck:
                 csv_buffer = StringIO()
                 self.failed_rows.to_csv(csv_buffer)
                 s3_resource = boto3.resource('s3', aws_access_key_id=config['access_key_id'], aws_secret_access_key=config['secret_access_key'])
-                bucket = s3_resource.Bucket(config['bucket_name'])
-                name =  "%s_%s_%s_%s.csv" % (self.schema, self.table, self.__class__.__name__, uuid4())
-                s3_resource.Object(bucket,name).put(Body=csv_buffer.getvalue())
+
+                name =  config['prefix'] + "%s_%s_%s_%s.csv" % (self.schema, self.table, self.__class__.__name__, uuid4())
+                s3_resource.Object(config['bucket_name'], name).put(Body=csv_buffer.getvalue())
 
                 # generate 5 year key
                 s3_client = boto3.client('s3', aws_access_key_id=config['access_key_id'], aws_secret_access_key=config['secret_access_key'])
-                self.failed_row_s3_uri = s3_client.generate_presigned_url('get_object', Params = {'Bucket': 'www.mybucket.com', 'Key': 'hello.txt'}, ExpiresIn = 3600*24*365*5)
+                self.failed_row_s3_uri = s3_client.generate_presigned_url('get_object', Params = {'Bucket': config['bucket_name'], 'Key': name}, ExpiresIn = 3600*24*365*5)
 
                 self.add_log("collection_storage", "Failed rows stored at %s" % (self.failed_row_s3_uri))
             else:

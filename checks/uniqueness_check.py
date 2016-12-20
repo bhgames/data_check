@@ -22,5 +22,5 @@ class UniquenessCheck(BaseCheck):
         self.failed = row[0] != row[1]
 
         self.failed_rows_query = """
-                select `%(col)s` from (select `%(col)s`, count(*) as count from `%(schema)s`.`%(table)s` group by `%(col)s`) t where count > 1
+                select `%(col)s` from (select `%(col)s`, count(*) as count from `%(schema)s`.`%(table)s` group by `%(col)s`) t where count > 1 limit 10000
             """ % self.query_settings

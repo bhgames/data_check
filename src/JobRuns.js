@@ -163,7 +163,7 @@ class JobRunsView extends Component {
       }
       return [arrOfFailedLogs, lAndC[1]]
     });
-    console.log(byTypeFailCount);
+
     return (
       <Grid>
         <Row>

@@ -21,5 +21,5 @@ class ColumnComparisonCheck(BaseCheck):
         self.failed = row[0] > 0
 
         self.failed_rows_query = """
-                select * from (select *, %(expression)s as condition from `%(schema)s`.`%(table)s`) t where t.condition = false
+                select * from (select *, %(expression)s as condition from `%(schema)s`.`%(table)s`) t where t.condition = false limit 10000
             """ % self.query_settings

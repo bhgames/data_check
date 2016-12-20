@@ -4,6 +4,7 @@ import { Button, Table, ControlLabel, FormGroup, FormControl } from 'react-boots
 import { withRouter } from 'react-router';
 import './App.css';
 import Config from './Config.js';
+import Linkify from 'react-linkify';
 /*
 
   General File contains a lot of the elements used to do the various REST functions
@@ -175,7 +176,7 @@ export function List({ columnNames, columns, baseResource, data, deleteDataItem,
           {displayedRows.map(row => 
             <tr key={displayedRows.indexOf(row)} onClick={handler.bind(this, row)} className={selectedStyleHandler(row)}>
               {columns.map(col =>
-                <td key={col}>{typeof row[col] === 'object' ? JSON.stringify(row[col]) : row[col]}</td>
+                <td key={col}><Linkify>{typeof row[col] === 'object' ? JSON.stringify(row[col]) : row[col]}</Linkify></td>
               )}
               {buttons(row)}
             </tr>

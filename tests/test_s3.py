@@ -14,11 +14,12 @@ class TestS3(BaseTest):
         u.run()
 
         uri = u.failed_row_s3_uri
-
         s = requests.get(uri).content
         c = pd.read_csv(io.StringIO(s.decode('utf-8')))
 
-        self.assertTrue(u.failed_rows.equals(c))
+        self.assertEquals(u.failed_rows.iloc[0].gap_start, c.iloc[0].gap_start)
+        self.assertEquals(u.failed_rows.iloc[0].gap_end, c.iloc[0].gap_end)
+
 
     def test_s3_nonstore_on_success(self):
         u = IdGapCheck({"table": "test_id_gap", "schema": "test", "column": "id", "threshold": "30", "config": self.config()})

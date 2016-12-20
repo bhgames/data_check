@@ -24,7 +24,7 @@ class IdGapCheck(BaseCheck):
                 select gap_start, gap_end from (
                     select `%(col)s` as gap_start, cast(`%(col)s` as int) + diff as gap_end from 
                         (
-                            select abs((lead(cast(`%(col)s` as int), 1) over (order by cast(`%(col)s` as int)) - cast(`%(col)s` as int))) as diff, `%(col)s` from `%(schema)s`.`%(table)s`) t where diff > %(threshold)s
+                            select abs((lead(cast(`%(col)s` as int), 1) over (order by cast(`%(col)s` as int)) - cast(`%(col)s` as int))) as diff, `%(col)s` from `%(schema)s`.`%(table)s`) t where diff > %(threshold)s limit 10000
                         ) t2
                     where gap_end is not null
             """ % self.query_settings

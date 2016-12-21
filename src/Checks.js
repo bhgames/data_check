@@ -5,16 +5,12 @@ import { WithData, List, ResourceForm, SingleFieldElement } from './General';
 
 // General container for all Checks routes. Dont put anything here.
 export function Checks(props) {
-  return (
-    <div>
-      {props.children}
-    </div>
-  )
+  return props.children
 }
 
 export function ChecksList(props) {
-  let columns = ["id", "check_type", "check_metadata"];
-  let columnNames = ["ID", "Check Type", "Check Metadata"];
+  let columns = ["id", "check_name", "check_type", "check_metadata"];
+  let columnNames = ["ID", "Name", "Type", "Metadata"];
 
   return (
     <List columnNames={columnNames} columns={columns} {...props}/>
@@ -23,10 +19,11 @@ export function ChecksList(props) {
 
 ChecksList.propTypes = {
   data: React.PropTypes.arrayOf(React.PropTypes.shape({
-     id: React.PropTypes.number.isRequired,
-     check_type: React.PropTypes.string.isRequired,
-     check_metadata: React.PropTypes.object.isRequired
-   })).isRequired
+    id: React.PropTypes.number.isRequired,
+    check_name: React.PropTypes.string.isRequired,
+    check_type: React.PropTypes.string.isRequired,
+    check_metadata: React.PropTypes.object.isRequired
+  })).isRequired
 }
 
 ChecksList.defaultProps = {
@@ -90,18 +87,24 @@ class CheckForm extends Component {
     }
 
     fields.push(<SingleFieldElement 
-          label={label}
-          value={value}
-          controlId={controlId}
-          onChange={onChange}
-          placeholder={placeholder}
-          key='control'
-        />);
+                    label={label}
+                    value={value}
+                    controlId={controlId}
+                    onChange={onChange}
+                    placeholder={placeholder}
+                    key='control'
+                />);
 
     return (
       <ResourceForm data={this.state} baseResource={this.props.baseResource}>
+        <h2>New Check</h2>
+        <FormGroup controlID="checkName">
+          <ControlLabel>Name</ControlLabel>
+          <FormControl value={this.state.check_name} placeholder="Enter a name for your check" />
+        </FormGroup>
+
         <FormGroup controlId="checkType">
-          <ControlLabel>Check Type</ControlLabel>
+          <ControlLabel>Type</ControlLabel>
           <FormControl componentClass="select" value={this.state.check_type} onChange={this.handleTypeChange.bind(this)}>
             <option value="CheckType.uniqueness">Uniqueness</option>
             <option value="CheckType.null">Null</option>

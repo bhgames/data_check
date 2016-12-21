@@ -123,10 +123,11 @@ class CheckForm extends Component {
 
 CheckForm.propTypes = {
   data: React.PropTypes.shape({
-     id: React.PropTypes.oneOfType([React.PropTypes.number, React.PropTypes.string]).isRequired,
-     check_type: React.PropTypes.string.isRequired,
-     check_metadata: React.PropTypes.object.isRequired
-   })
+    id: React.PropTypes.oneOfType([React.PropTypes.number, React.PropTypes.string]).isRequired,
+    check_name: React.PropTypes.string.isRequired,
+    check_type: React.PropTypes.string.isRequired,
+    check_metadata: React.PropTypes.object.isRequired
+  })
 }
 
 function CheckFormWithData({params}) {

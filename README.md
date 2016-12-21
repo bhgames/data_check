@@ -102,17 +102,21 @@ This starts both the scheduler, and the celery workers simultaneously. The sched
 job that kills the scheduler, and starts up a new one. In this way, updated job run schedules are reingested by the scheduler
 at five minute intervals.
 
-To run the web interface, use these commands in separate windows, or with nohup:
+The Flask API can now be started with:
 
 `python server.py`
 
+By default, it runs on localhost:5000
+
+Before the frontend server can be started, we have to install our node dependencies with:
+
+`npm install`
+
+After which the server can be started with:
+
 `npm start`
 
-One turns on the Flask API, and the other will turn on the npm server that will render the actual frontend GUI.
-
-It is to this port(normally 3000 that you can visit to see the site):
-
-localhost:3000
+By default, this runs on localhost:3000.
 
 There is as yet no user authentication of any kind, and the design is very basic.
 
@@ -125,7 +129,8 @@ The app assumes a Chicago timezone in celeryconfig.py. You can change this if ne
 This is open source software and as such I don't have time to add all the things I would like. Here is a roadmap of
 things I wish to add, in the order I wish to add them:
 
-
+* Add names to Checks and Rules
+* Support for Alembic migrations
 * Statistical Sampling
 * LogLevels
 * Spark 1.6 support

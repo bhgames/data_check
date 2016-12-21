@@ -1,5 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS, cross_origin
+from flask_migrate import Migrate, MigrateCommand
+from flask_script import Manager
 from inflection import camelize, singularize
 
 import models.helpers.base
@@ -19,6 +21,10 @@ from models.data_source import DataSource, DataSourceType
 app = Flask(__name__)
 CORS(app)
 db_session = models.helpers.base.db_session
+
+migrate = Migrate(app, db_session)
+manager = Manager(app)
+manager.add_command('db', MigrateCommand)
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
@@ -160,4 +166,4 @@ def delete_item(type, id):
 
 
 if __name__ == "__main__":
-    app.run(host= '0.0.0.0')
+    manager.run()

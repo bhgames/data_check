@@ -42,6 +42,7 @@ class Rule(Base, HasLogs):
     updated_at = Column(DateTime, nullable=True)
     condition = Column(Enum(RuleCondition), nullable=False)
     conditional = Column(JSONB, default={}, nullable=False)
+    name = Column(String)
     checks = relationship('Check', back_populates="rules", secondary=checks_rules)
     job_templates = relationship('JobTemplate', back_populates="rules", secondary=job_templates_rules)
     children = relationship('Rule', back_populates="parent", secondary=rules_tree, 

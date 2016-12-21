@@ -20,14 +20,26 @@ def get_db_connection_string():
     with open('config/config.yml', 'r') as f:
         config = yaml.load(f)
 
+    conf = config['database'][environ['DCHK_ENV']]
+
+    if 'username' in conf:
+        user = conf['username']
+    else:
+        user = ''
+
+    if 'password' in conf:
+        user += ':{}'.format(conf['password'])
+
+    if user != '':
+        user += '@'
+
     #dialect+driver://username:password@host:port/database
 
-    conf = config['database'][environ['DCHK_ENV']]
-    return (
-            conf['type'] + '://' + (conf['username'] if 'username' in conf else '') + 
-            (':' + conf['password'] if 'password' in conf else '') + 
-            ('@' if 'username' in conf else '') + conf['host'] + (':' + str(conf['port']) if 'port' in conf else '') + '/' + conf['database']
-        )
+    return '{}://{}{}{}/{}'.format(conf['type'],
+                                   user,
+                                   conf['host'],
+                                   (':{}'.format(conf['port']) if 'port' in conf else ''),
+                                   conf['database'])
 
 if __name__ == '__main__':
     import models.helpers.base

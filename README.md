@@ -139,7 +139,6 @@ This is open source software and as such I don't have time to add all the things
 I would like. Here is a roadmap of things I wish to add, in the order I wish to
 add them:
 
-* Add names to Rules
 * Statistical Sampling
 * LogLevels
 * Spark 1.6 support

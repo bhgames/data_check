@@ -5,15 +5,20 @@ import { withRouter } from 'react-router';
 import './App.css';
 import Config from './Config.js';
 import Linkify from 'react-linkify';
+
 /*
+   General File contains a lot of the elements used to do the various REST functions
+   for each of the resources. Then each Resource's file.js customizes these elements to display
+   what they desire for that element.
+ */
 
-  General File contains a lot of the elements used to do the various REST functions
-  for each of the resources. Then each Resource's file.js customizes these elements to display
-  what they desire for that element.
+// capitalize a given string
+const capitalize = (string) => string && (string[0].toUpperCase() + string.slice(1))
+// convert a snake case string into a nice title
+// e.g. snake_case -> Snake Case
+const humanize   = (string) => string && string.split('_').map(capitalize).join(' ')
 
-*/
-
-/* DATA AND CONTROL ELEMENTS */
+// DATA AND CONTROL ELEMENTS
 console.log(Config());
 export class WithData extends Component {
 
@@ -83,7 +88,6 @@ WithData.propTypes = {
 /* LIST AND DISPLAY ELEMENTS */
 
 /*
-
   The List function expects to be handed a list of column names and actual columns to call on the data,
   which is expected to be an array.
 
@@ -162,7 +166,7 @@ export function List({ columnNames, columns, baseResource, data, deleteDataItem,
 
   return (
     <div>
-      <h2>{baseResource[0].toUpperCase() + baseResource.slice(1)} {newButton}</h2>
+      <h2>{humanize(baseResource)} {newButton}</h2>
       <Table responsive striped bordered condensed hover>
         <thead>
           <tr>

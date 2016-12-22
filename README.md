@@ -1,6 +1,7 @@
 ## Table of Contents
 - [Introduction](#introduction)
 - [Startup](#startup)
+- [Timezones](#timezones)
 - [TODO](#todo)
 - [React Maintenance](#react-maintenance)
   - [Updating to New Releases](#updating-to-new-releases)
@@ -115,14 +116,16 @@ localhost:3000
 
 There is as yet no user authentication of any kind, and the design is very basic.
 
+## Timezones
+
+The app assumes a Chicago timezone in celeryconfig.py. You can change this if needed.
+
 ## TODO
 
 This is open source software and as such I don't have time to add all the things I would like. Here is a roadmap of
 things I wish to add, in the order I wish to add them:
 
 
-* Support for Alembic migrations
-* Storing failed rows in S3 for viewing
 * Statistical Sampling
 * LogLevels
 * Spark 1.6 support
@@ -135,6 +138,14 @@ things I wish to add, in the order I wish to add them:
 ## Development
 
 With MapR Demo Box, you need to make sure the port 21050 is open(see VirtualBox opening ports or similar) so impala can talk.
+
+One can run the tests with
+
+`nosetests --nologcapture`
+
+or a single test with
+
+`python -m unittest tests.some_test_file.SomeTestClass.some_test`
 
 ## React Maintenance
 

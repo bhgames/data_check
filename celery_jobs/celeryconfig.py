@@ -3,6 +3,14 @@ import models.helpers.base
 
 db_session = models.helpers.base.db_session
 
+
+USE_TZ = True
+TIME_ZONE = 'America/Chicago'
+
+CELERY_ENABLE_UTC = False
+CELERY_TIMEZONE = TIME_ZONE
+
+
 CELERYBEAT_SCHEDULE = {
     'reset': {
         'task': 'celery_jobs.job_runs.reset_beat',

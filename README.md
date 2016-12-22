@@ -134,6 +134,7 @@ things I wish to add, in the order I wish to add them:
 * Encrypt passwords stored for data sources and don't display them
 * Use DockerCompose to create development and production setups
 * Checks have one log per "unit work" instead of one log for the entire check
+* A React test suite
 
 ## Development
 

@@ -6,16 +6,12 @@ import { WithData, List, ResourceForm, HasManyAssociationFormElement, SingleFiel
 
 // General container for all Rules routes. Dont put anything here.
 export function Rules(props) {
-  return (
-    <div>
-      {props.children}
-    </div>
-  )
+  return props.children;
 }
 
 export function RulesList(props) {
-  let columns = ["id", "condition", "conditional"];
-  let columnNames = ["ID", "Rule Condition", "Rule Conditional"];
+  let columns = ["id", "name", "condition", "conditional"];
+  let columnNames = ["ID", "Name", "Condition", "Conditional"];
 
   return (
     <List columnNames={columnNames} columns={columns} {...props}/>
@@ -24,10 +20,11 @@ export function RulesList(props) {
 
 RulesList.propTypes = {
   data: React.PropTypes.arrayOf(React.PropTypes.shape({
-     id: React.PropTypes.number.isRequired,
-     condition: React.PropTypes.string.isRequired,
-     conditional: React.PropTypes.object.isRequired
-   })).isRequired
+    id: React.PropTypes.number.isRequired,
+    name: React.PropTypes.string.isRequired,
+    condition: React.PropTypes.string.isRequired,
+    conditional: React.PropTypes.object.isRequired
+  })).isRequired
 }
 
 RulesList.defaultProps = {
@@ -71,6 +68,9 @@ class RuleForm extends Component {
     this.setState(newState);
   }
 
+  handleNameChange(e) {
+    this.setState({ name: e.target.value });
+  }
 
   render() {
 
@@ -94,6 +94,14 @@ class RuleForm extends Component {
 
     return (
       <ResourceForm data={this.state} baseResource={this.props.baseResource}>
+        <SingleFieldElement
+            label="Name"
+            value={this.state.name}
+            controlId="name"
+            onChange={this.handleNameChange.bind(this)}
+            placeholder="Enter a name for your rule"
+        />
+
         <FormGroup controlId="condition">
           <ControlLabel>Condition</ControlLabel>
           <FormControl componentClass="select" value={this.state.condition} onChange={this.handleTypeChange.bind(this)}>
@@ -105,7 +113,7 @@ class RuleForm extends Component {
           </FormControl>
         </FormGroup>
 
-        <SingleFieldElement 
+        <SingleFieldElement
           label={label}
           value={value}
           controlId={controlId}
@@ -113,15 +121,15 @@ class RuleForm extends Component {
           placeholder={placeholder}
           />
 
-        <HasManyAssociationFormElement 
-          baseResource="checks" 
+        <HasManyAssociationFormElement
+          baseResource="checks"
           label="Checks To Run If This Rule Is True"
           onNewList={this.handleAssocChange.bind(this, "checks")}
           currentList={this.state.checks}
           ListElement={ChecksList} />
 
-        <HasManyAssociationFormElement 
-          baseResource="rules" 
+        <HasManyAssociationFormElement
+          baseResource="rules"
           label="Further Rules To Run If This Rule Is True"
           onNewList={this.handleAssocChange.bind(this, "children")}
           currentList={this.state.children}
@@ -135,6 +143,7 @@ class RuleForm extends Component {
 RuleForm.propTypes = {
   data: React.PropTypes.shape({
     id: React.PropTypes.oneOfType([React.PropTypes.number, React.PropTypes.string]).isRequired,
+    name: React.PropTypes.string.isRequired,
     condition: React.PropTypes.string.isRequired,
     conditional: React.PropTypes.object.isRequired,
     checks: React.PropTypes.arrayOf(React.PropTypes.shape({
@@ -159,5 +168,3 @@ function RuleFormWithData({params}) {
   )
 }
 export { RuleFormWithData };
-
-

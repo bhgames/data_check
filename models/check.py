@@ -38,6 +38,7 @@ class Check(Base, HasLogs):
     id = Column(Integer, primary_key=True)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
+    check_name = Column(String)
     check_type = Column(Enum(CheckType), nullable=False)
     check_metadata = Column(JSONB, nullable=False)
     rules = relationship("Rule", back_populates="checks", secondary=checks_rules)

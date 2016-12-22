@@ -5,15 +5,20 @@ import { withRouter } from 'react-router';
 import './App.css';
 import Config from './Config.js';
 import Linkify from 'react-linkify';
+
 /*
+   General File contains a lot of the elements used to do the various REST functions
+   for each of the resources. Then each Resource's file.js customizes these elements to display
+   what they desire for that element.
+ */
 
-  General File contains a lot of the elements used to do the various REST functions
-  for each of the resources. Then each Resource's file.js customizes these elements to display
-  what they desire for that element.
+// capitalize a given string
+const capitalize = (string) => string && (string[0].toUpperCase() + string.slice(1))
+// convert a snake case string into a nice title
+// e.g. snake_case -> Snake Case
+const humanize   = (string) => string && string.split('_').map(capitalize).join(' ')
 
-*/
-
-/* DATA AND CONTROL ELEMENTS */
+// DATA AND CONTROL ELEMENTS
 console.log(Config());
 export class WithData extends Component {
 
@@ -68,10 +73,10 @@ export class WithData extends Component {
         })
       );
 
-      return <div>{childrenWithProps}</div>
-    } else {
-      return <div>Loading...</div>
+      return <div className="container">{childrenWithProps}</div>
     }
+
+    return <div className="container">Loading...</div>
   }
 }
 
@@ -83,20 +88,19 @@ WithData.propTypes = {
 /* LIST AND DISPLAY ELEMENTS */
 
 /*
-
   The List function expects to be handed a list of column names and actual columns to call on the data,
-  which is expected to be an array. 
+  which is expected to be an array.
 
   An onSelectHandler will be called(if given) whenever a row is clicked.
 
   SelectedRows is expected to be (if given) an array of objects that have been selected - passing this ensures
-  that rows in the data array that are selected are highlighted. 
+  that rows in the data array that are selected are highlighted.
 
   baseResource is used to assemble links for default buttons, and deleteDataItem is the callback used by the delete button.
 
-  excludedRowIds, if passed, will be used to hide rows in the data array from view. 
+  excludedRowIds, if passed, will be used to hide rows in the data array from view.
 
-  buttonMask will hide the Edit, Delete button, New Button depending on values. 
+  buttonMask will hide the Edit, Delete button, New Button depending on values.
   [1,1,1] - Hide all, [1,0,0] - Edit Hidden, Delete & New Not.
   0th index = Edit
   1st index = Delete
@@ -111,7 +115,7 @@ export function List({ columnNames, columns, baseResource, data, deleteDataItem,
   let deleteHandler = (row) => { deleteDataItem(row.id) };
 
   let handler = null;
-  if(onSelectHandler) {    
+  if(onSelectHandler) {
     handler = (row) => onSelectHandler(row);
   } else {
     handler = (row) => { }
@@ -150,19 +154,19 @@ export function List({ columnNames, columns, baseResource, data, deleteDataItem,
                   return <td>
                     {defaultButtons}
                     {boundButtons}
-                  </td> 
+                  </td>
                 };
-                
+
   let buttonHeader = <th>Actions</th>;
 
   let newButton = buttonMask[2] === 1 ? null : <LinkContainer to={ baseResource + '/new/edit'}>
         <Button bsStyle="primary">New</Button>
       </LinkContainer>;
-  
+
 
   return (
     <div>
-      {newButton}
+      <h2>{humanize(baseResource)} {newButton}</h2>
       <Table responsive striped bordered condensed hover>
         <thead>
           <tr>
@@ -173,7 +177,7 @@ export function List({ columnNames, columns, baseResource, data, deleteDataItem,
           </tr>
         </thead>
         <tbody>
-          {displayedRows.map(row => 
+          {displayedRows.map(row =>
             <tr key={displayedRows.indexOf(row)} onClick={handler.bind(this, row)} className={selectedStyleHandler(row)}>
               {columns.map(col =>
                 <td key={col}><Linkify>{typeof row[col] === 'object' ? JSON.stringify(row[col]) : row[col]}</Linkify></td>
@@ -182,7 +186,7 @@ export function List({ columnNames, columns, baseResource, data, deleteDataItem,
             </tr>
           )}
         </tbody>
-      </Table> 
+      </Table>
     </div>
   );
 }
@@ -207,7 +211,7 @@ List.defaultProps = {
 /* FORM ELEMENTS */
 
 
-export function HasManyAssociationFormElement({ label, baseResource, onNewList, currentList, ListElement, excludedRowIds }) { 
+export function HasManyAssociationFormElement({ label, baseResource, onNewList, currentList, ListElement, excludedRowIds }) {
   let handleArrChange = (obj) => {
     let found = currentList.find((c) => { return c.id === obj.id });
 
@@ -324,6 +328,3 @@ UnwrappedResourceForm.propTypes = {
 
 let ResourceForm = withRouter(UnwrappedResourceForm);
 export { ResourceForm };
-
-
-

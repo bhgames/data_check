@@ -3,6 +3,8 @@
 - [Startup](#startup)
 - [Timezones](#timezones)
 - [TODO](#todo)
+- [Migrating the Database](#migrating-the-database)
+  - [Automatically Generating Migrations](#automatically-generating-migrations)
 - [React Maintenance](#react-maintenance)
   - [Updating to New Releases](#updating-to-new-releases)
   - [Sending Feedback](#sending-feedback)
@@ -52,38 +54,46 @@
 
 ## Introduction
 
-DataCheck is an open sourced data quality tool for the Hadoop ecosystem. It is built to be extensible and while it currently
-supports only Impala connections, a future TODO is to add Spark 1.6 and 2 support.
+DataCheck is an open sourced data quality tool for the Hadoop ecosystem. It is
+built to be extensible and while it currently supports only Impala connections,
+a future TODO is to add Spark 1.6 and 2 support.
 
 It currently supports:
 * Job Template Creation
 * Job Scheduling
-* Nested AND-type Rules and Check Types (e.g. if table name matches loans AND has updated_at column, check date_gaps)
-* Five types of check: DateGap, Uniqueness, Nullness, ID Gap, and Column Comparison on Same Table
+* Nested AND-type Rules and Check Types (e.g. if table name matches loans AND has
+  updated_at column, check date_gaps)
+* Five types of check: DateGap, Uniqueness, Nullness, ID Gap, and Column Comparison
+  on Same Table
 * Storage of Failed Rows as CSVs in S3
 
 ## Startup
 
-Please use:
+First, install all required python libraries with:
 
 `pip install -r requirements.txt`
 
-To install all required libraries.
+And all Node dependencies with:
 
-The backend requires a database(only Postgres support for now) and RabbitMQ or Redis. 
-To configure the locations of these, please copy config/config.yml.sample to make config/config.yml. 
-Then you can customize it to your needs.
+`npm install`
+
+The backend requires a database(only Postgres support for now) and RabbitMQ or
+Redis. To configure the locations of these, please copy config/config.yml.sample
+to make config/config.yml. Then you can customize it to your needs.
 
 If just using the default values in config/config.yml, running
 
 `bin/db_setup` will setup your database.
 
-To setup S3 storage of failed rows, you can also copy config/aws.yml.sample and fill in the required fields.
+To setup S3 storage of failed rows, you can also copy config/aws.yml.sample and
+fill in the required fields.
 
-You'll also need to create a src/Config.js file for the front end. This contains environmentals for the react app.
+You'll also need to create a src/Config.js file for the front end. This contains
+environmentals for the react app.
 
-Your Config.js file needs to atleast specify the apiUrl, or else the frontend won't know what API to talk to. To get a default
-Config.js, simply copy the sample file:
+Your Config.js file needs to atleast specify the apiUrl, or else the frontend
+won't know what API to talk to. To get a default Config.js, simply copy the
+sample file:
 
 `cp src/Config.js.sample src/Config.js`
 
@@ -91,28 +101,31 @@ If you are using a custom database, run
 
 `python -m models.helpers.base` 
 
-to setup the database. By default the database will always use "development" as the DCHK_ENV,
-but if you set this environmental to 'production' it will use that entry on config.yml.
+To setup the database. By default the database will always use "development" as
+the DCHK_ENV, but if you set this environmental to 'production' it will use
+that entry on config.yml.
 
-Once this is done, you can turn on Celery and the Celery Beat scheduler using the special script:
+Once this is done, you can turn on Celery and the Celery Beat scheduler using
+the special script:
 
 `bin/celery`
 
-This starts both the scheduler, and the celery workers simultaneously. The scheduler then schedules a once per 5 minute
-job that kills the scheduler, and starts up a new one. In this way, updated job run schedules are reingested by the scheduler
-at five minute intervals.
+This starts both the scheduler, and the celery workers simultaneously. The
+scheduler then schedules a once per 5 minute job that kills the scheduler, and
+starts up a new one. In this way, updated job run schedules are reingested by the
+scheduler at five minute intervals.
 
-To run the web interface, use these commands in separate windows, or with nohup:
+The Flask API can now be started with:
 
-`python server.py`
+`bin/flask run`
+
+By default, it runs on localhost:5000
+
+The frontend server can be started with:
 
 `npm start`
 
-One turns on the Flask API, and the other will turn on the npm server that will render the actual frontend GUI.
-
-It is to this port(normally 3000 that you can visit to see the site):
-
-localhost:3000
+By default, this runs on localhost:3000.
 
 There is as yet no user authentication of any kind, and the design is very basic.
 
@@ -122,9 +135,9 @@ The app assumes a Chicago timezone in celeryconfig.py. You can change this if ne
 
 ## TODO
 
-This is open source software and as such I don't have time to add all the things I would like. Here is a roadmap of
-things I wish to add, in the order I wish to add them:
-
+This is open source software and as such I don't have time to add all the things
+I would like. Here is a roadmap of things I wish to add, in the order I wish to
+add them:
 
 * Statistical Sampling
 * LogLevels
@@ -138,7 +151,40 @@ things I wish to add, in the order I wish to add them:
 
 ## Development
 
-With MapR Demo Box, you need to make sure the port 21050 is open(see VirtualBox opening ports or similar) so impala can talk.
+With MapR Demo Box, you need to make sure the port 21050 is open (see VirtualBox
+opening ports or similar) so impala can talk.
+
+## Migrating the Database
+
+Updating the database is easy, thanks to Flask-Migrate and Alembic.
+
+### Automatically Generating Migrations
+
+Many common database actions can have their migrations autogenerated. Specifically,
+the following should always be detected:
+
+* Table additions/removals.
+* Column additions/removals.
+* Change of nullable status on columns.
+* Basic changes in indexes and explicitly-named unique constraints
+* Basic changes in foreign key constraints
+
+For full documentation on Alembic and its autogenerator, refer to the
+[Alembic Documentation](http://alembic.zzzcomputing.com/en/latest/front.html).
+
+To generate a migration after making a change, run:
+
+`bin/flask db migrate`
+
+This will generate a new migration in the migrations/ folder with an empty message.
+You should take a moment to give your migration a descriptive message and then
+run it with:
+
+`bin/flask db upgrade`
+
+Mistakenly applied migrations can be reverted with:
+
+`bin/flask db downgrade`
 
 One can run the tests with
 

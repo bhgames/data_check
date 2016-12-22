@@ -68,6 +68,9 @@ class RuleForm extends Component {
     this.setState(newState);
   }
 
+  handleNameChange(e) {
+    this.setState({ name: e.target.value });
+  }
 
   render() {
 
@@ -91,10 +94,13 @@ class RuleForm extends Component {
 
     return (
       <ResourceForm data={this.state} baseResource={this.props.baseResource}>
-        <FormGroup controlID="name">
-          <ControlLabel>Name</ControlLabel>
-          <FormControl value={this.state.check_name} placeholder="Enter a name for your rule" />
-        </FormGroup>
+        <SingleFieldElement
+            label="Name"
+            value={this.state.name}
+            controlId="name"
+            onChange={this.handleNameChange.bind(this)}
+            placeholder="Enter a name for your rule"
+        />
 
         <FormGroup controlId="condition">
           <ControlLabel>Condition</ControlLabel>

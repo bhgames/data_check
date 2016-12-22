@@ -52,6 +52,8 @@ class CheckForm extends Component {
   }
 
   handleMetadataChange(type, e) {
+    // FIXME: This modifies state directly because check_metadata still references
+    // the same object that's in the state.
     let newState = { check_metadata: this.state.check_metadata };
     newState.check_metadata[type] = e.target.value;
     this.setState(newState);
@@ -59,6 +61,10 @@ class CheckForm extends Component {
 
   handleTypeChange(e) {
     this.setState({ check_type: e.target.value });
+  }
+
+  handleNameChange(e) {
+    this.setState({ check_name: e.target.value });
   }
 
   render() {
@@ -98,10 +104,13 @@ class CheckForm extends Component {
     return (
       <ResourceForm data={this.state} baseResource={this.props.baseResource}>
         <h2>New Check</h2>
-        <FormGroup controlID="checkName">
-          <ControlLabel>Name</ControlLabel>
-          <FormControl value={this.state.check_name} placeholder="Enter a name for your check" />
-        </FormGroup>
+        <SingleFieldElement
+            label="Name"
+            value={this.state.check_name}
+            controlId="checkName"
+            onChange={this.handleNameChange.bind(this)}
+            placeholder="Enter a name for your check"
+        />
 
         <FormGroup controlId="checkType">
           <ControlLabel>Type</ControlLabel>

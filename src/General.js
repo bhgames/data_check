@@ -19,7 +19,6 @@ const capitalize = (string) => string && (string[0].toUpperCase() + string.slice
 const humanize   = (string) => string && string.split('_').map(capitalize).join(' ')
 
 // DATA AND CONTROL ELEMENTS
-console.log(Config());
 export class WithData extends Component {
 
   constructor(props) {
@@ -73,10 +72,10 @@ export class WithData extends Component {
         })
       );
 
-      return <div className="container">{childrenWithProps}</div>
+      return <div>{childrenWithProps}</div>
     }
 
-    return <div className="container">Loading...</div>
+    return <div>Loading...</div>
   }
 }
 
@@ -131,6 +130,7 @@ export function List({ columnNames, columns, baseResource, data, deleteDataItem,
   let displayedRows = data.filter((r) => { return !excludedRowIds || !excludedRowIds.includes(rowIds[data.indexOf(r)])});
 
   let buttons = (row) => {
+
                   let boundButtons = React.Children.map(children,
                       (child) => React.cloneElement(child, {
                         onClick: child.props.onClick.bind(null, row)
@@ -162,7 +162,6 @@ export function List({ columnNames, columns, baseResource, data, deleteDataItem,
   let newButton = buttonMask[2] === 1 ? null : <LinkContainer to={ baseResource + '/new/edit'}>
         <Button bsStyle="primary">New</Button>
       </LinkContainer>;
-
 
   return (
     <div>

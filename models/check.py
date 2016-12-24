@@ -58,7 +58,6 @@ class Check(Base, HasLogs):
             log.add_log("creation", "Begin %s Check of Source %s Table %s with Metadata %s" % (self.check_type.value, source.id, table, self.check_metadata), metadata["log_metadata"])
             db_session.add(job_run)
 
-        
             if (job_run.status in [JobRunStatus.failed, JobRunStatus.cancelled, JobRunStatus.rejected]):
                 log.add_log("cancelled", "Check cancelled due to Job Run Status of %s caused by some other worker." % (job_run.status))
             else:
@@ -70,7 +69,8 @@ class Check(Base, HasLogs):
         except Exception as e:
             print str(sys.exc_info())
             log.new_error_event()
-            job_run.set_failed()
+            db_session.commit()
+            raise
 
         db_session.commit()
 

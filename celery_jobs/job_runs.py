@@ -101,11 +101,18 @@ def run_job(job_run_id):
 
 @app.task
 def run_check(source_id, table_name_string, check_id, job_run_id):
-    db_session = setup_connection()
-    check = db_session.query(models.check.Check).get(check_id)
-    job_run = db_session.query(models.job_run.JobRun).get(job_run_id)
-    source = db_session.query(models.data_source.DataSource).get(source_id)
-    check.run(job_run, source, table_name_string)
+    try:
+        db_session = setup_connection()
+        check = db_session.query(models.check.Check).get(check_id)
+        job_run = db_session.query(models.job_run.JobRun).get(job_run_id)
+        source = db_session.query(models.data_source.DataSource).get(source_id)
+        check.run(job_run, source, table_name_string)
+    except Exception as exc:
+        if(run_check.request.retries == 3):
+            job_run.set_failed()
+            db_session.commit()
+        else:
+            raise run_check.retry(exc=exc, countdown=60*run_check.request.retries)
 
 
 @app.task

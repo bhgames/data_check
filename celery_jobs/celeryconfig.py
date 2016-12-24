@@ -10,7 +10,6 @@ TIME_ZONE = 'America/Chicago'
 CELERY_ENABLE_UTC = False
 CELERY_TIMEZONE = TIME_ZONE
 
-
 CELERYBEAT_SCHEDULE = {
     'reset': {
         'task': 'celery_jobs.job_runs.reset_beat',

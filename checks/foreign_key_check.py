@@ -50,7 +50,7 @@ class ForeignKeyCheck(BaseCheck):
             self.query_settings["col"] = col
 
             subquery = """
-                %(schema)s.%(table)s left anti join %(schema)s.%(fk_table)s on %(table)s.%(col)s = %(fk_table)s.%(fk_table_id)s
+                %(schema)s.%(table)s left anti join %(schema)s.%(fk_table)s on %(table)s.%(col)s = %(fk_table)s.%(fk_table_id)s where %(table)s.%(col)s is not null
             """ % self.query_settings
 
             query = "select count(*) from " + subquery

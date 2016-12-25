@@ -123,7 +123,7 @@ CREATE TABLE test.test_fk_primary_table_single_fk_success (
  );
 
 insert into test.test_fk_primary_table_single_fk_success(id, test_fk_secondary_table_single_fk_success_id) values
-  (1,1), (2,2);
+  (1,1), (2,2), (3, NULL);
 
 
 CREATE TABLE test.test_fk_secondary_table_single_fk_success (                            

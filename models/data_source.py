@@ -57,37 +57,17 @@ class DataSource(Base):
     def close_connection(self):
         self.db.close()
 
+
     def tables(self):
-        tables = []
-        cur = self.db.cursor()
-
-        for sch in self.schemas:
-            cur.execute("use %s" % (sch))
-            cur.execute("show tables")
-            tables = tables + map(lambda r: sch + "." + r[0], cur.fetchall())
-
-
-        return list(set(tables))
+        return self.db.tables(self.schemas)
 
 
     def col_present(self, table, column):
-        cur = self.db.cursor()
-
-        cur.execute("SHOW COLUMN STATS " + table)
-
-        for row in cur:
-            if row[0] == column:
-                return True 
-
-        return False
+        return self.db.col_present(table, column)
 
 
     def count(self, table):
-        cur = self.db.cursor()
-
-        cur.execute("select count(*) from " + table)
-
-        return cur.fetchone()[0]
+        return self.db.count(table)
 
 
 timestamps_triggers(DataSource)

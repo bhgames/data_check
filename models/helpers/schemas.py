@@ -8,11 +8,14 @@ class CheckMetadataSchema(Schema):
     column = fields.Str()
     expression = fields.Str()
     threshold = fields.Integer()
+    fk_col_pattern = fields.Str()
+    fk_table_id_pattern = fields.Str()
 
 
 class CheckSchema(Schema):
     id = fields.Integer()
     check_type = fields.Str()
+    check_name = fields.Str()
     check_metadata = fields.Nested(CheckMetadataSchema())
 
     @classmethod
@@ -30,7 +33,8 @@ class CheckSchema(Schema):
             "check_metadata": {
                 "column": ''
             },
-            "check_type": 'CheckType.uniqueness'
+            "check_type": 'CheckType.uniqueness',
+            "check_name": ''
         }
 
 
@@ -42,6 +46,7 @@ class RuleConditionalSchema(Schema):
 
 class RuleSchema(Schema):
     id = fields.Integer()
+    name = fields.Str()
     condition = fields.Str()
     conditional = fields.Nested(RuleConditionalSchema())
     checks = fields.Nested(CheckSchema(), many=True)
@@ -67,7 +72,8 @@ class RuleSchema(Schema):
             },
             "condition": 'RuleCondition.if_col_present',
             "checks": [],
-            "children": []
+            "children": [],
+            "name": ''
         }
 
 

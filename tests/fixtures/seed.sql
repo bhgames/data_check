@@ -114,3 +114,96 @@ CREATE TABLE test.test_uniqueness_success (
 insert into test.test_uniqueness_success(id) values
   (1), (2);
 
+
+--- PK Single FK Success
+
+CREATE TABLE test.test_fk_primary_table_single_fk_success (                            
+   id INT,
+   test_fk_secondary_table_single_fk_success_id INT                            
+ );
+
+insert into test.test_fk_primary_table_single_fk_success(id, test_fk_secondary_table_single_fk_success_id) values
+  (1,1), (2,2);
+
+
+CREATE TABLE test.test_fk_secondary_table_single_fk_success (                            
+   id INT
+ );
+
+insert into test.test_fk_secondary_table_single_fk_success(id) values
+  (1), (2);
+
+
+-- Single FK Fail
+
+CREATE TABLE test.test_fk_primary_table_single_fk_fail (                            
+   id INT,
+   test_fk_secondary_table_single_fk_fail_id INT                            
+ );
+
+insert into test.test_fk_primary_table_single_fk_fail(id, test_fk_secondary_table_single_fk_fail_id) values
+  (1,1), (2,3);
+
+
+CREATE TABLE test.test_fk_secondary_table_single_fk_fail (                            
+   id INT
+ );
+
+insert into test.test_fk_secondary_table_single_fk_fail(id) values
+  (1), (2);
+
+
+-- Double FK Success
+
+CREATE TABLE test.test_fk_primary_table_double_fk_success (                            
+   id INT,
+   test_fk_secondary_table_double_fk_success_id INT,
+   test_fk_tertiary_table_double_fk_success_id INT                            
+ );
+
+insert into test.test_fk_primary_table_double_fk_success(id, test_fk_secondary_table_double_fk_success_id, test_fk_tertiary_table_double_fk_success_id) values
+  (1,1,1), (2,2,2);
+
+
+CREATE TABLE test.test_fk_secondary_table_double_fk_success (                            
+   id INT
+ );
+
+insert into test.test_fk_secondary_table_double_fk_success(id) values
+  (1), (2);
+
+
+CREATE TABLE test.test_fk_tertiary_table_double_fk_success (                            
+   id INT
+ );
+
+insert into test.test_fk_tertiary_table_double_fk_success(id) values
+  (1), (2);
+
+
+-- Double FK Fail
+
+CREATE TABLE test.test_fk_primary_table_double_fk_fail (                            
+   id INT,
+   test_fk_secondary_table_double_fk_fail_id INT,
+   test_fk_tertiary_table_double_fk_fail_id INT                            
+ );
+
+insert into test.test_fk_primary_table_double_fk_fail(id, test_fk_secondary_table_double_fk_fail_id, test_fk_tertiary_table_double_fk_fail_id) values
+  (1,3,1), (2,2,2);
+
+
+CREATE TABLE test.test_fk_secondary_table_double_fk_fail (                            
+   id INT
+ );
+
+insert into test.test_fk_secondary_table_double_fk_fail(id) values
+  (1), (2);
+
+
+CREATE TABLE test.test_fk_tertiary_table_double_fk_fail (                            
+   id INT
+ );
+
+insert into test.test_fk_tertiary_table_double_fk_fail(id) values
+  (1), (2);

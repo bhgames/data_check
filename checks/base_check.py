@@ -8,17 +8,20 @@ import boto3
 from uuid import uuid4
 import yaml
 
-class BaseCheck:
+class BaseCheck(object):
     def __init__(self, opts = {}):
         self.table = opts["table"]
         self.schema = opts["schema"]
-        self.column = opts["column"] if "column" in opts else None
-        self.expression = opts["expression"] if "expression" in opts else None
-        self.threshold = opts["threshold"] if "threshold" in opts else None
         self.config = opts["config"]
         self.log_metadata = opts["log_metadata"] if "log_metadata" in opts else {}
         self.log = opts["log"] if "log" in opts else None
-        self.query_settings = { 'table': self.table, 'col': self.column, 'threshold': self.threshold, 'schema': self.schema, 'expression': self.expression }
+        self.failed = False
+        self.failed_rows_query = None
+
+        column = opts["column"] if "column" in opts else None
+        expression = opts["expression"] if "expression" in opts else None
+        threshold = opts["threshold"] if "threshold" in opts else None
+        self.query_settings = { 'table': self.table, 'col': column, 'threshold': threshold, 'schema': self.schema, 'expression': expression }
 
 
     def add_log(self, event, message):
@@ -66,7 +69,7 @@ class BaseCheck:
     def run_failed_rows_query(self, db):
         cur = db.cursor()
 
-        if self.failed and os.path.isfile('config/aws.yml'):
+        if self.failed and os.path.isfile('config/aws.yml') and self.failed_rows_query:
             self.add_log("collection", "Collect failed rows with query %s" % self.failed_rows_query)
 
             cur.execute(self.failed_rows_query)

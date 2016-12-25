@@ -39,6 +39,29 @@ export function ChecksListWithData() {
   )
 }
 
+function ForeignKeyCheck({ fkColPattern, fkTableIdPattern, handleMetadataChange }) {
+  let handler = (key, e) => handleMetadataChange(key, e);
+  return (
+    <FormGroup controlId="foreignKeyCheck" key="foreignKeyCheck">
+      <SingleFieldElement 
+          label='Foreign Key Column Regex'
+          value={fkColPattern}
+          controlId='fkColPattern'
+          onChange={handler.bind(null, "fk_col_pattern")}
+          placeholder='(.*)_id'
+          key='fkColPattern'
+        />
+        <SingleFieldElement 
+          label='Foreign Table ID Regex'
+          value={fkTableIdPattern}
+          controlId='fkTableIdPattern'
+          onChange={handler.bind(null, "fk_table_id_pattern")}
+          placeholder='^id$'
+          key='fkTableIdPattern'
+        />
+    </FormGroup>
+  )
+}
 
 class CheckForm extends Component {
 
@@ -90,16 +113,23 @@ class CheckForm extends Component {
           placeholder='If you want to catch a missing gap of id = 1, followed by id = 5, threshold should be 5'
           key='threshold'
         />);
-    }
+    } 
 
-    fields.push(<SingleFieldElement 
-                    label={label}
-                    value={value}
-                    controlId={controlId}
-                    onChange={onChange}
-                    placeholder={placeholder}
-                    key='control'
-                />);
+    if(this.state.check_type == 'CheckType.foreign_key') {
+      fields.push(<ForeignKeyCheck handleMetadataChange={this.handleMetadataChange.bind(this)} 
+                                   fkColPattern={this.state.check_metadata.fk_col_pattern} 
+                                   fkTableIdPattern={this.state.check_metadata.fk_table_id_pattern} />)
+    } else {
+      // TODO turn other field configs into their own components a la FK Check.
+      fields.push(<SingleFieldElement 
+                      label={label}
+                      value={value}
+                      controlId={controlId}
+                      onChange={onChange}
+                      placeholder={placeholder}
+                      key='control'
+                  />);
+    }
 
     return (
       <ResourceForm data={this.state} baseResource={this.props.baseResource}>
@@ -120,6 +150,7 @@ class CheckForm extends Component {
             <option value="CheckType.date_gap">DateGap</option>
             <option value="CheckType.column_comparison">Column Comparison</option>
             <option value="CheckType.id_gap">ID Gap</option>
+            <option value="CheckType.foreign_key">Foreign Key Check</option>
           </FormControl>
         </FormGroup>
 

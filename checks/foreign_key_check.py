@@ -1,5 +1,6 @@
 
 from checks.base_check import BaseCheck
+from inflection import pluralize
 import re
 
 class ForeignKeyCheck(BaseCheck):
@@ -11,7 +12,7 @@ class ForeignKeyCheck(BaseCheck):
 
     def inner_run(self, db):
         cur = db.cursor()
-
+        tables = db.tables([self.schema])
         fk_col_pattern = re.compile(self.query_settings["fk_col_pattern"])
         fk_table_id_pattern = re.compile(self.query_settings["fk_table_id_pattern"])
 
@@ -27,9 +28,14 @@ class ForeignKeyCheck(BaseCheck):
             fk_table = None
 
             try:
-                fk_table = re.match(fk_col_pattern, col).group(1) # Grab first capture
+                fk_table = pluralize(re.match(fk_col_pattern, col).group(1)) # Grab first capture
             except IndexError, e:
                 self.add_log("warning", "Check on {}'s column {} failed due to fk_col_pattern {} not containing any capture group for the FK table name".format(self.table, col, self.query_settings["fk_col_pattern"]))
+                self.failed = True
+                continue
+
+            if "{}.{}".format(self.schema, fk_table) not in tables:
+		self.add_log("warning", "Check on {}'s column {} failed due to table {} not existing.".format(self.table, col, fk_table))
                 self.failed = True
                 continue
 

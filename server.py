@@ -166,4 +166,5 @@ def delete_item(type, id):
 
 
 if __name__ == "__main__":
-    manager.run()
+    #manager.run()
+    app.run(host= '0.0.0.0')

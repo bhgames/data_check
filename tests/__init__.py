@@ -1,5 +1,6 @@
 from base_test import BaseTest
 from connections.impala_connection import ImpalaConnection
+import traceback
 
 def setup():
     with open('tests/fixtures/seed.sql') as f:

@@ -7,6 +7,7 @@ import os
 import boto3
 from uuid import uuid4
 import yaml
+import traceback
 
 class BaseCheck(object):
     def __init__(self, opts = {}):
@@ -24,9 +25,10 @@ class BaseCheck(object):
         self.query_settings = { 'table': self.table, 'col': column, 'threshold': threshold, 'schema': self.schema, 'expression': expression }
 
 
-    def add_log(self, event, message):
+    def add_log(self, event, message, extra_meta = {}):
         if self.log:
-            self.log.add_log(event, message, self.log_metadata)
+            extra_meta.update(self.log_metadata)
+            self.log.add_log(event, message, extra_meta)
 
 
     def add_results_csv_to_s3(self):
@@ -40,13 +42,18 @@ class BaseCheck(object):
                 s3_resource = boto3.resource('s3', aws_access_key_id=config['access_key_id'], aws_secret_access_key=config['secret_access_key'])
 
                 name =  config['prefix'] + "%s_%s_%s_%s.csv" % (self.schema, self.table, self.__class__.__name__, uuid4())
-                s3_resource.Object(config['bucket_name'], name).put(Body=csv_buffer.getvalue())
+                try:
+                    s3_resource.Object(config['bucket_name'], name).put(Body=csv_buffer.getvalue())
+                   
+                    # generate 5 year key
+                    s3_client = boto3.client('s3', aws_access_key_id=config['access_key_id'], aws_secret_access_key=config['secret_access_key'])
+                    self.failed_row_s3_uri = s3_client.generate_presigned_url('get_object', Params = {'Bucket': config['bucket_name'], 'Key': name}, ExpiresIn = 3600*24*365*5)
 
-                # generate 5 year key
-                s3_client = boto3.client('s3', aws_access_key_id=config['access_key_id'], aws_secret_access_key=config['secret_access_key'])
-                self.failed_row_s3_uri = s3_client.generate_presigned_url('get_object', Params = {'Bucket': config['bucket_name'], 'Key': name}, ExpiresIn = 3600*24*365*5)
-
-                self.add_log("collection_storage", "Failed rows stored at %s" % (self.failed_row_s3_uri))
+                    self.add_log("collection_storage", "Failed rows stored at %s" % (self.failed_row_s3_uri))
+                except:
+ 		    self.add_log("collection_storage_failed", 
+                        "Failed to record saved rows", 
+                        { "traceback": traceback.format_exc() })
             else:
                 self.add_log("warning", "Not collecting failed rows because you do not have a config/aws.yml set.")
 

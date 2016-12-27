@@ -61,6 +61,11 @@ class ScheduleForm extends Component {
     this.setState(nextProps.data);
   }
 
+  handleActiveToggle() {
+    let newState = { active: !this.state.active };
+    this.setState(newState);
+  }
+
   handleChange(type, e) {
     let newState = { };
     newState[type] = e.target.value;
@@ -98,9 +103,9 @@ class ScheduleForm extends Component {
         }
 
         <Checkbox 
-          value={this.state.active} 
+          checked={this.state.active} 
           label="Active" 
-          onChange={this.handleChange.bind(this, "active")}
+          onChange={this.handleActiveToggle.bind(this)}
         > Active </Checkbox>
 
         <HasManyAssociationFormElement 

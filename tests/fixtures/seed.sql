@@ -134,6 +134,45 @@ insert into test.test_fk_secondary_table_single_fk_success(id) values
   (1), (2);
 
 
+-- Single FK Success w/ Pluralize
+
+CREATE TABLE test.test_fk_pluralize (                            
+   id INT,
+   test_fk_secondary_table_pluralize_id INT                            
+ );
+
+insert into test.test_fk_pluralize(id, test_fk_secondary_table_pluralize_id) values
+  (1,1), (2,2), (3, NULL);
+
+
+CREATE TABLE test.test_fk_secondary_table_pluralizes (                            
+   id INT
+ );
+
+insert into test.test_fk_secondary_table_pluralizes(id) values
+  (1), (2);
+
+
+-- FK Singularize
+
+
+CREATE TABLE test.test_fk_singularize (                            
+   id INT,
+   test_fk_secondary_table_singularizes_id INT                            
+ );
+
+insert into test.test_fk_singularize(id, test_fk_secondary_table_singularizes_id) values
+  (1,1), (2,2), (3, NULL);
+
+
+CREATE TABLE test.test_fk_secondary_table_singularize (                            
+   id INT
+ );
+
+insert into test.test_fk_secondary_table_singularize(id) values
+  (1), (2);
+
+
 -- Single FK Fail
 
 CREATE TABLE test.test_fk_primary_table_single_fk_fail (                            
@@ -151,6 +190,15 @@ CREATE TABLE test.test_fk_secondary_table_single_fk_fail (
 
 insert into test.test_fk_secondary_table_single_fk_fail(id) values
   (1), (2);
+
+
+-- Single FK Fail on non-existent FK table
+
+
+CREATE TABLE test.test_fk_primary_table_single_fk_fail_on_bad_table (                            
+   id INT,
+   test_fk_secondary_table_single_fk_fail1_id INT                            
+ );
 
 
 -- Double FK Success

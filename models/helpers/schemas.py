@@ -10,6 +10,8 @@ class CheckMetadataSchema(Schema):
     threshold = fields.Integer()
     fk_col_pattern = fields.Str()
     fk_table_id_pattern = fields.Str()
+    singularize = fields.Bool()
+    pluralize = fields.Bool()
 
 
 class CheckSchema(Schema):
@@ -31,7 +33,6 @@ class CheckSchema(Schema):
         return {
             "id": 'new',
             "check_metadata": {
-                "column": ''
             },
             "check_type": 'CheckType.uniqueness',
             "check_name": ''

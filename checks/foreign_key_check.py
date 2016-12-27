@@ -1,14 +1,27 @@
 
 from checks.base_check import BaseCheck
-from inflection import pluralize
+from inflection import pluralize, singularize, camelize, underscore
 import re
 
 class ForeignKeyCheck(BaseCheck):
     def __init__(self, opts = {}):
         super(ForeignKeyCheck, self).__init__(opts)
+
+        for val in ["singularize", "pluralize"]:
+            self.query_settings[val] = val in opts and opts[val] == True
+        
         self.query_settings["fk_col_pattern"] = opts["fk_col_pattern"]
         self.query_settings["fk_table_id_pattern"] = opts["fk_table_id_pattern"]
 
+
+    def mutate_fk_table(self, fk_table):
+        if(self.query_settings["singularize"]):
+            fk_table = singularize(fk_table)
+
+        if(self.query_settings["pluralize"]):
+            fk_table = pluralize(fk_table)
+
+        return fk_table
 
     def inner_run(self, db):
         cur = db.cursor()
@@ -28,14 +41,14 @@ class ForeignKeyCheck(BaseCheck):
             fk_table = None
 
             try:
-                fk_table = pluralize(re.match(fk_col_pattern, col).group(1)) # Grab first capture
+                fk_table = self.mutate_fk_table(re.match(fk_col_pattern, col).group(1)) # Grab first capture
             except IndexError, e:
                 self.add_log("warning", "Check on {}'s column {} failed due to fk_col_pattern {} not containing any capture group for the FK table name".format(self.table, col, self.query_settings["fk_col_pattern"]))
                 self.failed = True
                 continue
 
             if "{}.{}".format(self.schema, fk_table) not in tables:
-		self.add_log("warning", "Check on {}'s column {} failed due to table {} not existing.".format(self.table, col, fk_table))
+                self.add_log("warning", "Check on {}'s column {} failed due to table {} not existing.".format(self.table, col, fk_table))
                 self.failed = True
                 continue
 

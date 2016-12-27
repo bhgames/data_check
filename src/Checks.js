@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
-import { ControlLabel, FormControl, FormGroup } from 'react-bootstrap';
+import { ControlLabel, FormControl, FormGroup, Checkbox } from 'react-bootstrap';
 import { WithData, List, ResourceForm, SingleFieldElement } from './General';
 
 // General container for all Checks routes. Dont put anything here.
@@ -20,7 +20,7 @@ export function ChecksList(props) {
 ChecksList.propTypes = {
   data: React.PropTypes.arrayOf(React.PropTypes.shape({
     id: React.PropTypes.number.isRequired,
-    check_name: React.PropTypes.string.isRequired,
+    check_name: React.PropTypes.string,
     check_type: React.PropTypes.string.isRequired,
     check_metadata: React.PropTypes.object.isRequired
   })).isRequired
@@ -39,8 +39,10 @@ export function ChecksListWithData() {
   )
 }
 
-function ForeignKeyCheck({ fkColPattern, fkTableIdPattern, handleMetadataChange }) {
+function ForeignKeyCheck({ fkColPattern, fkTableIdPattern, handleMetadataChange, pluralize, singularize, handleMetadataCheckboxToggle }) {
   let handler = (key, e) => handleMetadataChange(key, e);
+  let chandler = (key, e) => handleMetadataCheckboxToggle(key);
+
   return (
     <FormGroup controlId="foreignKeyCheck" key="foreignKeyCheck">
       <SingleFieldElement 
@@ -59,8 +61,29 @@ function ForeignKeyCheck({ fkColPattern, fkTableIdPattern, handleMetadataChange 
           placeholder='^id$'
           key='fkTableIdPattern'
         />
+
+        <Checkbox 
+          checked={pluralize} 
+          label="Pluralize Match Group?" 
+          onChange={chandler.bind(null, "pluralize")}>
+        Pluralize </Checkbox>
+
+        <Checkbox 
+          checked={singularize} 
+          label="Singularize Match Group?" 
+          onChange={chandler.bind(null, "singularize")}>
+        Singularize </Checkbox>
     </FormGroup>
   )
+}
+
+ForeignKeyCheck.propTypes = {
+  fkColPattern: React.PropTypes.string,
+  fkTableIdPattern: React.PropTypes.string,
+  handleMetadataChange: React.PropTypes.func.isRequired,
+  handleMetadataCheckboxToggle: React.PropTypes.func.isRequired,
+  singularize: React.PropTypes.bool,
+  pluralize: React.PropTypes.bool
 }
 
 class CheckForm extends Component {
@@ -79,6 +102,12 @@ class CheckForm extends Component {
     // the same object that's in the state.
     let newState = { check_metadata: this.state.check_metadata };
     newState.check_metadata[type] = e.target.value;
+    this.setState(newState);
+  }
+
+  handleMetadataCheckboxToggle(type) {
+    let newState = { check_metadata: this.state.check_metadata };
+    newState.check_metadata[type] = !this.state.check_metadata[type];
     this.setState(newState);
   }
 
@@ -116,9 +145,12 @@ class CheckForm extends Component {
     } 
 
     if(this.state.check_type == 'CheckType.foreign_key') {
-      fields.push(<ForeignKeyCheck handleMetadataChange={this.handleMetadataChange.bind(this)} 
+      fields.push(<ForeignKeyCheck handleMetadataChange={this.handleMetadataChange.bind(this)}  
+                                   handleMetadataCheckboxToggle={this.handleMetadataCheckboxToggle.bind(this)}
                                    fkColPattern={this.state.check_metadata.fk_col_pattern} 
-                                   fkTableIdPattern={this.state.check_metadata.fk_table_id_pattern} />)
+                                   fkTableIdPattern={this.state.check_metadata.fk_table_id_pattern}
+                                   pluralize={this.state.check_metadata.pluralize}
+                                   singularize={this.state.check_metadata.singularize} />)
     } else {
       // TODO turn other field configs into their own components a la FK Check.
       fields.push(<SingleFieldElement 

@@ -118,6 +118,8 @@ class JobRunsView extends Component {
     }, []);
 
     let allCheckLogs = jr.all_connected_logs.filter((l) => l.loggable_type === "check");
+    let allExceptions = allCheckLogs.map((l) => l.log).reduce((a, b) => a.concat(b), []).filter((l) => l.metadata.traceback);
+    allExceptions = allExceptions.map((l) => l.metadata);
     let allCheckLogsWithCheckObj = allCheckLogs.map((l) => [l, allChecks.find((c) => c.id === l.loggable_id)]);
     let allCheckLogsLogDataWithCheckObj = allCheckLogsWithCheckObj.map((lAndC) => [lAndC[0].log, lAndC[1]]);
 
@@ -230,6 +232,17 @@ class JobRunsView extends Component {
                   <List columnNames={logLabels} columns={logColumns} buttonMask={[1,1,1]} baseResource="checks" deleteDataItem={noop} data={row[0]} />
                 </Panel>
               )}
+            </Accordion>
+          </Col>
+        </Row>
+
+        <Row>
+          <Col>
+          <PageHeader><small>All Exceptions</small></PageHeader>
+            <Accordion>
+              <Panel header='Exceptions'>
+                <List columnNames={['Exception']} columns={['traceback']} buttonMask={[1,1,1]} baseResource="exceptions" deleteDataItem={noop} data={allExceptions} />
+              </Panel>
             </Accordion>
           </Col>
         </Row>

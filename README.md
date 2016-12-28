@@ -63,8 +63,8 @@ It currently supports:
 * Job Scheduling
 * Nested AND-type Rules and Check Types (e.g. if table name matches loans AND has
   updated_at column, check date_gaps)
-* Five types of check: DateGap, Uniqueness, Nullness, ID Gap, and Column Comparison
-  on Same Table
+* Six types of check: DateGap, Uniqueness, Nullness, ID Gap, Column Comparison
+  on Same Table, Generic Dangling Foreign Key Check
 * Storage of Failed Rows as CSVs in S3
 
 ## Startup
@@ -153,6 +153,9 @@ add them:
 
 With MapR Demo Box, you need to make sure the port 21050 is open (see VirtualBox
 opening ports or similar) so impala can talk.
+
+You'll also need to follow Impala installation instructions for a MapR cluster(Google Install Mapr Impala and follow the instructions)
+and have impala running on your dev node.
 
 ## Migrating the Database
 

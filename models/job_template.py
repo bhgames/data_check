@@ -34,11 +34,33 @@ class JobTemplate(Base):
     log_level = Column(Enum(LogLevel), nullable=False, default=LogLevel.status_only)
     name = Column(String, nullable=False)
     parallelization = Column(Integer, default=1, nullable=False)
+
+    # RO copy is created whenever a JobRun creates, used for holding meta info about it's template even if template changes.
+    # We dont make parent id FK because parent template may get deleted at some point. This is for logging.
+    read_only = Column(Boolean, default=False, nullable=False)
+    parent_job_template_id = Column(Integer, nullable=True)
+
     job_runs = relationship('JobRun', back_populates="job_template")
     data_sources = relationship('DataSource', back_populates="job_templates", secondary=data_sources_job_templates)
     rules = relationship('Rule', back_populates="job_templates", secondary=job_templates_rules)
     schedules = relationship('Schedule', back_populates='job_templates', secondary=job_templates_schedules)
     ENUMS = ["log_level"]
+
+
+    def become_read_only_clone(self):
+        """
+            Next time this object is saved it will be saved as a new entry,
+            with read_only set to true, parent id set to the cloner row,
+            and all it's checks and rules cloned as well.
+        """
+        db_session.expunge(self)
+        self.parent_job_template_id = self.id
+        self.id = None
+        self.read_only = True
+
+        [r.become_read_only_clone() for r in rules]
+        [d.become_read_only_clone() for d in data_sources]
+
 
     def checks(self):
         seen = set()

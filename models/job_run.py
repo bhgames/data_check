@@ -50,11 +50,15 @@ class JobRun(Base, HasLogs):
 
     @classmethod
     def create_job_run(cls, job_template):
+        job_template.become_read_only_clone()
+        db_session.add(job_template)
+        
         jr = JobRun(
             scheduled_at = now(), 
             status=JobRunStatus.scheduled, 
             job_template=job_template
         )
+
         db_session.add(jr)
         db_session.commit()
         # Need to use 3s buffer to give time for postgres commit to propagate to the "real"

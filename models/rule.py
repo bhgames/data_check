@@ -42,6 +42,11 @@ class Rule(Base, HasLogs):
     updated_at = Column(DateTime, nullable=True)
     condition = Column(Enum(RuleCondition), nullable=False)
     conditional = Column(JSONB, default={}, nullable=False)
+
+    # See JobTemplate for explanation
+    read_only = Column(Boolean, default=False, nullable=False)
+    parent_rule_id = Column(Integer, nullable=True)
+
     name = Column(String)
     checks = relationship('Check', back_populates="rules", secondary=checks_rules)
     job_templates = relationship('JobTemplate', back_populates="rules", secondary=job_templates_rules)
@@ -53,6 +58,22 @@ class Rule(Base, HasLogs):
                             secondaryjoin= id == rules_tree.c.parent_rule_id)
 
     ENUMS=["condition"]
+
+
+    def become_read_only_clone(self):
+        """
+            Next time this object is saved it will be saved as a new entry,
+            with read_only set to true, parent id set to the cloner row,
+            and all it's checks and children cloned as well.
+        """
+        db_session.expunge(self)
+        self.parent_rule_id = self.id
+        self.id = None
+        self.read_only = True
+
+        [r.become_read_only_clone() for r in children]
+
+        [c.become_read_only_clone() for c in checks]
 
     def if_col_present(self, conditional, source, tables, job_run):
         column = conditional["column"]

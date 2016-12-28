@@ -14,8 +14,6 @@ ValidHostnameRegex = r"^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*(
 
 Base = models.helpers.base.Base
 
-from models.job_template import data_sources_job_templates
-
 class DataSourceType(enum.Enum):
     impala = "impala"
 
@@ -30,8 +28,24 @@ class DataSource(Base):
     user = Column(String, nullable=True)
     password = Column(String, nullable=True)
     schemas = Column(ARRAY(String), nullable=True)
-    job_templates = relationship('JobTemplate', back_populates="data_sources", secondary=data_sources_job_templates)
+
+    # See JobTemplate for explanation
+    read_only = Column(Boolean, default=False, nullable=False)
+    parent_data_source_id = Column(Integer, nullable=True)
+
     ENUMS = ["data_source_type"]
+
+
+    def become_read_only_clone(self):
+        """
+            Next time this object is saved it will be saved as a new entry,
+            with read_only set to true, and parent id set to the cloner row.
+        """
+        db_session.expunge(self)
+        self.parent_data_source_id = self.id
+        self.id = None
+        self.read_only = True
+
 
     @validates('port')
     def validate_port(self, key, port):

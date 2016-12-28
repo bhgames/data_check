@@ -43,9 +43,26 @@ class Check(Base, HasLogs):
     check_name = Column(String)
     check_type = Column(Enum(CheckType), nullable=False)
     check_metadata = Column(JSONB, nullable=False)
+
+    # See Jobtemplate for explanation.
+    read_only = Column(Boolean, default=False, nullable=False)
+    parent_check_id = Column(Integer, nullable=True)
+
     rules = relationship("Rule", back_populates="checks", secondary=checks_rules)
 
     ENUMS = ["check_type"]
+
+
+    def become_read_only_clone(self):
+        """
+            Next time this object is saved it will be saved as a new entry,
+            with read_only set to true, and parent id set to the cloner row.
+        """
+        db_session.expunge(self)
+        self.parent_check_id = self.id
+        self.id = None
+        self.read_only = True
+
 
     def run(self, job_run, source, table):
         log = self.get_log(job_run=job_run)

@@ -51,7 +51,7 @@ class BaseCheck(object):
 
                     self.add_log("collection_storage", "Failed rows stored at %s" % (self.failed_row_s3_uri))
                 except:
- 		    self.add_log("collection_storage_failed", 
+ 		            self.add_log("collection_storage_failed", 
                         "Failed to record saved rows", 
                         { "traceback": traceback.format_exc() })
             else:

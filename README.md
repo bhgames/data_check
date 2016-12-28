@@ -63,8 +63,8 @@ It currently supports:
 * Job Scheduling
 * Nested AND-type Rules and Check Types (e.g. if table name matches loans AND has
   updated_at column, check date_gaps)
-* Five types of check: DateGap, Uniqueness, Nullness, ID Gap, and Column Comparison
-  on Same Table
+* Six types of check: DateGap, Uniqueness, Nullness, ID Gap, Column Comparison
+  on Same Table, Generic Dangling Foreign Key Check
 * Storage of Failed Rows as CSVs in S3
 
 ## Startup

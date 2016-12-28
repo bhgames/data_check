@@ -154,6 +154,9 @@ add them:
 With MapR Demo Box, you need to make sure the port 21050 is open (see VirtualBox
 opening ports or similar) so impala can talk.
 
+You'll also need to follow Impala installation instructions for a MapR cluster(Google Install Mapr Impala and follow the instructions)
+and have impala running on your dev node.
+
 ## Migrating the Database
 
 Updating the database is easy, thanks to Flask-Migrate and Alembic.

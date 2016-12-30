@@ -19,12 +19,13 @@ class TestJobRun(BaseTest):
         def _decorator(self, *args, **kwargs):
             jt = JobTemplate(log_level = LogLevel.complete, name="Gob")
             self.s.add(jt)
+            self.s.commit()
 
             # Actually runs the job
             jr = JobRun.create_job_run(jt)
 
             jr = self.s.query(JobRun).get(jr.id)
-            jt = self.s.query(JobTemplate).get(jt.id)
+            jt = self.s.query(JobTemplate).get(jr.job_template_id)
             func(self, jt, jr)
 
         return _decorator
@@ -43,6 +44,8 @@ class TestJobRun(BaseTest):
             jt.data_sources.append(self.dummy_datasource())
             jt.rules.append(r)
             self.s.add_all([jt, r])
+            self.s.commit()
+            
             # Actually runs the job
             jr = JobRun.create_job_run(jt)
             # Refresh Obj from DB
@@ -55,6 +58,11 @@ class TestJobRun(BaseTest):
     @create_and_run_no_rules
     def test_create_job_run_creates(self, jt, jr):
         self.assertTrue(jr.id != None)
+
+
+    @create_and_run_no_rules
+    def test_create_job_run_creates_jt_clone(self, jt, jr):
+        self.assertNotEquals(jt.parent_job_template_id, jt.id)
 
 
     @create_and_run_no_rules

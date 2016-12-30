@@ -1,6 +1,8 @@
 
-from sqlalchemy import Column, String, Integer, ForeignKey, Enum, Table, DateTime
+from sqlalchemy import Column, String, Integer, ForeignKey, Enum, Table, DateTime, Boolean
 from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm.session import make_transient
+
 import models.helpers.base
 from models.helpers.timestamps_triggers import timestamps_triggers
 from models.log import Log, HasLogs
@@ -66,14 +68,28 @@ class Rule(Base, HasLogs):
             with read_only set to true, parent id set to the cloner row,
             and all it's checks and children cloned as well.
         """
-        db_session.expunge(self)
+        
         self.parent_rule_id = self.id
-        self.id = None
         self.read_only = True
 
-        [r.become_read_only_clone() for r in children]
+        rules = self.children
+        checks = self.checks # Grab before expunging.
 
+        db_session.expunge(self)
+        make_transient(self)
+
+        [r.become_read_only_clone() for r in rules]
         [c.become_read_only_clone() for c in checks]
+        self.id = None
+
+        db_session.add(self)
+        db_session.commit()
+
+        self.children = rules
+        self.checks = checks
+
+
+
 
     def if_col_present(self, conditional, source, tables, job_run):
         column = conditional["column"]

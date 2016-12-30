@@ -1,8 +1,11 @@
 
-from sqlalchemy import Column, String, Integer, ForeignKey, Enum, Table, DateTime
+from sqlalchemy import Column, String, Integer, ForeignKey, Enum, Table, DateTime, Boolean
 from sqlalchemy.orm import relationship, backref, validates
+from sqlalchemy.orm.session import make_transient
+
 from sqlalchemy.dialects.postgresql import ARRAY
 import models.helpers.base
+db_session = models.helpers.base.db_session
 from models.helpers.timestamps_triggers import timestamps_triggers
 import enum
 import re
@@ -41,11 +44,12 @@ class DataSource(Base):
             Next time this object is saved it will be saved as a new entry,
             with read_only set to true, and parent id set to the cloner row.
         """
-        db_session.expunge(self)
+        
         self.parent_data_source_id = self.id
-        self.id = None
         self.read_only = True
-
+        db_session.expunge(self)
+        make_transient(self)
+        self.id = None
 
     @validates('port')
     def validate_port(self, key, port):

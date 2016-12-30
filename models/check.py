@@ -1,5 +1,6 @@
-from sqlalchemy import Column, String, Integer, ForeignKey, Enum, Table, DateTime
+from sqlalchemy import Column, String, Integer, ForeignKey, Enum, Table, DateTime, Boolean
 from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm.session import make_transient
 
 import models.helpers.base
 from models.helpers.timestamps_triggers import timestamps_triggers
@@ -58,10 +59,12 @@ class Check(Base, HasLogs):
             Next time this object is saved it will be saved as a new entry,
             with read_only set to true, and parent id set to the cloner row.
         """
-        db_session.expunge(self)
+        
         self.parent_check_id = self.id
-        self.id = None
         self.read_only = True
+        db_session.expunge(self)
+        make_transient(self)
+        self.id = None
 
 
     def run(self, job_run, source, table):

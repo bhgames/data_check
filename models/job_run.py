@@ -1,6 +1,7 @@
 
 from sqlalchemy import Column, String, Integer, ForeignKey, DateTime, Text, Enum, Table, DateTime
 from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm.session import make_transient
 import models.helpers.base
 from sqlalchemy.dialects.postgresql import JSONB
 from models.helpers.timestamps_triggers import timestamps_triggers
@@ -50,9 +51,10 @@ class JobRun(Base, HasLogs):
 
     @classmethod
     def create_job_run(cls, job_template):
+        # If JT ever changes, we still have this replica from time of
+        # that this Run points to. No need to worry about that!
         job_template.become_read_only_clone()
-        db_session.add(job_template)
-        
+
         jr = JobRun(
             scheduled_at = now(), 
             status=JobRunStatus.scheduled, 

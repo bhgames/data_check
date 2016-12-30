@@ -133,8 +133,8 @@ class TestRule(BaseTest):
     @dummy_rule
     def test_rule_runs_returns_proper_number_of_checks(self, r, d, jr):
         checks_to_run = self.run_rule(r,d, jr)
-        # Only tables with id present(the rule in dummy rule) are the uniqueness fail/succ tables, null check tables, and id gap table.
-        self.assertEqual(15, len(checks_to_run))
+        # Only tables with id present(the rule in dummy rule) are the uniqueness fail/succ tables, null check tables, and id gap tabl and fk table.
+        self.assertEqual(20, len(checks_to_run))
 
 
     @dummy_rule

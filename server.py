@@ -118,7 +118,12 @@ def new_job_run_save():
 def get_items(type):
     klazz = get_class_from_type(type)
     sch_klazz = get_class_schema_from_type(type)
-    qr = db_session.query(klazz).order_by(desc(klazz.__table__.c.updated_at))
+    qr = db_session.query(klazz)
+
+    if hasattr(klazz, 'read_only'):
+        qr = qr.filter(klazz.read_only == False)
+
+    qr.order_by(desc(klazz.__table__.c.updated_at))
     qr = qr.all()
     sch = sch_klazz(many=True)
 

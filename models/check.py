@@ -1,5 +1,6 @@
-from sqlalchemy import Column, String, Integer, ForeignKey, Enum, Table, DateTime
+from sqlalchemy import Column, String, Integer, ForeignKey, Enum, Table, DateTime, Boolean
 from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm.session import make_transient
 
 import models.helpers.base
 from models.helpers.timestamps_triggers import timestamps_triggers
@@ -43,9 +44,28 @@ class Check(Base, HasLogs):
     check_name = Column(String)
     check_type = Column(Enum(CheckType), nullable=False)
     check_metadata = Column(JSONB, nullable=False)
+
+    # See Jobtemplate for explanation.
+    read_only = Column(Boolean, default=False, nullable=False)
+    parent_check_id = Column(Integer, nullable=True)
+
     rules = relationship("Rule", back_populates="checks", secondary=checks_rules)
 
     ENUMS = ["check_type"]
+
+
+    def become_read_only_clone(self):
+        """
+            Next time this object is saved it will be saved as a new entry,
+            with read_only set to true, and parent id set to the cloner row.
+        """
+        
+        self.parent_check_id = self.id
+        self.read_only = True
+        db_session.expunge(self)
+        make_transient(self)
+        self.id = None
+
 
     def run(self, job_run, source, table):
         log = self.get_log(job_run=job_run)

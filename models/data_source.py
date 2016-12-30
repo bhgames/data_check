@@ -1,8 +1,11 @@
 
-from sqlalchemy import Column, String, Integer, ForeignKey, Enum, Table, DateTime
+from sqlalchemy import Column, String, Integer, ForeignKey, Enum, Table, DateTime, Boolean
 from sqlalchemy.orm import relationship, backref, validates
+from sqlalchemy.orm.session import make_transient
+
 from sqlalchemy.dialects.postgresql import ARRAY
 import models.helpers.base
+db_session = models.helpers.base.db_session
 from models.helpers.timestamps_triggers import timestamps_triggers
 import enum
 import re
@@ -13,8 +16,6 @@ ValidIpAddressRegex = r"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}
 ValidHostnameRegex = r"^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$"
 
 Base = models.helpers.base.Base
-
-from models.job_template import data_sources_job_templates
 
 class DataSourceType(enum.Enum):
     impala = "impala"
@@ -30,8 +31,25 @@ class DataSource(Base):
     user = Column(String, nullable=True)
     password = Column(String, nullable=True)
     schemas = Column(ARRAY(String), nullable=True)
-    job_templates = relationship('JobTemplate', back_populates="data_sources", secondary=data_sources_job_templates)
+
+    # See JobTemplate for explanation
+    read_only = Column(Boolean, default=False, nullable=False)
+    parent_data_source_id = Column(Integer, nullable=True)
+
     ENUMS = ["data_source_type"]
+
+
+    def become_read_only_clone(self):
+        """
+            Next time this object is saved it will be saved as a new entry,
+            with read_only set to true, and parent id set to the cloner row.
+        """
+        
+        self.parent_data_source_id = self.id
+        self.read_only = True
+        db_session.expunge(self)
+        make_transient(self)
+        self.id = None
 
     @validates('port')
     def validate_port(self, key, port):

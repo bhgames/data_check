@@ -1,6 +1,8 @@
 
-from sqlalchemy import Column, String, Integer, ForeignKey, Enum, Table, DateTime
+from sqlalchemy import Column, String, Integer, ForeignKey, Enum, Table, DateTime, Boolean
 from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm.session import make_transient
+
 import models.helpers.base
 from models.helpers.timestamps_triggers import timestamps_triggers
 from models.log import Log, HasLogs
@@ -42,6 +44,11 @@ class Rule(Base, HasLogs):
     updated_at = Column(DateTime, nullable=True)
     condition = Column(Enum(RuleCondition), nullable=False)
     conditional = Column(JSONB, default={}, nullable=False)
+
+    # See JobTemplate for explanation
+    read_only = Column(Boolean, default=False, nullable=False)
+    parent_rule_id = Column(Integer, nullable=True)
+
     name = Column(String)
     checks = relationship('Check', back_populates="rules", secondary=checks_rules)
     job_templates = relationship('JobTemplate', back_populates="rules", secondary=job_templates_rules)
@@ -53,6 +60,36 @@ class Rule(Base, HasLogs):
                             secondaryjoin= id == rules_tree.c.parent_rule_id)
 
     ENUMS=["condition"]
+
+
+    def become_read_only_clone(self):
+        """
+            Next time this object is saved it will be saved as a new entry,
+            with read_only set to true, parent id set to the cloner row,
+            and all it's checks and children cloned as well.
+        """
+        
+        self.parent_rule_id = self.id
+        self.read_only = True
+
+        rules = self.children
+        checks = self.checks # Grab before expunging.
+
+        db_session.expunge(self)
+        make_transient(self)
+
+        [r.become_read_only_clone() for r in rules]
+        [c.become_read_only_clone() for c in checks]
+        self.id = None
+
+        db_session.add(self)
+        db_session.commit()
+
+        self.children = rules
+        self.checks = checks
+
+
+
 
     def if_col_present(self, conditional, source, tables, job_run):
         column = conditional["column"]

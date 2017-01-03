@@ -87,7 +87,7 @@ WithData.propTypes = {
 /* LIST AND DISPLAY ELEMENTS */
 
 /*
-  The List function expects to be handed a list of column names and actual columns to call on the data,
+  The List class expects to be handed a list of column names and actual columns to call on the data,
   which is expected to be an array.
 
   An onSelectHandler will be called(if given) whenever a row is clicked.
@@ -110,84 +110,118 @@ WithData.propTypes = {
 
   Please see beneath this function for PropTypes to see proper data typing constraints of each argument.
 */
-export function List({ columnNames, columns, baseResource, data, deleteDataItem, onSelectHandler, selectedRows, excludedRowIds, buttonMask, children }) {
-  let deleteHandler = (row) => { deleteDataItem(row.id) };
+export class List extends Component {
 
-  let handler = null;
-  if(onSelectHandler) {
-    handler = (row) => onSelectHandler(row);
-  } else {
-    handler = (row) => { }
+  constructor(props) {
+    super(props);
+    this.state = {data: this.props.data, currentSortColumn: 'id', currentSortOrder: 'desc' };
   }
 
-  let selectedStyleHandler = (row) => {
-    if(selectedRows && selectedRows.find((r) => { return r.id === row.id })) {
+  componentWillReceiveProps(nextProps) {
+    this.setState({ data: nextProps.data });
+  }
+
+
+  deleteHandler(row) { if(this.props.deleteDataItem) { this.props.deleteDataItem(row.id) } }
+
+  selectHandler(row) {
+    if(this.props.onSelectHandler) {
+      this.props.onSelectHandler(row);
+    }
+  }
+
+  selectedStyleHandler(row) {
+    if(this.props.selectedRows && this.props.selectedRows.find((r) => { return r.id === row.id })) {
       return "selected";
     }
-  };
+  }
+  
+  buttons(row) {
+    let boundButtons = React.Children.map(this.props.children,
+        (child) => React.cloneElement(child, {
+          onClick: child.props.onClick.bind(null, row)
+        })
+      );
 
-  let rowIds = data.map((r) => { return r.id });
-  let displayedRows = data.filter((r) => { return !excludedRowIds || !excludedRowIds.includes(rowIds[data.indexOf(r)])});
+    let defaultButtons = [];
 
-  let buttons = (row) => {
+    if(this.props.buttonMask[0] === 0) {
+      defaultButtons.push(
+        <LinkContainer to={'/' + this.props.baseResource + '/' + row.id + '/edit'} key={'edit'}>
+          <Button>Edit</Button>
+        </LinkContainer>
+      )
+    }
 
-                  let boundButtons = React.Children.map(children,
-                      (child) => React.cloneElement(child, {
-                        onClick: child.props.onClick.bind(null, row)
-                      })
-                    );
+    if(this.props.buttonMask[1] === 0) {
+      defaultButtons.push(<Button onClick={this.deleteHandler.bind(this, row)} key={'delete'}>Delete</Button>)
+    }
 
-                  let defaultButtons = [];
+    return <td>
+      {defaultButtons}
+      {boundButtons}
+    </td>
+  }
 
-                  if(buttonMask[0] === 0) {
-                    defaultButtons.push(
-                      <LinkContainer to={'/' + baseResource + '/' + row.id + '/edit'} key={'edit'}>
-                        <Button>Edit</Button>
-                      </LinkContainer>
-                    )
-                  }
+  changeSort(colName) {
+    let col = this.props.columns[this.props.columnNames.indexOf(colName)];
+    let sort = this.state.currentSortOrder;
+    if (col == this.state.currentSortColumn) {
+      sort = sort == "asc" ? "desc" : "asc";
+    }
 
-                  if(buttonMask[1] === 0) {
-                    defaultButtons.push(<Button onClick={deleteHandler.bind(null, row)} key={'delete'}>Delete</Button>)
-                  }
+    this.setState({ currentSortColumn: col, currentSortOrder: sort}); 
+  }
 
-                  return <td>
-                    {defaultButtons}
-                    {boundButtons}
-                  </td>
-                };
+  render() {
 
-  let buttonHeader = <th>Actions</th>;
+    let rowIds = this.props.data.map((r) => { return r.id });
+    let displayedRows = this.props.data.filter((r) => { return !this.props.excludedRowIds || !this.props.excludedRowIds.includes(rowIds[this.props.data.indexOf(r)])});
+    
+    let currentSO = this.state.currentSortOrder;
+    let currentSC = this.state.currentSortColumn;
 
-  let newButton = buttonMask[2] === 1 ? null : <LinkContainer to={ baseResource + '/new/edit'}>
-        <Button bsStyle="primary">New</Button>
-      </LinkContainer>;
+    displayedRows = displayedRows.sort((a,b) => {
+      if(currentSO === 'desc') {
+        return a[currentSC] > b[currentSC]
+      } else {
+        return a[currentSC] < b[currentSC]
+      }
+    });
 
-  return (
-    <div>
-      <h2>{humanize(baseResource)} {newButton}</h2>
-      <Table responsive striped bordered condensed hover>
-        <thead>
-          <tr>
-            {columnNames.map(name =>
-              <th key={name}>{name}</th>
-            )}
-            {buttonHeader}
-          </tr>
-        </thead>
-        <tbody>
-          {displayedRows.map(row =>
-            <tr key={displayedRows.indexOf(row)} onClick={handler.bind(this, row)} className={selectedStyleHandler(row)}>
-              {columns.map(col =>
-                <td key={col}><Linkify>{typeof row[col] === 'object' ? JSON.stringify(row[col]) : row[col]}</Linkify></td>
+    let buttonHeader = <th>Actions</th>;
+
+    let newButton = this.props.buttonMask[2] === 1 ? null : <LinkContainer to={ this.props.baseResource + '/new/edit'}>
+          <Button bsStyle="primary">New</Button>
+        </LinkContainer>;
+
+
+    return (
+      <div>
+        <h2>{humanize(this.props.baseResource)} {newButton}</h2>
+        <Table responsive striped bordered condensed hover>
+          <thead>
+            <tr>
+              {this.props.columnNames.map(name =>
+                <th key={name} onClick={this.changeSort.bind(this, name)}>{name}</th>
               )}
-              {buttons(row)}
+              {buttonHeader}
             </tr>
-          )}
-        </tbody>
-      </Table>
-    </div>
-  );
+          </thead>
+          <tbody>
+            {displayedRows.map(row =>
+              <tr key={displayedRows.indexOf(row)} onClick={this.selectHandler.bind(this, row)} className={this.selectedStyleHandler(row)}>
+                {this.props.columns.map(col =>
+                  <td key={col}><Linkify>{typeof row[col] === 'object' ? JSON.stringify(row[col]) : row[col]}</Linkify></td>
+                )}
+                {this.buttons(row)}
+              </tr>
+            )}
+          </tbody>
+        </Table>
+      </div>
+    );
+  }
 }
 
 List.propTypes = {

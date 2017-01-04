@@ -114,7 +114,7 @@ export class List extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {data: this.props.data, currentSortColumn: 'id', currentSortOrder: 'desc' };
+    this.state = {data: this.props.data, currentSortColumn: 'id', currentSortOrder: 'asc' };
   }
 
   componentWillReceiveProps(nextProps) {

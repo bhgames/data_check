@@ -114,7 +114,7 @@ export class List extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {data: this.props.data, currentSortColumn: 'id', currentSortOrder: 'asc' };
+    this.state = {data: this.props.data, currentSortColumn: 'id', currentSortOrder: 'desc' };
   }
 
   componentWillReceiveProps(nextProps) {
@@ -179,9 +179,9 @@ export class List extends Component {
 
     if(typeof a[currentSC] == 'number') {
       if(currentSO === 'desc') {
-        return a[currentSC] - b[currentSC]
-      } else {
         return b[currentSC] - a[currentSC]
+      } else {
+        return a[currentSC] - b[currentSC]
       }
     } else if(typeof a[currentSC] === 'string') {
       if(currentSO === 'desc') {

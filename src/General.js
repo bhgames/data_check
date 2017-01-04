@@ -173,21 +173,31 @@ export class List extends Component {
     this.setState({ currentSortColumn: col, currentSortOrder: sort}); 
   }
 
+  rowSorter(a,b) {
+    let currentSO = this.state.currentSortOrder;
+    let currentSC = this.state.currentSortColumn;
+
+    if(typeof a[currentSC] == 'number') {
+      if(currentSO === 'desc') {
+        return a[currentSC] - b[currentSC]
+      } else {
+        return b[currentSC] - a[currentSC]
+      }
+    } else if(typeof a[currentSC] === 'string') {
+      if(currentSO === 'desc') {
+        return String(a[currentSC]).toUpperCase() > String(b[currentSC]).toUpperCase() ? 1 : -1;
+      } else {
+        return String(a[currentSC]).toUpperCase() < String(b[currentSC]).toUpperCase() ? 1 : -1;
+      }
+    } else { return 0 };
+  }
+
   render() {
 
     let rowIds = this.props.data.map((r) => { return r.id });
     let displayedRows = this.props.data.filter((r) => { return !this.props.excludedRowIds || !this.props.excludedRowIds.includes(rowIds[this.props.data.indexOf(r)])});
-    
-    let currentSO = this.state.currentSortOrder;
-    let currentSC = this.state.currentSortColumn;
 
-    displayedRows = displayedRows.sort((a,b) => {
-      if(currentSO === 'desc') {
-        return a[currentSC] > b[currentSC]
-      } else {
-        return a[currentSC] < b[currentSC]
-      }
-    });
+    displayedRows = displayedRows.sort(this.rowSorter.bind(this));
 
     let buttonHeader = <th>Actions</th>;
 

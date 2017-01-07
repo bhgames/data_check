@@ -60,14 +60,15 @@ class Log(Base):
         return { "event": event, "message": message, "metadata": metadata, "time": str(now()) }
 
     
-    def new_error_event(self, failure_msg = None):
+    def new_error_event(self, failure_msg = None, metadata = {}):
 
         failure_msg = "Job Failed at %s" % str(now()) if not failure_msg else failure_msg
-
+        tracebackm = { "traceback": traceback.format_exc() }
+        tracebackm.update(metadata)
         return self.add_log(
                 "failed", 
                 failure_msg, 
-                { "traceback": traceback.format_exc() }
+                tracebackm
             )
 
 

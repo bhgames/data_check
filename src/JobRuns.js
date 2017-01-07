@@ -57,15 +57,17 @@ export function JobRunsListWithData() {
 }
 
 
-function SuccessFailTablePieChart({ totalFail, totalSuccess, labelSuccess, labelFail }) {
+function SuccessFailTablePieChart({ totalFail, totalSuccess, totalException, labelSuccess, labelFail, labelException }) {
   let data = [{label: labelFail, color: '#F7464A', highlight: '#FF5A5E', value: totalFail}, 
-              {label: labelSuccess, color: '#46BFBD', highlight: '#5AD3D1', value: totalSuccess}]
+              {label: labelSuccess, color: '#46BFBD', highlight: '#5AD3D1', value: totalSuccess},
+              {label: labelException, color: '#D3D3D3', highlight: '#D3D3D3', value: totalException}]
   return <Pie data={data}/>
 }
 
 SuccessFailTablePieChart.propTypes = {
   totalFail: React.PropTypes.number.isRequired,
-  totalSuccess: React.PropTypes.number.isRequired
+  totalSuccess: React.PropTypes.number.isRequired,
+  totalException: React.PropTypes.number.isRequired
 }
 
 function ByTypeTablePieChart({ types }) {
@@ -90,6 +92,10 @@ class JobRunsView extends Component {
       start = start.concat(this.getAllChecks(r));
     }
     return start;
+  }
+
+  tableString(metadata) {
+    return metadata.table + "|" + metadata.source_id + "|" + metadata.schema;
   }
 
   render() {
@@ -119,32 +125,48 @@ class JobRunsView extends Component {
 
     let allCheckLogs = jr.all_connected_logs.filter((l) => l.loggable_type === "check");
     let allExceptions = allCheckLogs.map((l) => l.log).reduce((a, b) => a.concat(b), []).filter((l) => l.metadata.traceback);
-    allExceptions = allExceptions.map((l) => l.metadata);
+    let allExceptionsMetadata = allExceptions.map((l) => l.metadata);
     let allCheckLogsWithCheckObj = allCheckLogs.map((l) => [l, allChecks.find((c) => c.id === l.loggable_id)]);
     let allCheckLogsLogDataWithCheckObj = allCheckLogsWithCheckObj.map((lAndC) => [lAndC[0].log, lAndC[1]]);
 
     let allFailedCheckEventsWithCheckObj = allCheckLogsWithCheckObj.map((lAndC) => [lAndC[0].log.filter((logEntry) => logEntry.event === "check_failed"), lAndC[1]]);
     let allSucceededCheckEventsWithCheckObj = allCheckLogsWithCheckObj.map((lAndC) => [lAndC[0].log.filter((logEntry) => logEntry.event === "check_succeeded"), lAndC[1]]);
+    let allExceptionCheckEventsWithCheckObj = allCheckLogsWithCheckObj.map((lAndC) => [lAndC[0].log.filter((logEntry) => logEntry.event === "failed"), lAndC[1]]);
     let allFailedTablesAndChecks = allFailedCheckEventsWithCheckObj.map((lAndC) => [lAndC[0].map((logEntry) => logEntry.metadata), lAndC[1]]);
     let allSucceededTablesAndChecks = allSucceededCheckEventsWithCheckObj.map((lAndC) => [lAndC[0].map((logEntry) => logEntry.metadata), lAndC[1]]);
+    let allExceptionsAndChecks = allExceptionCheckEventsWithCheckObj.map((lAndC) => [lAndC[0].map((logEntry) => logEntry.metadata), lAndC[1]]);
 
     let failedTables = [];
+    let exceptionTables = [];
     let succeededTables = [];
+    let byCheckExceptionTables = {};
+
     let successCheckCount = 0;
     let failedCheckCount = 0;
+    let exceptionCheckCount = 0;
+
     let byTypeFailCount = {};
 
-    allSucceededTablesAndChecks.map((lAndC) => {
+
+    allExceptionsAndChecks.map((lAndC) => {
       let tableMetas = lAndC[0];
 
-      for(let succeededTable of tableMetas) {
-        if(!succeededTables.includes(JSON.stringify(succeededTable))) {
-          succeededTables.push(JSON.stringify(succeededTable));
+      if(!byCheckExceptionTables[lAndC[1].id]) {
+        byCheckExceptionTables[lAndC[1].id] = [];
+      }
+
+      for(let table of tableMetas) {
+        if(!exceptionTables.includes(this.tableString(table))) {
+          exceptionTables.push(this.tableString(table));
         }
 
-        successCheckCount++;
+        // Only count a failed table once per check, but it will retry three times, so use this hash.
+        if(!byCheckExceptionTables[lAndC[1].id].includes(this.tableString(table))) {
+          byCheckExceptionTables[lAndC[1].id].push(this.tableString(table));
+          exceptionCheckCount++; 
+        }
       }
-    })
+    });
 
     let allFailedLogsAndChecks = allFailedTablesAndChecks.map((lAndC) => {
       let tableMetas = lAndC[0];
@@ -153,8 +175,8 @@ class JobRunsView extends Component {
       let arrOfFailedLogs = [];
 
       for(let failedTable of tableMetas) {
-        if(!failedTables.includes(JSON.stringify(failedTable))) {
-          failedTables.push(JSON.stringify(failedTable));
+        if(!failedTables.includes(this.tableString(failedTable)) && !exceptionTables.includes(this.tableString(failedTable))) {
+          failedTables.push(this.tableString(failedTable));
         }
 
         failedCheckCount++;
@@ -165,19 +187,26 @@ class JobRunsView extends Component {
           byTypeFailCount[lAndC[1].check_type] += 1;
         }
 
-        let allTableLogsFromThisCheck = allLogsFromThisCheck.filter((logEntry) => JSON.stringify(logEntry.metadata) === JSON.stringify(failedTable));
+        let allTableLogsFromThisCheck = allLogsFromThisCheck.filter((logEntry) => this.tableString(logEntry.metadata) === this.tableString(failedTable));
         arrOfFailedLogs = arrOfFailedLogs.concat(allTableLogsFromThisCheck);
       }
       return [arrOfFailedLogs, lAndC[1]]
     });
     
-    let succeededTablesMinusFailed = [];
-    for(let table of succeededTables) {
-      if(!failedTables.includes(table)) {
-        succeededTablesMinusFailed.push(table);
-      }
-    }
 
+    allSucceededTablesAndChecks.map((lAndC) => {
+      let tableMetas = lAndC[0];
+
+      for(let succeededTable of tableMetas) {
+        if(!succeededTables.includes(this.tableString(succeededTable)) && !failedTables.includes(this.tableString(succeededTable)) && !exceptionTables.includes(this.tableString(succeededTable))) {
+          succeededTables.push(this.tableString(succeededTable));
+        }
+
+        successCheckCount++;
+      }
+    })
+
+    console.log(allCheckLogsWithCheckObj);
     return (
       <Grid>
         <Row>
@@ -198,11 +227,11 @@ class JobRunsView extends Component {
         <Row>
           <Col md={4} xs={12}>
             <PageHeader><small>Table Stats</small></PageHeader>
-            <SuccessFailTablePieChart totalFail={failedTables.length} totalSuccess={succeededTablesMinusFailed.length} labelSuccess="Tables Succeeded" labelFail="Tables Failed" />
+            <SuccessFailTablePieChart totalFail={failedTables.length} totalSuccess={succeededTables.length} totalException={exceptionTables.length} labelSuccess="Tables Succeeded" labelFail="Tables Failed" labelException="Tables Errored Out" />
           </Col>
           <Col md={4} xs={12}>
             <PageHeader><small>Check Stats</small></PageHeader>
-            <SuccessFailTablePieChart totalFail={failedCheckCount} totalSuccess={successCheckCount} labelSuccess="Checks Succeeded" labelFail="Checks Failed" />
+            <SuccessFailTablePieChart totalFail={failedCheckCount} totalSuccess={successCheckCount} totalException={exceptionCheckCount} labelSuccess="Checks Succeeded" labelFail="Checks Failed" labelException="Checks Errored Out" />
           </Col>
           <Col md={4} xs={12}>
             <PageHeader><small>Failures by Check Type</small></PageHeader>
@@ -241,7 +270,7 @@ class JobRunsView extends Component {
           <PageHeader><small>All Exceptions</small></PageHeader>
             <Accordion>
               <Panel header='Exceptions'>
-                <List columnNames={['Exception']} columns={['traceback']} buttonMask={[1,1,1]} baseResource="exceptions" deleteDataItem={noop} data={allExceptions} />
+                <List columnNames={['Exception']} columns={['traceback']} buttonMask={[1,1,1]} baseResource="exceptions" deleteDataItem={noop} data={allExceptionsMetadata} />
               </Panel>
             </Accordion>
           </Col>

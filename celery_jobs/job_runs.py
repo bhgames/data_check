@@ -114,7 +114,8 @@ def run_check(source_id, table_name_string, check_id, job_run_id):
         check.run(job_run, source, table_name_string)
     except Exception as exc:
         if(run_check.request.retries == 3):
-            job_run.set_failed()
+            if not job_run.job_template.ignore_system_failures:
+                job_run.set_failed()
             db_session.commit()
         else:
             raise run_check.retry(exc=exc, countdown=60*run_check.request.retries)

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
-import { Button } from 'react-bootstrap';
+import { Button, Checkbox } from 'react-bootstrap';
 import { RulesList } from './Rules';
 import { DataSourcesList } from './DataSources';
 import { WithData, List, ResourceForm, HasManyAssociationFormElement, SingleFieldElement } from './General';
@@ -85,6 +85,12 @@ class JobTemplateForm extends Component {
     this.setState(newState);
   }
 
+  handleMetadataCheckboxToggle(type) {
+    let newState = { };
+    newState[type] = !this.state[type];
+    this.setState(newState);
+  }
+
   handleAssocChange(stateKey, newList) {
     let newState = {};
     newState[stateKey] = newList;
@@ -111,6 +117,12 @@ class JobTemplateForm extends Component {
           onChange={this.handleChange.bind(this, "parallelization")}
           placeholder={"Enter Number of Threads to Use"}
           />
+
+        <Checkbox 
+          checked={this.state.ignore_system_failures} 
+          label="Ignore any system-related exception thrown by checks?" 
+          onChange={this.handleMetadataCheckboxToggle.bind(this, "ignore_system_failures")}>
+        Ignore System Failures </Checkbox>
 
         <HasManyAssociationFormElement 
           baseResource="rules" 

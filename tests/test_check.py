@@ -10,7 +10,7 @@ class TestCheck(BaseTest):
 
     def assert_event(self, job_run_status, event_type, event_index, table='test.test_uniqueness_success'):
         c = Check(check_type=CheckType.uniqueness, check_metadata={'column': 'id'})
-        j = JobRun(status=job_run_status, scheduled_at=now())
+        j = JobRun(status=job_run_status, scheduled_at=now(), job_template=JobTemplate())
         d = self.dummy_datasource()
         
         self.s.add_all([c, j, d])

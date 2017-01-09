@@ -118,6 +118,7 @@ class JobTemplateSchema(Schema):
     rules = fields.Nested(RuleSchema(), many=True)
     checks = fields.Nested(CheckSchema(), many=True)
     data_sources = fields.Nested(DataSourceSchema(), many=True)
+    ignore_system_failures = fields.Bool()
 
     class Meta:
         additional = ()
@@ -138,7 +139,8 @@ class JobTemplateSchema(Schema):
             "parallelization": 1,
             "rules": [],
             "data_sources": [],
-            "checks": []
+            "checks": [],
+            "ignore_system_failures": False
         }
 
 

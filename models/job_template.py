@@ -35,6 +35,7 @@ class JobTemplate(Base):
     updated_at = Column(DateTime, nullable=True)
     log_level = Column(Enum(LogLevel), nullable=False, default=LogLevel.status_only)
     name = Column(String, nullable=False)
+    ignore_system_failures = Column(Boolean, default=False, nullable=False)
     parallelization = Column(Integer, default=1, nullable=False)
 
     # RO copy is created whenever a JobRun creates, used for holding meta info about it's template even if template changes.

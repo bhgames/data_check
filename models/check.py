@@ -90,7 +90,7 @@ class Check(Base, HasLogs):
                 log.add_log("finished", "Check Ended", metadata["log_metadata"])
         except Exception as e:
             print str(sys.exc_info())
-            log.new_error_event()
+            log.new_error_event("Check Failed due to Error", metadata["log_metadata"])
             db_session.commit()
             raise
 

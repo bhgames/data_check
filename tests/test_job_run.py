@@ -12,7 +12,27 @@ db_session = models.helpers.base.db_session
 
 class TestJobRun(BaseTest):
 
+    @classmethod
+    def sql(cls, type):
+        return """
 
+                CREATE TABLE test.test_uniqueness_fail (                            
+                   id INT                                                            
+                );
+
+
+                insert into test.test_uniqueness_fail(id) values
+                  (1), (2), (1);
+
+                CREATE TABLE test.test_uniqueness_success (                            
+                   id INT                                                               
+                 );
+
+                insert into test.test_uniqueness_success(id) values
+                  (1), (2);
+
+            """
+    
     def create_and_run_no_rules(func):
 
         @wraps(func) # Wraps required for nosetests to see these wrapped tests, dunno why.

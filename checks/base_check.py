@@ -1,4 +1,5 @@
 from connections.impala_connection import ImpalaConnection
+from connections.postgres_connection import PostgresConnection
 import pandas as pd
 from impala.util import as_pandas
 import pandas as pd
@@ -14,10 +15,13 @@ class BaseCheck(object):
         self.table = opts["table"]
         self.schema = opts["schema"]
         self.config = opts["config"]
+
+        if self.config['data_source_type'] not in self.__class__.valid_connections():
+            raise ValueError("Unsupported DataSource for Check: {}".format(self.config['data_source_type']))
+
         self.log_metadata = opts["log_metadata"] if "log_metadata" in opts else {}
         self.log = opts["log"] if "log" in opts else None
         self.failed = False
-        self.failed_rows_query = None
 
         column = opts["column"] if "column" in opts else None
         expression = opts["expression"] if "expression" in opts else None
@@ -59,7 +63,9 @@ class BaseCheck(object):
 
 
     def run(self):
-        with ImpalaConnection(self.config["host"], self.config["port"], self.config["user"], self.config["password"]) as db:
+        connection = eval(self.config["data_source_type"].title() + "Connection")
+
+        with connection(**self.config) as db:
             self.inner_run(db)
             if self.failed:
                 self.add_log("check_failed", "Check fails")
@@ -69,17 +75,38 @@ class BaseCheck(object):
             self.add_results_csv_to_s3()
 
 
-    def inner_run(db):
-        raise ValueError('Implement me!')
+    def inner_run(self, db):
+        cur = db.cursor()
+
+        query = self.collection_query(self.config['data_source_type']);
+
+        self.add_log("collection", "Run query %s" % (query))
+
+        cur.execute(query)
+
+        row = cur.fetchone()
+
+        self.add_log("result", "Query came back with count %s" %(row[0]))
+
+        self.failed = row[0] > 0
+
+
+    def collection_query(self, type):
+        raise ValueError("Implement a collection_query method for your check!")
+
+
+    def failed_rows_query(self, type):
+        return None
 
 
     def run_failed_rows_query(self, db):
         cur = db.cursor()
 
-        if self.failed and os.path.isfile('config/aws.yml') and self.failed_rows_query:
-            self.add_log("collection", "Collect failed rows with query %s" % self.failed_rows_query)
+        frq = self.failed_rows_query(self.config['data_source_type'])
+        if self.failed and os.path.isfile('config/aws.yml') and frq:
+            self.add_log("collection", "Collect failed rows with query %s" % frq)
 
-            cur.execute(self.failed_rows_query)
+            cur.execute(frq)
 
             self.failed_rows = as_pandas(cur)
 

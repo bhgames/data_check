@@ -4,22 +4,20 @@ from checks.base_check import BaseCheck
 
 class NullCheck(BaseCheck):
 
-    def inner_run(self, db):
-        cur = db.cursor()
-        query = """
-            select count(*) from `%(schema)s`.`%(table)s` where `%(col)s` is null
-        """ % self.query_settings
+    @classmethod
+    def valid_connections(cls):
+        return ["impala", "postgres"]
 
-        self.add_log("collection", "Run query %s" % (query))
 
-        cur.execute(query)
+    def collection_query(self, type):
+        return {
+            'postgres': 'select count(*) from "%(schema)s"."%(table)s" where "%(col)s" is null' % self.query_settings,
+            'impala': 'select count(*) from `%(schema)s`.`%(table)s` where `%(col)s` is null' % self.query_settings
+        }[type]
 
-        row = cur.fetchone()
 
-        self.add_log("result", "Query came back with count %s" %(row[0]))
-
-        self.failed = row[0] > 0
-
-        self.failed_rows_query = """
-                select * from `%(schema)s`.`%(table)s` where `%(col)s` is null limit 10000
-            """ % self.query_settings
+    def failed_rows_query(self, type):
+        return {
+            'postgres': 'select * from "%(schema)s"."%(table)s" where "%(col)s" is null limit 10000' % self.query_settings,
+            'impala': 'select * from `%(schema)s`.`%(table)s` where `%(col)s` is null limit 10000' % self.query_settings
+        }[type]

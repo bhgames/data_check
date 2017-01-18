@@ -8,11 +8,15 @@ from functools import wraps
 now = datetime.datetime.now
 import models.helpers.base
 
+
 db_session = models.helpers.base.db_session
 
 class TestJobTemplate(BaseTest):
 
-
+    @classmethod
+    def sql(cls, type):
+        return ""
+    
     def jt_clone(func):
 
         @wraps(func) # Wraps required for nosetests to see these wrapped tests, dunno why.

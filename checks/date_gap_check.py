@@ -3,24 +3,37 @@ from checks.base_check import BaseCheck
 
 class DateGapCheck(BaseCheck):
 
-    def inner_run(self, db):
-        cur = db.cursor()
+    @classmethod
+    def valid_connections(cls):
+        return ["impala", "postgres"]
 
-        query = """
-            select count(*) from (select abs(datediff(lead(cast(`%(col)s` as timestamp), 1) over (order by cast(`%(col)s` as timestamp)), cast(`%(col)s` as timestamp))) as diff, `%(col)s` from `%(schema)s`.`%(table)s`) t where diff > 1
-        """ % self.query_settings
+    def collection_query(self, type):
+        return {
+            'postgres': """
+                select count(*) from (
+                    select lead(cast("%(col)s" as timestamp), 1) over (order by cast("%(col)s" as timestamp)) - cast("%(col)s" as timestamp) as diff, "%(col)s" from "%(schema)s"."%(table)s"
+                ) t where diff > interval '1 day'
+            """ % self.query_settings,
+            'impala': """
+                select count(*) from (
+                    select abs(datediff(lead(cast(`%(col)s` as timestamp), 1) over (order by cast(`%(col)s` as timestamp)), 
+                    cast(`%(col)s` as timestamp))) as diff, `%(col)s` from `%(schema)s`.`%(table)s`
+                ) t where diff > 1
+            """ % self.query_settings
+        }[type]
 
-        self.add_log("collection", "Run query %s" % (query))
-        
-        cur.execute(query)
 
-        row = cur.fetchone()
-
-        self.add_log("result", "Query came back with count %s" %(row[0]))
-
-        self.failed = row[0] > 0
-
-        self.failed_rows_query = """
+    def failed_rows_query(self, type):
+        return {
+            'postgres': """
+                select gap_start, gap_end from (
+                    select "%(col)s" as gap_start, cast("%(col)s" as timestamp) + diff as gap_end from 
+                        (
+                            select lead(cast("%(col)s" as timestamp), 1) over (order by cast("%(col)s" as timestamp)) - cast("%(col)s" as timestamp) as diff, "%(col)s" from "%(schema)s"."%(table)s") t where diff > interval '1 day' limit 10000
+                        ) t2
+                    where gap_end is not null
+            """ % self.query_settings,
+            'impala': """
                 select gap_start, gap_end from (
                     select `%(col)s` as gap_start, cast(`%(col)s` as timestamp) + interval diff days as gap_end from 
                         (
@@ -28,3 +41,4 @@ class DateGapCheck(BaseCheck):
                         ) t2
                     where gap_end is not null
             """ % self.query_settings
+        }[type]

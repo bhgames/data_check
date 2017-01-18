@@ -2,13 +2,6 @@ from connections.base_connection import BaseConnection
 from impala.dbapi import connect
 import os
 class ImpalaConnection(BaseConnection):
-    def __init__(self, host, port, user, password):
-        self.host = host
-        self.port = int(port)
-        self.user = user
-        self.password = password
-        self.__enter__()
-
     def __enter__(self):
         use_ssl = os.environ['DCHK_ENV'] == 'production'
         kwargs = {
@@ -25,21 +18,6 @@ class ImpalaConnection(BaseConnection):
         self.db = connect(**kwargs)
         
         return self
-
-    def __exit__(self, type, value, traceback):
-        self.db.close()
-
-
-    def close(self):
-        self.db.close()
-
-
-    def cursor(self):
-        return self.db.cursor()
-
-
-    def commit(self):
-        return self.db.commit()
 
 
     def tables(self, schemas):
@@ -73,11 +51,3 @@ class ImpalaConnection(BaseConnection):
                 return True 
 
         return False
-
-
-    def count(self, table):
-        cur = self.cursor()
-
-        cur.execute("select count(*) from {}".format(table))
-
-        return cur.fetchone()[0]

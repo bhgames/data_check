@@ -9,7 +9,38 @@ now = datetime.datetime.now
 
 
 class TestRule(BaseTest):
+    @classmethod
+    def sql(cls, type):
+        return """
+             CREATE TABLE test.test_uniqueness_fail (                            
+               id INT                                                            
+             );
 
+
+            insert into test.test_uniqueness_fail(id) values
+              (1), (2), (1);
+
+            CREATE TABLE test.test_uniqueness_success (                            
+               id INT                                                               
+             );
+
+            insert into test.test_uniqueness_success(id) values
+              (1), (2);
+
+            CREATE TABLE test.test_date_gap_success (                            
+               updated_at TIMESTAMP                                               
+             );
+
+
+            insert into test.test_date_gap_success(updated_at) values
+              ('2015-01-02 00:00:00'),
+              ('2015-01-04 00:00:00'),
+              ('2015-01-03 00:00:00'),
+              ('2015-01-02 00:00:00'),
+              ('2015-01-01 00:00:00');
+
+        """
+    
 
     def dummy_rule(func):
 
@@ -133,8 +164,7 @@ class TestRule(BaseTest):
     @dummy_rule
     def test_rule_runs_returns_proper_number_of_checks(self, r, d, jr):
         checks_to_run = self.run_rule(r,d, jr)
-        # Only tables with id present(the rule in dummy rule) are the uniqueness fail/succ tables, null check tables, and id gap tabl and fk table.
-        self.assertEqual(20, len(checks_to_run))
+        self.assertEqual(2, len(checks_to_run))
 
 
     @dummy_rule

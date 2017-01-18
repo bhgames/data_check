@@ -7,12 +7,17 @@ class ForeignKeyCheck(BaseCheck):
     def __init__(self, opts = {}):
         super(ForeignKeyCheck, self).__init__(opts)
 
+        self.failed_row_unions = []
+
         for val in ["singularize", "pluralize"]:
             self.query_settings[val] = val in opts and opts[val] == True
         
         self.query_settings["fk_col_pattern"] = opts["fk_col_pattern"]
         self.query_settings["fk_table_id_pattern"] = opts["fk_table_id_pattern"]
 
+    @classmethod
+    def valid_connections(cls):
+        return ["impala", "postgres"]
 
     def mutate_fk_table(self, fk_table):
         if(self.query_settings["singularize"]):
@@ -23,6 +28,17 @@ class ForeignKeyCheck(BaseCheck):
 
         return fk_table
 
+    def collection_query(self, type):
+        return {
+                'impala': """
+                    `%(schema)s`.`%(table)s` left anti join `%(schema)s`.`%(fk_table)s` on `%(table)s`.`%(col)s` = `%(fk_table)s`.`%(fk_table_id)s` where `%(table)s`.`%(col)s` is not null
+                """ % self.query_settings,
+                'postgres': """
+                    "%(schema)s"."%(table)s" left join "%(schema)s"."%(fk_table)s" on "%(table)s"."%(col)s" = "%(fk_table)s"."%(fk_table_id)s" where "%(table)s"."%(col)s" is not null and "%(fk_table)s"."%(fk_table_id)s" is null
+                """ % self.query_settings
+            }[type]
+
+
     def inner_run(self, db):
         cur = db.cursor()
         tables = db.tables([self.schema])
@@ -30,8 +46,6 @@ class ForeignKeyCheck(BaseCheck):
         fk_table_id_pattern = re.compile(self.query_settings["fk_table_id_pattern"])
 
         col_matching = filter(lambda col: re.search(fk_col_pattern, col), db.columns("{}.{}".format(self.schema, self.table)))
-
-        failed_row_unions = []
 
         if len(col_matching) == 0:
             self.add_log("warning", "No columns matching {} found on table {}".format(self.query_settings["fk_col_pattern"], self.table))
@@ -68,12 +82,16 @@ class ForeignKeyCheck(BaseCheck):
             self.query_settings["fk_table"] = fk_table
             self.query_settings["col"] = col
 
-            subquery = """
-                %(schema)s.%(table)s left anti join %(schema)s.%(fk_table)s on %(table)s.%(col)s = %(fk_table)s.%(fk_table_id)s where %(table)s.%(col)s is not null
-            """ % self.query_settings
+            subquery = self.collection_query(self.config['data_source_type'])
 
             query = "select count(*) from " + subquery
-            failed_row_unions.append("select * from {}".format(subquery))
+
+            failed_row_qry = ("select `%(schema)s`.`%(table)s`.* from {}" % self.query_settings).format(subquery)
+
+            if self.config['data_source_type'] == 'postgres':
+                failed_row_qry = failed_row_qry.replace("`", '"')
+
+            self.failed_row_unions.append(failed_row_qry)
 
             self.add_log("collection", "Run query %s" % (query))
         
@@ -88,8 +106,15 @@ class ForeignKeyCheck(BaseCheck):
 
             if fail:
                 self.failed = True
-        
-        if len(failed_row_unions) > 0:
-            self.failed_rows_query = """
-                    select  * from ({}) t
-                """.format(" union ".join(failed_row_unions))
+
+
+    def failed_rows_query(self, type):
+        if len(self.failed_row_unions) > 0:
+            qry =  """
+                    select * from ({}) t
+                """.format(" union ".join(self.failed_row_unions))
+
+
+            return qry
+
+

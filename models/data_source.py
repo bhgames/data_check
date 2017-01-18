@@ -10,6 +10,7 @@ from models.helpers.timestamps_triggers import timestamps_triggers
 import enum
 import re
 from connections.impala_connection import ImpalaConnection
+from connections.postgres_connection import PostgresConnection
 
 ValidIpAddressRegex = r"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$"
 
@@ -19,6 +20,7 @@ Base = models.helpers.base.Base
 
 class DataSourceType(enum.Enum):
     impala = "impala"
+    postgres = "postgres"
 
 class DataSource(Base):
     __tablename__ = 'data_source'
@@ -30,6 +32,7 @@ class DataSource(Base):
     port = Column(String, nullable=False)
     user = Column(String, nullable=True)
     password = Column(String, nullable=True)
+    dbname = Column(String, nullable=True)
     schemas = Column(ARRAY(String), nullable=True)
 
     # See JobTemplate for explanation
@@ -66,11 +69,14 @@ class DataSource(Base):
             "host": self.host,
             "port": self.port,
             "user": self.user,
-            "password": self.password
+            "password": self.password,
+            "dbname": self.dbname,
+            "data_source_type": self.data_source_type.value
         }
 
     def open_connection(self):
-        self.db = ImpalaConnection(self.host, self.port, self.user, self.password)
+        klazz = eval(self.config()['data_source_type'].title() + "Connection")
+        self.db = klazz(**self.config())
 
     def close_connection(self):
         self.db.close()

@@ -80,6 +80,7 @@ class DataSourceForm extends Component {
           <ControlLabel>Data Source Type</ControlLabel>
           <FormControl componentClass="select" value={this.state.data_source_type} onChange={this.handleChange.bind(this, "data_source_type")}>
             <option value="DataSourceType.impala">Impala</option>
+            <option value="DataSourceType.postgres">Postgres</option>
           </FormControl>
         </FormGroup>
 
@@ -113,6 +114,15 @@ class DataSourceForm extends Component {
           controlId="password"
           onChange={this.handleChange.bind(this, "password")}
           placeholder={"Enter Password"}
+          />
+
+
+        <SingleFieldElement 
+          label="DBName"
+          value={this.state.dbname}
+          controlId="dbname"
+          onChange={this.handleChange.bind(this, "dbname")}
+          placeholder={"Enter DBName(If relevant)"}
           />
 
 

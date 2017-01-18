@@ -8,7 +8,28 @@ now = datetime.datetime.now
 
 
 class TestCheck(BaseTest):
+    @classmethod
+    def sql(cls, type):
+        return """
 
+             CREATE TABLE test.test_uniqueness_fail (                            
+               id INT                                                            
+             );
+
+
+            insert into test.test_uniqueness_fail(id) values
+              (1), (2), (1);
+
+            CREATE TABLE test.test_uniqueness_success (                            
+               id INT                                                               
+             );
+
+            insert into test.test_uniqueness_success(id) values
+              (1), (2);
+
+            """
+    
+    
     def assert_event(self, job_run_status, event_type, event_index, table='test.test_uniqueness_success'):
         c = Check(check_type=CheckType.uniqueness, check_metadata={'column': 'id'})
         j = JobRun(status=job_run_status, scheduled_at=now(), job_template=JobTemplate(name="bob"))

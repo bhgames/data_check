@@ -8,9 +8,23 @@ import requests
 import os
 
 class TestS3(BaseTest):
+    @classmethod
+    def sql(cls, type):
+        return """
+
+            CREATE TABLE test.test_id_gap (                            
+               id INT                                                   
+             );
+
+            insert into test.test_id_gap(id) values
+              (1), (5);
+
+
+        """
+
 
     def test_s3_store_on_failure(self):
-        u = IdGapCheck({"table": "test_id_gap", "schema": "test", "column": "id", "threshold": "3", "config": self.config()})
+        u = IdGapCheck({"table": "test_id_gap", "schema": "test", "column": "id", "threshold": "3", "config": self.config('postgres')})
         u.run()
 
         uri = u.failed_row_s3_uri
@@ -22,7 +36,7 @@ class TestS3(BaseTest):
 
 
     def test_s3_nonstore_on_success(self):
-        u = IdGapCheck({"table": "test_id_gap", "schema": "test", "column": "id", "threshold": "30", "config": self.config()})
+        u = IdGapCheck({"table": "test_id_gap", "schema": "test", "column": "id", "threshold": "30", "config": self.config('impala')})
         u.run()
         self.assertFalse(hasattr(u, 'failed_row_s3_uri'))
 

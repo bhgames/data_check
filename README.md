@@ -157,6 +157,10 @@ opening ports or similar) so impala can talk.
 You'll also need to follow Impala installation instructions for a MapR cluster(Google Install Mapr Impala and follow the instructions)
 and have impala running on your dev node.
 
+You'll also need to create a postgres database on your local machine for Postgres-based connection testing:
+
+`createdb test`
+
 ## Migrating the Database
 
 Updating the database is easy, thanks to Flask-Migrate and Alembic.

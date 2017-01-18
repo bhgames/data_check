@@ -85,6 +85,7 @@ class DataSourceSchema(Schema):
     user = fields.Str()
     password = fields.Str()
     schemas = fields.List(fields.String)
+    dbname = fields.Str()
     data_source_type = fields.Str()
 
     class Meta:
@@ -107,6 +108,7 @@ class DataSourceSchema(Schema):
             "user": '',
             "password": '',
             "schemas": [],
+            "dbname": '',
             "data_source_type": "DataSourceType.impala"
         }
 

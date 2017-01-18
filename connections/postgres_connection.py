@@ -12,7 +12,7 @@ class PostgresConnection(BaseConnection):
         }
 
         if(os.environ['DCHK_ENV'] == 'production'):
-            kwargs['sslmode'] = True
+            kwargs['sslmode'] = 'require'
 
         self.db = connect(**kwargs)
         

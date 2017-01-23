@@ -55,8 +55,12 @@
 ## Introduction
 
 DataCheck is an open sourced data quality tool for the Hadoop ecosystem. It is
-built to be extensible and while it currently supports only Impala connections,
-a future TODO is to add Spark 1.6 and 2 support.
+built to be extensible. Connection support:
+
+* Impala
+* Postgres
+
+(a future TODO is to add Presto support.)
 
 It currently supports:
 * Job Template Creation
@@ -141,8 +145,7 @@ add them:
 
 * Statistical Sampling
 * LogLevels
-* Spark 1.6 support
-* Spark 2 support
+* Presto Support
 * Accept AWS Pubsub for failure notifications
 * Encrypt passwords stored for data sources and don't display them
 * Use DockerCompose to create development and production setups
